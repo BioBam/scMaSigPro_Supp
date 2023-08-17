@@ -1,0 +1,88 @@
+# Use rocker/rstudio as the base image
+FROM rocker/rstudio:4
+
+# Maintainer
+MAINTAINER Priyansh Srivastava <spriyansh29@gmail.com>
+
+# Install Required OS libs
+RUN apt-get update && apt-get install -y \
+    libxml2-dev \
+    libpng-dev \
+    gdal-bin \
+    libgdal-dev \
+    libfontconfig1-dev \
+    libudunits2-dev \
+    libharfbuzz-dev \
+    libfribidi-dev \
+    libglpk40 \
+    texlive \
+    texlive-latex-extra \
+    texlive-fonts-recommended \
+    libxt6 \
+    libcairo2-dev \
+    patch \
+    libgeos-dev \
+    libxt-dev \
+    cmake \
+    libgsl-dev \
+    build-essential \
+    libfftw3-dev
+
+# Installation in batches to avoid error-code 137
+RUN Rscript -e 'install.packages("tidyverse", repos = "https://cloud.r-project.org/", dependencies = TRUE, Ncpus = 4, quiet = TRUE)'
+RUN Rscript -e 'install.packages("BiocManager", repos = "https://cloud.r-project.org/", dependencies = TRUE, Ncpus = 4, quiet = TRUE)' 
+RUN Rscript -e 'install.packages("metap", repos = "https://cloud.r-project.org/", dependencies = TRUE, Ncpus = 4, quiet = TRUE)' 
+RUN Rscript -e "BiocManager::install('qvalue', update = TRUE, ask = FALSE, Ncpus = 4)"
+RUN Rscript -e "BiocManager::install('multtest', update = TRUE, ask = FALSE, Ncpus = 4)"
+RUN Rscript -e "BiocManager::install('BiocGenerics', update = TRUE, ask = FALSE, Ncpus = 4)"
+RUN Rscript -e 'install.packages("intergraph", repos = "https://cloud.r-project.org/", dependencies = TRUE, Ncpus = 4, quiet = TRUE)'
+RUN Rscript -e 'install.packages("spdep", repos = "https://cloud.r-project.org/", dependencies = TRUE, Ncpus = 4, quiet = TRUE)' 
+RUN Rscript -e 'install.packages("eHOF", repos = "https://cloud.r-project.org/", dependencies = TRUE, Ncpus = 4, quiet = TRUE)'
+RUN Rscript -e 'install.packages("devtools", repos = "https://cloud.r-project.org/", dependencies = TRUE, Ncpus = 4, quiet = TRUE)'
+RUN Rscript -e 'install.packages("doParallel", repos = "https://cloud.r-project.org/", dependencies = TRUE, Ncpus = 4, quiet = TRUE)'
+RUN Rscript -e 'install.packages("MatrixExtra", repos = "https://cloud.r-project.org/", dependencies = TRUE, Ncpus = 4, quiet = TRUE)'
+RUN Rscript -e 'install.packages("Seurat", repos = "https://cloud.r-project.org/", dependencies = TRUE, Ncpus = 4, quiet = TRUE)'
+RUN Rscript -e 'install.packages("ggpubr", repos = "https://cloud.r-project.org/", dependencies = TRUE, Ncpus = 4, quiet = TRUE)'
+RUN Rscript -e 'install.packages("ggrastr", repos = "https://cloud.r-project.org/", dependencies = TRUE, Ncpus = 4, quiet = TRUE)'
+RUN Rscript -e 'install.packages("Cairo", repos = "https://cloud.r-project.org/", dependencies = TRUE, Ncpus = 4, quiet = TRUE)'
+RUN Rscript -e 'install.packages("cellranger", repos = "https://cloud.r-project.org/", dependencies = TRUE, Ncpus = 4, quiet = TRUE)'
+RUN Rscript -e 'install.packages("mutoss", repos = "https://cloud.r-project.org/", dependencies = TRUE, Ncpus = 4, quiet = TRUE)'
+RUN Rscript -e 'install.packages("rvest", repos = "https://cloud.r-project.org/", dependencies = TRUE, Ncpus = 4, quiet = TRUE)'
+RUN Rscript -e 'install.packages("xml2", repos = "https://cloud.r-project.org/", dependencies = TRUE, Ncpus = 4, quiet = TRUE)'
+RUN Rscript -e 'install.packages("lava", repos = "https://cloud.r-project.org/", dependencies = TRUE, Ncpus = 4, quiet = TRUE)'
+RUN Rscript -e 'install.packages("qqconf", repos = "https://cloud.r-project.org/", dependencies = TRUE, Ncpus = 4, quiet = TRUE)'
+RUN Rscript -e 'install.packages("revealjs", repos = "https://cloud.r-project.org/", dependencies = TRUE, Ncpus = 4, quiet = TRUE)'
+
+# BioConductor
+RUN Rscript -e "BiocManager::install('DelayedArray', update = TRUE, ask = FALSE, Ncpus = 4)"
+RUN Rscript -e "BiocManager::install('DelayedMatrixStats', update = TRUE, ask = FALSE, Ncpus = 4)"
+RUN Rscript -e "BiocManager::install('limma', update = TRUE, ask = FALSE, Ncpus = 4)"
+RUN Rscript -e "BiocManager::install('S4Vectors', update = TRUE, ask = FALSE, Ncpus = 4)"
+RUN Rscript -e "BiocManager::install('SingleCellExperiment', update = TRUE, ask = FALSE, Ncpus = 4)"
+RUN Rscript -e "BiocManager::install('SummarizedExperiment', update = TRUE, ask = FALSE, Ncpus = 4)"
+RUN Rscript -e "BiocManager::install('batchelor', update = TRUE, ask = FALSE, Ncpus = 4)"
+RUN Rscript -e "BiocManager::install('Matrix.utils', update = TRUE, ask = FALSE, Ncpus = 4)"
+RUN Rscript -e "BiocManager::install('rhdf5', update = TRUE, ask = FALSE, Ncpus = 4)"
+RUN Rscript -e "BiocManager::install('HDF5Array', update = TRUE, ask = FALSE, Ncpus = 4)"
+RUN Rscript -e "BiocManager::install('slingshot', update = TRUE, ask = FALSE, Ncpus = 4)"
+RUN Rscript -e "BiocManager::install('tradeSeq', update = TRUE, ask = FALSE, Ncpus = 4)"
+RUN Rscript -e "BiocManager::install('scater', update = TRUE, ask = FALSE, Ncpus = 4)"
+RUN Rscript -e "BiocManager::install('glmGamPoi', update = TRUE, ask = FALSE, Ncpus = 4)"
+RUN Rscript -e "BiocManager::install('dyngen', update = TRUE, ask = FALSE, Ncpus = 4)"
+RUN Rscript -e "BiocManager::install('splatter', update = TRUE, ask = FALSE, Ncpus = 4)"
+RUN Rscript -e "BiocManager::install('DESeq2', update = TRUE, ask = FALSE, Ncpus = 4)"
+
+# Github
+RUN Rscript -e 'remotes::install_github("rspatial/terra")'
+RUN Rscript -e 'devtools::install_github("cole-trapnell-lab/leidenbase")'
+RUN Rscript -e 'devtools::install_github("cole-trapnell-lab/monocle3")'
+RUN Rscript -e 'devtools::install_github("mojaveazure/seurat-disk")'
+RUN Rscript -e 'devtools::install_github("ConesaLab/RColorConesa")'
+
+# Monocle3 Compatible Version of igraph
+RUN Rscript -e 'options(repos = c(CRAN = "https://cloud.r-project.org")); remotes::install_version("igraph", version = "1.4.3", force = TRUE)'
+
+# Expose port 8787 (RStudio runs on this port)
+EXPOSE 8787
+
+CMD ["/init"]
