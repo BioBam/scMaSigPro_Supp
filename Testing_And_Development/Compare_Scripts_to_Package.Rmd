@@ -21,15 +21,15 @@ library(SingleCellExperiment)
 
 ## Load Custom Functions
 ```{r,  "Load Custom Function"}
-source("../old_Scripts/entropy_discretize.R")
-source("../old_Scripts/make_bulk_design.R")
-source("../old_Scripts/make_bulk_counts.R")
-source("../old_Scripts/create_range.R")
+source("../R_Scripts/helper_function/entropy_discretize.R")
+source("../R_Scripts/helper_function/make_bulk_design.R")
+source("../R_Scripts/helper_function/make_bulk_counts.R")
+source("../R_Scripts/helper_function/create_range.R")
 ```
 
 ## Load the dataset to analyze
 ```{r, "Load Data", message=FALSE, warning=FALSE}
-sim.sce <- readRDS("../supp/01_varying_sparsity/data/input/sceObjects/zi_mid_10_mid_0_shape_-1.25.RDS")
+load("../benchmarks/01_Sparsity/data/simulated/sce/")
 ```
 
 ## Extract ColData or Raw Counts
