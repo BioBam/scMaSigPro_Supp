@@ -6,27 +6,29 @@
 suppressPackageStartupMessages(library(SingleCellExperiment))
 suppressPackageStartupMessages(library(tradeSeq))
 suppressPackageStartupMessages(library(gtools))
-source("old_Scripts/calcNormCounts.R")
 
-# Set Paths relative to project
-inPath <- "supp/05_Comparison_with_TradeSeq/data/input/"
-outPath <- "supp/05_Comparison_with_TradeSeq/data/output/"
+# Set paths
+dirPath <- "benchmarks/05_ComparisonWithTradeSeq/data/input/"
+resPath <- "benchmarks/05_ComparisonWithTradeSeq/data/output/"
+helpScriptsDir <- "R_Scripts/helper_function/"
+
+# Load custom function 
+source(paste0(helpScriptsDir, "calcNormCounts.R"))
 
 # ReadData
-sce.obj <- readRDS(paste0(inPath,
-                          "sceObjects/zi_mid_60_mid_0_shape_0.25.RDS"))
+load(paste0(dirPath,"sparsity_60.RData"))
 
-# Extract normalized counts
-counts <- as.matrix(sce.obj@assays@data@listData$counts)
+# Extract raw counts
+counts <- as.matrix(sim.sce@assays@data@listData$counts)
 
 # Perform Quantile Normalization as per-tradeSeq paper
 normCounts <- calcNormCounts(counts, cat = "FQNorm")
 
 # Extract Cell_metadata
-cell_metadata <- as.data.frame(colData(sce.obj))
+cell_metadata <- as.data.frame(colData(sim.sce))
 
 # Extract Gene_metadata
-gene_metadata <- as.data.frame(rowData(sce.obj))
+gene_metadata <- as.data.frame(rowData(sim.sce))
 
 # Prepare Input
 pseudotime_table <- cell_metadata[, c("Cell", "Step", "Group")]
@@ -43,10 +45,11 @@ lineage_table$Lineage2 <- ifelse(lineage_table$Group == "Path2", 1,0)
 lineage_table <- lineage_table[, c("Lineage1", "Lineage2")]
 
 # Evaluate K
-# icMat <- evaluateK(counts = normCounts, 
+# Choosing lowest AIC i.e. 3
+# icMat <- evaluateK(counts = normCounts,
 #                    pseudotime = pseudotime_table,
 #                    cellWeights = lineage_table,
-#                    k = 3:6, 
+#                    k = 3:6,
 #                    nGenes = 200, verbose = T)
 
 # Fit GAM
@@ -57,21 +60,19 @@ sce.tradeseq <- fitGAM(counts = normCounts,
                        nknots = 4, verbose = FALSE)
 
 # Save Fitted GAM
-outPath2 <- paste0(outPath, "tradSeqResults")
-dir.create(
-    outPath2,
-    showWarnings = F, recursive = T
-)
-saveRDS(sce.tradeseq, paste0(outPath2,"/fitGam_ZI_60.RDS"))
+save(sce.tradeseq, file = paste0(resPath,"fitGam_ZI_60.RData"))
 
 # Run Different Test
 patternRes <- patternTest(sce.tradeseq)
 earlyRes <- earlyDETest(sce.tradeseq)
 diffEndRes <- diffEndTest(sce.tradeseq)
-saveRDS(list(patternRes = patternRes,
-             associationRes = earlyRes,
-             diffEndRes = diffEndRes),
-        paste0(outPath2, "/AdditionalTest_ZI_60.RDS"))
+
+# Save All Objects as list
+additionalTest <- list(patternRes = patternRes,
+                       associationRes = earlyRes,
+                       diffEndRes = diffEndRes)
+save(additionalTest, 
+     file = paste0(resPath, "TS_AdditionalTest_ZI_60.RData"))
 
 # Extract Data
 patternResCobra <- patternRes[, "pvalue",drop = F]
@@ -95,4 +96,5 @@ diffEndResCobra <- diffEndResCobra[mixedorder(rownames(diffEndResCobra)), , drop
 TradeSeq_Clean <- cbind(patternResCobra, earlyResCobra, diffEndResCobra)
 
 # Save Dataframe
-saveRDS(TradeSeq_Clean, paste0(outPath2, "/TradeSeq_CobraInput_ZI_60.RDS"))
+save(TradeSeq_Clean, 
+     file = paste0(resPath, "TradeSeq_CobraInput_ZI_60.RData"))

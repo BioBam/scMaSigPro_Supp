@@ -11,16 +11,4 @@ supp/08_Computation_Time_Comparison_with_TradeSeq/data/
 supp/06_Monocle3_Pseudotime_Use_Case/data/
 supp/09_Real_Dataset/data/
 
-benchmarks/01_Sparsity/data/
-benchmarks/03_NumCells/data/
-benchmarks/05_ComparisonWithTradeSeq/data/
-benchmarks/07_UnequalArms/data/
-benchmarks/09_RealDataBig/data/
-benchmarks/11_BinningMethod/data/
-benchmarks/resources/data/
-benchmarks/02_Length/data/
-benchmarks/04_Normalization/data/
-benchmarks/06_SpeedTimeComparisonWithTradeSeq/data/
-benchmarks/08_RealDataSmall/data/
-benchmarks/10_Distribution/data/
-benchmarks/12_Compression/data/
+benchmarks/*/data/
