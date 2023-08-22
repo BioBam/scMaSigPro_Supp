@@ -1,4 +1,4 @@
-# Title: Simulate Datasets with different lenghts
+# Title: Simulate Datasets with different Number of cells
 # Author: Priyansh Srivastava
 # Email: spriyansh29@gmail.com
 # Year: 2023
@@ -11,7 +11,7 @@ suppressPackageStartupMessages(library(gtools))
 suppressPackageStartupMessages(library(tidyverse))
 
 # Set Paths relative to project
-dirPath <- "benchmarks/02_Length/data/simulated/"
+dirPath <- "benchmarks/03_NumCells/data/simulated/"
 helpScriptsDir <- "R_Scripts/helper_function/"
 
 # Create Path
@@ -26,18 +26,17 @@ source(paste0(helpScriptsDir, "add_gene_anno().R"))
 source(paste0(helpScriptsDir, "calc_bin_size.R"))
 
 # Zero-Inflation
-time_length <- seq(250, 2500, 250)
-names(time_length) <- as.character(time_length)
+skew <- seq(0.1, 1, 0.1) # 0.5
+names(skew) <- as.character(skew) 
 
 ## Create a list of parameters
-for (i in names(time_length)) {
-  # stop("Expected Stop")
+for (i in names(skew)) {
 
   # Get Sparsity Level
-  pTimeLength <- str_remove(pattern = "PathLength_", i)
+  SkewValue <- str_remove(pattern = "SkewValue_", i)
 
   # Name of the List
-  cat(paste("\nSimulating for Path Length (Both Equal):", pTimeLength))
+  cat(paste("\nSimulating for Skew Value:", SkewValue))
 
   # Create Base parameters/ Same for All groups
   params.groups <- newSplatParams(
@@ -50,7 +49,7 @@ for (i in names(time_length)) {
     group.prob = c(0.5, 0.5), path.from = c(0, 0),
     de.prob = 0.3, de.facLoc = 1, path.nonlinearProb = 0,
     path.sigmaFac = 0,
-    path.skew = c(0.5, 0.5),
+    path.nSteps = c(1500, 1500),
     dropout.mid = 0,
     dropout.shape = 0.03
   )
@@ -59,7 +58,7 @@ for (i in names(time_length)) {
   sim.sce <- splatSimulate(params.groups,
     method = "paths",
     verbose = F,
-    path.nSteps = c(time_length[i], time_length[i])
+    path.skew = c(skew[i], skew[i])
   )
 
   # Proportion of true Sparsity
@@ -75,13 +74,13 @@ for (i in names(time_length)) {
   rowData(sim.sce) <- DataFrame(gene.info)
 
   # Plot Base Gene Mean Histogram
-  histImgName <- paste0(imgPath, "base_expression_gene_hist/", "lenEq_", pTimeLength, ".png")
+  histImgName <- paste0(imgPath, "base_expression_gene_hist/", "skew_", SkewValue, ".png")
 
   # Create Histogram
   base.exp.hist <- ggplot(gene.info, aes(x = BaseGeneMean)) +
     geom_histogram(fill = "blue", color = "black", alpha = 0.6) +
     labs(
-      title = paste0("Path Length: ", pTimeLength),
+      title = paste0("Path Length: ", SkewValue),
       subtitle = paste("Total Sparsity of Dataset:", totSparsity, "Paths: Equal"),
       x = "Base Gene Mean",
       y = "Count"
@@ -91,38 +90,38 @@ for (i in names(time_length)) {
   ggsave(filename = histImgName, plot = base.exp.hist, dpi = 600)
 
   # Plotting True Trajectory Topology
-  truTopImgName <- paste0(imgPath, "true_topology_pca_step/", "lenEq_", pTimeLength, ".png")
+  truTopImgName <- paste0(imgPath, "true_topology_pca_step/", "skew_", SkewValue, ".png")
   truTopImg.plot <- plot_simulations(sim.sce,
     assay_type = "TrueCounts",
     plot3d = F, plot2d = T, frame = 2,
-    title.2d = paste("PathLength:", totSparsity, "Simulated:", simulatedSparsity)
+    title.2d = paste("SkewValue:", totSparsity, "Simulated:", simulatedSparsity)
   )
   ggsave(filename = truTopImgName, plot = truTopImg.plot, dpi = 600)
 
   # Plot Simulated Topology
-  simTopImgName <- paste0(imgPath, "sim_topology_pca_step/", "lenEq_", pTimeLength, ".png")
+  simTopImgName <- paste0(imgPath, "sim_topology_pca_step/", "skew_", SkewValue, ".png")
   simTopImg.plot <- plot_simulations(sim.sce,
     assay_type = "counts",
     plot3d = F, plot2d = T, frame = 2,
-    title.2d = paste("PathLength:", totSparsity, "Simulated:", simulatedSparsity)
+    title.2d = paste("SkewValue:", totSparsity, "Simulated:", simulatedSparsity)
   )
   ggsave(filename = simTopImgName, plot = simTopImg.plot, dpi = 600)
 
   # Plotting True Trajectory Topology Group
-  truTopImgNameGroup <- paste0(imgPath, "true_topology_pca_group/", "lenEq_", pTimeLength, ".png")
+  truTopImgNameGroup <- paste0(imgPath, "true_topology_pca_group/", "skew_", SkewValue, ".png")
   truTopImgGroup.plot <- plot_simulations(sim.sce,
     assay_type = "TrueCounts",
     plot3d = F, plot2d = T, frame = 1,
-    title.2d = paste("PathLength:", totSparsity, "Simulated:", simulatedSparsity)
+    title.2d = paste("SkewValue:", totSparsity, "Simulated:", simulatedSparsity)
   )
   ggsave(filename = truTopImgNameGroup, plot = truTopImgGroup.plot, dpi = 600)
 
   # Plot Simulated Topology
-  simTopImgNameGroup <- paste0(imgPath, "sim_topology_pca_group/", "lenEq_", pTimeLength, ".png")
+  simTopImgNameGroup <- paste0(imgPath, "sim_topology_pca_group/", "skew_", SkewValue, ".png")
   simTopImgGroup.plot <- plot_simulations(sim.sce,
     assay_type = "counts",
     plot3d = F, plot2d = T, frame = 1,
-    title.2d = paste("PathLength:", totSparsity, "Simulated:", simulatedSparsity)
+    title.2d = paste("SkewValue:", totSparsity, "Simulated:", simulatedSparsity)
   )
   ggsave(filename = simTopImgNameGroup, plot = simTopImgGroup.plot, dpi = 600)
 
@@ -142,7 +141,7 @@ for (i in names(time_length)) {
   plt.table <- plt.table[, !(colnames(plt.table) %in% "cluster.members")]
 
   # Plot Cell Association
-  cellAssociation <- paste0(imgPath, "cellAssociation/", "lenEq_", pTimeLength, ".png")
+  cellAssociation <- paste0(imgPath, "cellAssociation/", "skew_", SkewValue, ".png")
   p <- ggplot(plt.table, aes(x = Num)) +
     geom_histogram(
       binwidth = 0.5, ,
@@ -157,7 +156,7 @@ for (i in names(time_length)) {
       panel.grid.minor = element_line(linewidth = 0.2)
     ) +
     ggtitle("Distribution of cells per Time-point",
-      subtitle = paste("PathLength:", totSparsity, "Simulated:", simulatedSparsity)
+      subtitle = paste("SkewValue:", totSparsity, "Simulated:", simulatedSparsity)
     ) +
     facet_wrap(~Group) +
     scale_x_continuous(breaks = seq(0, 30, by = 2)) +
@@ -167,6 +166,6 @@ for (i in names(time_length)) {
   ggsave(filename = cellAssociation, plot = p, dpi = 600, height = 5, width = 6)
 
   # SaveRDS
-  obj.path <- paste0(sce_path, paste0("PathLength_", pTimeLength, ".RData"))
+  obj.path <- paste0(sce_path, paste0("SkewValue_", SkewValue, ".RData"))
   save(sim.sce, file = obj.path)
 }

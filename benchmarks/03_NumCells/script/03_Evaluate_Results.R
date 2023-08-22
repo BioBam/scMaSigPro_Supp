@@ -1,4 +1,4 @@
-# Title: Evaluate the results of ScMaSigPro on simulated datasets with different levels of sparsity
+# Title: Evaluate the results of ScMaSigPro on simulated datasets with of lenEq
 # Author: Priyansh Srivastava
 # Email: spriyansh29@gmail.com
 # Year: 2023
@@ -8,7 +8,7 @@ suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(scMaSigPro))
 
 # Set Paths relative to project
-dirPath <- "benchmarks/01_Sparsity/data/output/"
+dirPath <- "benchmarks/03_NumCells/data/output/"
 helpScriptsDir <- "R_Scripts/helper_function/"
 
 # Load helper functions
@@ -18,7 +18,7 @@ source(paste0(helpScriptsDir, "get_performance.R"))
 dataSets <- list.files(paste0(dirPath))
 dataSets <- dataSets[!(dataSets %in% c("Accuracy.png", "ROC.png", "Performance.Table.tsv"))]
 names(dataSets) <- str_remove(
-  str_split_i(dataSets, pattern = "\\.", i = 4),
+  str_split_i(dataSets, pattern = "skew\\.", i = 2),
   ".RData"
 )
 
@@ -28,7 +28,7 @@ eval.list <- list()
 # Set-up a for loop
 for (i in names(dataSets)) {
   # Validation
-  cat(paste("\nRunning for sparsity:", i))
+  cat(paste("\nRunning for skew:", i))
 
   # Load
   load(file = paste0(dirPath, dataSets[i]))
@@ -45,9 +45,6 @@ for (i in names(dataSets)) {
 
   r2_sequence_value <- seq(0.05, 0.95, 0.05)
 
-  if (i == "80") {
-    r2_sequence_value <- seq(0.05, 0.9, 0.05)
-  }
   # Get Performance
   performance.measure <- get_performance(
     scmp_obj = scmp.obj,
@@ -57,7 +54,7 @@ for (i in names(dataSets)) {
   )
 
   # Add Inflation
-  performance.measure[["Zi"]] <- i
+  performance.measure[["skew"]] <- i
 
   # Add to list
   eval.list[[i]] <- performance.measure
@@ -70,13 +67,15 @@ write.table(evaluation.frame, paste0(dirPath, "Performance.Table.tsv"),
   row.names = F, quote = F
 )
 
+evaluation.frame$skew <- as.factor(as.numeric(evaluation.frame$skew))
+
 # ROC
-roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = Zi)) +
+roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = skew)) +
   geom_point() +
   geom_path(linewidth = 1.5, alpha = 0.6) +
   scale_x_continuous(breaks = seq(0, 0.5, 0.05)) +
   scale_y_continuous(breaks = seq(0.5, 1, 0.05)) +
-  scale_color_brewer(palette = "Set1") +
+  scale_color_brewer(palette = "Set3") +
   labs(
     title = "ROC-curve, Different Values of R-Square",
     x = "False Positive Rate (1-Specificity)",
@@ -103,13 +102,13 @@ roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = Zi)) +
 # Accuracy
 acc <- ggplot(evaluation.frame, aes(
   x = VARIABLE, y = ACCURACY,
-  color = Zi
+  color = skew
 )) +
   geom_point() +
   scale_x_continuous(breaks = seq(0.1, 0.9, 0.05)) +
   geom_path(linewidth = 1.5, alpha = 0.6) +
   scale_y_continuous(breaks = seq(0.7, 1, 0.05)) +
-  scale_color_brewer(palette = "Set1") +
+  scale_color_brewer(palette = "Set3") +
   labs(
     title = "Accuracy Against Changing R Square",
     subtitle = "Red Dots: False Negatives",
@@ -132,9 +131,9 @@ acc <- ggplot(evaluation.frame, aes(
 
 ggsave(acc,
   filename = paste0(dirPath, "Accuracy.png"),
-  dpi = 600, height = 8, width = 8
+  dpi = 600, height = 8, width = 10
 )
 ggsave(roc,
   filename = paste0(dirPath, "ROC.png"),
-  dpi = 600, height = 8, width = 8
+  dpi = 600, height = 8, width = 12
 )

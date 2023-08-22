@@ -20,12 +20,11 @@ names(dataSets) <- str_remove(
 
 # Set-up a for loop
 for (i in names(dataSets)) {
-    
-    poly.degree <- 2
-    min.gene <- 6
-    theta.val <- 1
-    ep <- 0.00001
-    
+  poly.degree <- 2
+  min.gene <- 6
+  theta.val <- 1
+  ep <- 0.00001
+
   cat(paste("\nRunning for sparsity:", i))
 
   # stop("Expected Stop")
@@ -55,9 +54,9 @@ for (i in names(dataSets)) {
         time.col = "binnedTime",
         path.col = "path"
       )
-      
-      if (i == "80"){
-          theta.val = 10
+
+      if (i == "80") {
+        theta.val <- 10
       }
 
       # Run p-vector

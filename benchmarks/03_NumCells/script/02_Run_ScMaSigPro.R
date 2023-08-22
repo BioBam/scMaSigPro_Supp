@@ -1,4 +1,4 @@
-# Title: Run ScMaSigPro on simulated datasets with different lengths of Pseudotime
+# Title: Run ScMaSigPro on simulated datasets with different Skewness
 # Author: Priyansh Srivastava
 # Email: spriyansh29@gmail.com
 # Year: 2023
@@ -8,7 +8,7 @@ suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(scMaSigPro))
 
 # Set Paths relative to project
-dirPath <- "benchmarks/02_Length/data/simulated/sce/"
+dirPath <- "benchmarks/03_NumCells/data/simulated/sce/"
 helpScriptsDir <- "R_Scripts/helper_function/"
 
 # Load names of files
@@ -25,7 +25,7 @@ for (i in names(dataSets)) {
   theta.val <- 1
   ep <- 0.00001
 
-  cat(paste("\nRunning for LenEq:", i))
+  cat(paste("\nRunning for skew:", i))
 
   # stop("Expected Stop")
 
@@ -71,7 +71,7 @@ for (i in names(dataSets)) {
       )
 
       # Save Object
-      save(scmp.obj, file = paste0("benchmarks/02_Length/data/output/scmp.obj.LenEq.", i, ".RData"))
+      save(scmp.obj, file = paste0("benchmarks/03_NumCells/data/output/scmp.obj.skew.", i, ".RData"))
 
       # Validate
       cat(paste("\nCompleted for", i))
