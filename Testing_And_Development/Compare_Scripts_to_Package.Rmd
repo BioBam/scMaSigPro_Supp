@@ -29,7 +29,7 @@ source("../R_Scripts/helper_function/create_range.R")
 
 ## Load the dataset to analyze
 ```{r, "Load Data", message=FALSE, warning=FALSE}
-load("../benchmarks/01_Sparsity/data/simulated/sce/")
+load("../benchmarks/01_Sparsity/data/simulated/sce/sparsity_70.RData")
 ```
 
 ## Extract ColData or Raw Counts
@@ -122,8 +122,13 @@ garbage <- capture.output(tstep.fit <- T.fit(p.vector.fit,
 ```{r}
 detach("package:maSigPro", unload = TRUE)
 unloadNamespace("maSigPro")
-#remove.packages("scMaSigPro", lib="~/R/x86_64-pc-linux-gnu-library/4.3")
-#install.packages("../../scMaSigPro_0.1.6.tar.gz", repos = NULL, type = "source")
+```
+
+```{r}
+#detach("package:scMaSigPro", unload = TRUE)
+#unloadNamespace("scMaSigPro")
+remove.packages("scMaSigPro", lib="~/R/x86_64-pc-linux-gnu-library/4.3")
+install.packages("../scMaSigPro_0.2.2.tar.gz", repos = NULL, type = "source")
 library(scMaSigPro)
 ```
 
@@ -169,8 +174,7 @@ testthat::expect_equal(design.profile.scmp.check, design.profile.check)
 ```{r}
 bulk_counts_sum.scmp <- scMaSigPro::make.pseudobulk.counts(counts = raw_counts,
                                    cluster_member_col = "cluster.members",
-                                   bin_col = "bin", pseudo_bulk_profile = design.profile.scmp,
-                                   cluster.count.by = "sum")
+                                   bin_col = "bin", pseudo_bulk_profile = design.profile.scmp, cluster.count.by = "sum")
 ```
 
 ## Comparae output from make.design.file
@@ -180,11 +184,21 @@ testthat::expect_equal(bulk_counts_sum.scmp, as.matrix(bulk_counts_sum))
 
 ## ScMakeDesing
 ```{r}
+remove.packages("scMaSigPro", lib="~/R/x86_64-pc-linux-gnu-library/4.3")
+install.packages("../scMaSigPro_0.2.6.tar.gz", repos = NULL, type = "source")
+library(scMaSigPro)
+load("../benchmarks/01_Sparsity/data/simulated/sce/sparsity_70.RData")
 scmp.obj <- as_scmp(sim.sce, from = "sce")
-
 ```
 
 ```{r}
+source("../../scMaSigPro/R/calc_bin_size.R")
+source("../../scMaSigPro/R/create_range.R")
+source("../../scMaSigPro/R/make.bulk.design.R")
+source("../../scMaSigPro/R/make.bulk.count.R")
+source("../../scMaSigPro/R/estBinSize.R")
+source("../../scMaSigPro/R/entropy_discretize.R")
+source("../../scMaSigPro/R/squeeze.R")
 scmp.obj <- squeeze(
   scmp.ob = scmp.obj,
   time.col = "Step",
@@ -208,13 +222,13 @@ scmp.obj <- sc.make.design.matrix(scmp.obj,
 
 ```{r}
 scmp.obj <- sc.p.vector(scmpObj = scmp.obj, verbose = F, min.obs = 6,
-                        counts = T, theta = 10)
+                        counts = T, theta = 10, offset = T)
 ```
 
 
 ```{r}
 scmp.obj <- sc.T.fit(data = scmp.obj, verbose = F,
-                     step.method = "backward", family = scmp.obj@scPVector@family)
+                     step.method = "backward", family = scmp.obj@scPVector@family, offset = T)
 ```
 
 ## Comparae output from make.design.file

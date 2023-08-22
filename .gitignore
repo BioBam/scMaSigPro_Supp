@@ -3,6 +3,8 @@
 .RData
 .Ruserdata
 
+scMaSigPro_*.tar.gz
+
 supp/01_varying_sparsity/data/
 supp/04_varying_normalization/data/
 supp/07_Different_Length_of_Pseudotime/data/
