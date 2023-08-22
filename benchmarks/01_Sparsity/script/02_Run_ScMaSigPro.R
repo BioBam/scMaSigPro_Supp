@@ -20,9 +20,15 @@ names(dataSets) <- str_remove(
 
 # Set-up a for loop
 for (i in names(dataSets)) {
+    
+    poly.degree <- 2
+    min.gene <- 6
+    theta.val <- 1
+    ep <- 0.00001
+    
   cat(paste("\nRunning for sparsity:", i))
 
-  stop("Expected Stop")
+  # stop("Expected Stop")
 
   # Load Data
   load(file = paste0(dirPath, dataSets[i]))
@@ -39,30 +45,39 @@ for (i in names(dataSets)) {
         path.col = "Group",
         method = "Sturges",
         drop.fac = 0.6,
-        verbose = F,
+        verbose = T,
         cluster.count.by = "sum"
       )
 
       # Make Design
       scmp.obj <- sc.make.design.matrix(scmp.obj,
-        degree = 2,
+        degree = poly.degree,
         time.col = "binnedTime",
         path.col = "path"
       )
+      
+      if (i == "80"){
+          theta.val = 10
+      }
 
       # Run p-vector
       scmp.obj <- sc.p.vector(
-        scmpObj = scmp.obj, verbose = F, min.obs = 6,
-        counts = T, theta = 10
+        scmpObj = scmp.obj, verbose = F, min.obs = min.gene,
+        counts = T, theta = theta.val,
+        offset = T, epsilon = ep
       )
 
       # Run-Step-2
       scmp.obj <- sc.T.fit(
         data = scmp.obj, verbose = F,
         step.method = "backward",
-        family = scmp.obj@scPVector@family
+        family = scmp.obj@scPVector@family,
+        offset = T
       )
-      
+
+      # Save Object
+      save(scmp.obj, file = paste0("benchmarks/01_Sparsity/data/output/scmp.obj.sparsity.", i, ".RData"))
+
       # Validate
       cat(paste("\nCompleted for", i))
     },
