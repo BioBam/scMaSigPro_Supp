@@ -1,0 +1,141 @@
+# Title: Simulate one Dataset with different Normalization
+# Author: Priyansh Srivastava
+# Email: spriyansh29@gmail.com
+# Year: 2023
+
+# Load libraries
+suppressPackageStartupMessages(library(splatter))
+suppressPackageStartupMessages(library(SingleCellExperiment))
+suppressPackageStartupMessages(library(coop))
+suppressPackageStartupMessages(library(gtools))
+suppressPackageStartupMessages(library(tidyverse))
+
+# Set Paths relative to project
+dirPath <- "benchmarks/04_Normalization/data/simulated/"
+helpScriptsDir <- "R_Scripts/helper_function/"
+
+# Create Path
+imgPath <- paste0(dirPath, "png/")
+sce_path <- paste0(dirPath, "sce/")
+dir.create(imgPath, recursive = T, showWarnings = F)
+dir.create(sce_path, recursive = T, showWarnings = F)
+
+# Load Custom Functions
+source(paste0(helpScriptsDir, "plot_simulations().R"))
+source(paste0(helpScriptsDir, "add_gene_anno().R"))
+source(paste0(helpScriptsDir, "calc_bin_size.R"))
+source(paste0(helpScriptsDir, "calcNormCounts.R"))
+
+# Create Base parameters/ Same for All groups
+params.groups <- newSplatParams(
+  batch.rmEffect = TRUE, # No Batch affect
+  batchCells = 3000, # Number of Cells
+  nGenes = 5000, # Number of Genes
+  seed = 2022, # Set seed
+  mean.rate = 0.3, mean.shape = 5, lib.scale = 0.2,
+  lib.loc = 12, dropout.type = "experiment",
+  group.prob = c(0.5, 0.5), path.from = c(0, 0),
+  de.prob = 0.3, de.facLoc = 1, path.nonlinearProb = 0,
+  path.sigmaFac = 0,
+  path.nSteps = c(1500, 1500),
+  dropout.mid = 0,
+  dropout.shape = 0.03,
+  path.skew = c(0.5, 0.5)
+)
+
+# Simulate Object
+sim.sce <- splatSimulate(params.groups,
+  method = "paths",
+  verbose = F
+)
+
+# Add gene Info
+gene.info <- add_gene_anno(sim.sce = sim.sce)
+gene.info <- gene.info[mixedsort(gene.info$gene_short_name), ]
+
+# Norm Method
+norm_methods <- c(
+  "true", "raw", "offset", "cpm", "clr",
+  "logN", "rc", "fquant", "sct"
+)
+names(norm_methods) <- norm_methods
+
+# Run
+for (i in names(norm_methods)) {
+  cat(paste("\nRunning for:", i))
+
+  tryCatch(
+    expr = {
+        
+        if (i == "true"){
+            sce.obj <- SingleCellExperiment(list(counts = sim.sce@assays@data@listData$TrueCounts))
+        }else if(i == "raw"){
+          sce.obj <- SingleCellExperiment(list(counts = sim.sce@assays@data@listData$counts))
+        }else if(i == "offset"){
+          sce.obj <- SingleCellExperiment(list(counts = sim.sce@assays@data@listData$counts))
+        }else if(i == "cpm"){
+          tmpCounts <- calcNormCounts(
+            rawCounts =
+              as.matrix(sim.sce@assays@data@listData$counts),
+            cat = "libSize", size_fac = 1000000
+          )
+          sce.obj <- SingleCellExperiment(list(counts = tmpCounts))
+        }else if(i == "clr"){
+          tmpCounts <- calcNormCounts(
+            rawCounts =
+              as.matrix(sim.sce@assays@data@listData$counts),
+            cat = "CLR", size_fac = 10000
+          )
+          sce.obj <- SingleCellExperiment(list(counts = tmpCounts))
+        }else if(i == "logN"){
+          tmpCounts <- calcNormCounts(
+            rawCounts =
+              as.matrix(sim.sce@assays@data@listData$counts),
+            cat = "logLibSize", size_fac = 10000
+          )
+          sce.obj <- SingleCellExperiment(list(counts = tmpCounts))
+        }else if(i == "rc"){
+          tmpCounts <- calcNormCounts(
+            rawCounts =
+              as.matrix(sim.sce@assays@data@listData$counts),
+            cat = "libSize", size_fac = 10000
+          )
+          sce.obj <- SingleCellExperiment(list(counts = tmpCounts))
+        }else if(i == "fquant"){
+          tmpCounts <- calcNormCounts(
+            rawCounts =
+              as.matrix(sim.sce@assays@data@listData$counts),
+            cat = "FQNorm", size_fac = 10000
+          )
+          sce.obj <- SingleCellExperiment(list(counts = tmpCounts))
+        }else if(i == "sct"){
+          tmpCounts <- calcNormCounts(
+            rawCounts =
+              as.matrix(sim.sce@assays@data@listData$counts),
+            cat = "sctransform", size_fac = 10000
+          )
+          sce.obj <- SingleCellExperiment(list(counts = tmpCounts))
+        }
+
+      # Add Row and Col Data
+      rowData(sce.obj) <- DataFrame(gene.info)
+      colData(sce.obj) <- colData(sim.sce)
+
+      # Plot Data
+      countLDImgPath <- paste0(imgPath, "PCA_topology/", "type_", i, ".png")
+      countPCA.plot <- plot_simulations(sce.obj,
+        assay_type = "counts",
+        plot3d = F, plot2d = T, frame = 1,
+        title.2d = paste("Counts:", i, "; Sparsity: 54; Simulated: 50")
+      )
+      ggsave(filename = countLDImgPath, plot = countPCA.plot, dpi = 600)
+
+      # SaveRDS
+      obj.path <- paste0(sce_path, paste0("type_", i, ".RData"))
+      save(sce.obj, file = obj.path)
+    },
+    error = function(e) {
+      cat(paste("\nFailed for", i))
+    }
+  )
+}

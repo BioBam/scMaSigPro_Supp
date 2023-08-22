@@ -14,6 +14,7 @@ calcNormCounts <- function(rawCounts, cat, size_fac = 10000) {
   # Base
   suppressPackageStartupMessages(require(Seurat))
   suppressPackageStartupMessages(require(sctransform))
+  suppressPackageStartupMessages(require(Matrix))
   FQnorm <- function(counts) {
     rk <- apply(counts, 2, rank, ties.method = "min")
     counts.sort <- apply(counts, 2, sort)

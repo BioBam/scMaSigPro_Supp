@@ -5,13 +5,9 @@
 
 scMaSigPro_*.tar.gz
 
-supp/01_varying_sparsity/data/
-supp/04_varying_normalization/data/
 supp/07_Different_Length_of_Pseudotime/data/
-supp/02_varying_length_time_series/data/
 supp/05_Comparison_with_TradeSeq/data/
 supp/08_Computation_Time_Comparison_with_TradeSeq/data/
-supp/03_varying_no_cells/data/
 supp/06_Monocle3_Pseudotime_Use_Case/data/
 supp/09_Real_Dataset/data/
 
@@ -28,5 +24,3 @@ benchmarks/06_SpeedTimeComparisonWithTradeSeq/data/
 benchmarks/08_RealDataSmall/data/
 benchmarks/10_Distribution/data/
 benchmarks/12_Compression/data/
-
-benchMarking_Normalization/data/

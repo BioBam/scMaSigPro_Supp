@@ -27,11 +27,10 @@ source(paste0(helpScriptsDir, "calc_bin_size.R"))
 
 # Zero-Inflation
 skew <- seq(0.1, 1, 0.1) # 0.5
-names(skew) <- as.character(skew) 
+names(skew) <- as.character(skew)
 
 ## Create a list of parameters
 for (i in names(skew)) {
-
   # Get Sparsity Level
   SkewValue <- str_remove(pattern = "SkewValue_", i)
 
