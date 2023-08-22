@@ -5,18 +5,19 @@
 # Load libraries
 suppressPackageStartupMessages(library(SingleCellExperiment))
 suppressPackageStartupMessages(library(tradeSeq))
-suppressPackageStartupMessages(library(maSigPro))
+suppressPackageStartupMessages(library(scMaSigPro))
 suppressPackageStartupMessages(library(gtools))
 
-# Set Paths relative to project
-inPath <- "supp/05_Comparison_with_TradeSeq/data/output/"
-outPath <- "supp/05_Comparison_with_TradeSeq/data/output/"
+# Set paths
+dirPath <- "benchmarks/05_ComparisonWithTradeSeq/data/input/"
+resPath <- "benchmarks/05_ComparisonWithTradeSeq/data/output/"
+helpScriptsDir <- "R_Scripts/helper_function/"
 
-# Load Tstep
-tstep <- readRDS(paste0(inPath, "MaSigPro/tstep/zi_60_mid_0_shape_0.25.RDS"))
+# Load result of 60% inflation
+load(paste0(dirPath, "scmp.obj.sparsity.60.RData"))
 
 # Get sol
-sol <- as.data.frame(tstep$sol)
+sol <- showSol(scmpObj = scmp.obj, view = F, return = T)
 
 # Select the column with R2 and P-value
 sol <- sol[,c(1,2)]
@@ -31,10 +32,10 @@ sol$p_value[is.na(sol$p_value)] <- 1
 sol.sel <- sol[sol$rsq >= 0.6, c(1,2), drop = F]
 
 # Load tradeSeq table
-ts.cobra <- readRDS(paste0(outPath,"tradSeqResults/TradeSeq_CobraInput_ZI_60.RDS"))
+load(paste0(resPath,"TradeSeq_CobraInput_ZI_60.RData"))
 
 # get the genes Not selected 
-undetected <- rownames(ts.cobra)[!(rownames(ts.cobra) %in% rownames(sol.sel))]
+undetected <- rownames(TradeSeq_Clean)[!(rownames(TradeSeq_Clean) %in% rownames(sol.sel))]
 
 # P_value ==1 and Rsq ==0
 undetected <- data.frame(row.names = undetected,
@@ -51,7 +52,8 @@ sol <- sol[mixedorder(rownames(sol)), , drop = F]
 colnames(sol) <- c("scMSP_0.6", "rsq")
 
 # Join with TradeSeq Data
-cobra.dataset <- cbind(ts.cobra, sol[,1, drop = F])
+cobra.dataset <- cbind(TradeSeq_Clean, sol[,1, drop = F])
 
 # Save Dataframe
-saveRDS(cobra.dataset, paste0(outPath, "CobraInputObject.RDS"))
+save(cobra.dataset, 
+     file = paste0(resPath, "CobraInputObject.RData"))

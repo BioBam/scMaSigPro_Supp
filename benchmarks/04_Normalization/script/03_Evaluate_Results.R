@@ -106,7 +106,7 @@ acc <- ggplot(evaluation.frame, aes(
   scale_x_continuous(breaks = seq(0.1, 0.9, 0.05)) +
   geom_path(linewidth = 1.5, alpha = 0.6) +
   scale_y_continuous(breaks = seq(0.7, 1, 0.05)) +
-  scale_color_brewer(palette = "Set3") +
+  scale_color_brewer(palette = "Set1") +
   labs(
     title = "Accuracy Against Changing R Square",
     subtitle = "Red Dots: False Negatives",
