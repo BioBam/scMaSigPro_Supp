@@ -8,7 +8,7 @@ suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(scMaSigPro))
 
 # Set Paths relative to project
-dirPath <- "benchmarks/07_UnequalArms/data/output/"
+dirPath <- "benchmarks/08_Distribution/data/output/"
 helpScriptsDir <- "R_Scripts/helper_function/"
 
 # Load helper functions
@@ -18,8 +18,8 @@ source(paste0(helpScriptsDir, "get_performance.R"))
 dataSets <- list.files(paste0(dirPath))
 dataSets <- dataSets[!(dataSets %in% c("Accuracy.png", "ROC.png", "Performance.Table.tsv"))]
 names(dataSets) <- str_remove(
-    str_remove(dataSets, pattern = "scmp.obj.Arm."),
-    ".RData"
+  str_remove(dataSets, pattern = "scmp.obj.Fam."),
+  ".RData"
 )
 
 # Zero-Inflation.evaluation
@@ -28,7 +28,7 @@ eval.list <- list()
 # Set-up a for loop
 for (i in names(dataSets)) {
   # Validation
-  cat(paste("\nRunning for lenEq:", i))
+  cat(paste("\nRunning for Family:", i))
 
   # Load
   load(file = paste0(dirPath, dataSets[i]))
@@ -54,7 +54,7 @@ for (i in names(dataSets)) {
   )
 
   # Add Inflation
-  performance.measure[["Arm"]] <- i
+  performance.measure[["Family"]] <- i
 
   # Add to list
   eval.list[[i]] <- performance.measure
@@ -68,7 +68,7 @@ write.table(evaluation.frame, paste0(dirPath, "Performance.Table.tsv"),
 )
 
 # ROC
-roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = Arm)) +
+roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = Family)) +
   geom_point() +
   geom_path(linewidth = 1.5, alpha = 0.6) +
   scale_x_continuous(breaks = seq(0, 0.5, 0.05)) +
@@ -100,7 +100,7 @@ roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = Arm)) +
 # Accuracy
 acc <- ggplot(evaluation.frame, aes(
   x = VARIABLE, y = ACCURACY,
-  color = Arm
+  color = Family
 )) +
   geom_point() +
   scale_x_continuous(breaks = seq(0.1, 0.9, 0.05)) +
@@ -129,9 +129,9 @@ acc <- ggplot(evaluation.frame, aes(
 
 ggsave(acc,
   filename = paste0(dirPath, "Accuracy.png"),
-  dpi = 600, height = 8, width = 14
+  dpi = 600, height = 8, width = 10
 )
 ggsave(roc,
   filename = paste0(dirPath, "ROC.png"),
-  dpi = 600, height = 8, width = 14
+  dpi = 600, height = 8, width = 12
 )
