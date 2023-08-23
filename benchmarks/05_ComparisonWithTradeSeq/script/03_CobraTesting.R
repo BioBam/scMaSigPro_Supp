@@ -8,44 +8,53 @@ resPath <- "benchmarks/05_ComparisonWithTradeSeq/data/output/"
 helpScriptsDir <- "R_Scripts/helper_function/"
 
 # Read TradeSeq Data
-load(paste0(resPath,"CobraInputObject.RData"))
+load(paste0(resPath, "CobraInputObject.RData"))
 
 # Convert all values to numeric
-cobraInput <- as.data.frame(apply(cobra.dataset, 2, FUN = function(x){as.numeric(x)}))
-rownames(cobraInput) <- rownames(cobra.dataset) 
+cobraInput <- as.data.frame(apply(cobra.dataset, 2, FUN = function(x) {
+  as.numeric(x)
+}))
+rownames(cobraInput) <- rownames(cobra.dataset)
 
 # Read Ground truth
-load(paste0(dirPath,"sparsity_60.RData"))
+load(paste0(dirPath, "sparsity_60.RData"))
 
 # Extract Gene counts
 row_data <- as.data.frame(rowData(sim.sce))
 
-# Extract status 
+# Extract status
 gt <- row_data[, "status", drop = F]
 
 # Add status
-gt$status <- ifelse(gt$status == "No_Change", 0,1)
+gt$status <- ifelse(gt$status == "No_Change", 0, 1)
 
 # Reformat
-gtInput <- apply(gt, 2, FUN = function(x){as.integer(x)})
+gtInput <- apply(gt, 2, FUN = function(x) {
+  as.integer(x)
+})
 rownames(gtInput) <- rownames(gt)
 gtInput <- as.data.frame(gtInput)
 
 # Create Cobra data
-cob_data <- COBRAData(pval = cobraInput,
-                      truth = gtInput)
+cob_data <- COBRAData(
+  pval = cobraInput,
+  truth = gtInput
+)
 
 # Calculate Adjusted p-value
 cobradata_custom <- calculate_adjp(cob_data)
 
 # Calculate Performance
 cobraperf <- calculate_performance(cobradata_custom,
-                                   binary_truth = "status",
-                                   splv = "none",
-                                   maxsplit = 2)
+  binary_truth = "status",
+  splv = "none",
+  maxsplit = 2
+)
 # Calculate for plots
-cobraplot <- prepare_data_for_plot(cobraperf, colorscheme = "Dark2", 
-                                   facetted = TRUE)
+cobraplot <- prepare_data_for_plot(cobraperf,
+  colorscheme = "Dark2",
+  facetted = TRUE
+)
 
 ROC <- plot_roc(cobraplot, title = "ROC")
 TPRvsFDR <- plot_fdrtprcurve(cobraplot, title = "TPR vs FDR")

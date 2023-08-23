@@ -1,8 +1,7 @@
-library(discretization) 
+library(discretization)
 
 
 data(iris)
 
 
-disc=chiM(iris,alpha=0.05)
-
+disc <- chiM(iris, alpha = 0.05)

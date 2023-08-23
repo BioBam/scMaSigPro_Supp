@@ -31,10 +31,12 @@ suppressPackageStartupMessages(library(kableExtra))
 ```{r,"Define custom function", message=FALSE, echo=TRUE, eval=TRUE}
 # Define a function 'create_random_repeated_vector'
 create_random_repeated_vector <- function(start, end, min_repetitions, max_repetitions) {
-  repetitions <- sample(min_repetitions:max_repetitions, 
-                        size = end - start + 1, replace = TRUE)
-  result_vector <- rep(seq(from = start, to = end, by = 1), 
-                       times = repetitions)
+  repetitions <- sample(min_repetitions:max_repetitions,
+    size = end - start + 1, replace = TRUE
+  )
+  result_vector <- rep(seq(from = start, to = end, by = 1),
+    times = repetitions
+  )
   return(result_vector)
 }
 
@@ -128,7 +130,7 @@ short.rep.pseudotime.pooled <- as.data.frame(
     )
   )
 )
-kable(short.rep.pseudotime.pooled[c(c(1:3), c(29:33), c(55:58)),])
+kable(short.rep.pseudotime.pooled[c(c(1:3), c(29:33), c(55:58)), ])
 ```
 
 

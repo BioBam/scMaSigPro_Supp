@@ -86,9 +86,13 @@ class:center
 ## Matrix
 
 ```{r, echo=FALSE, warning=FALSE}
-trad.matrix <- matrix(c(1:9), ncol =3, nrow = 3, 
-                      dimnames = list(c("row1", "row2","row3"),
-                                      c("col1", "col2","col3")))
+trad.matrix <- matrix(c(1:9),
+  ncol = 3, nrow = 3,
+  dimnames = list(
+    c("row1", "row2", "row3"),
+    c("col1", "col2", "col3")
+  )
+)
 trad.matrix
 ```
 ]
@@ -99,10 +103,14 @@ trad.matrix
 (Column-oriented format)
 ```{r, echo=FALSE, warning=FALSE}
 suppressPackageStartupMessages(library(Matrix))
-M <- Matrix(c(0, 0,  0,
-              6, 0, -1,
-              0, 4,  3),
-            byrow = TRUE, nrow = 3, sparse = TRUE)
+M <- Matrix(
+  c(
+    0, 0, 0,
+    6, 0, -1,
+    0, 4, 3
+  ),
+  byrow = TRUE, nrow = 3, sparse = TRUE
+)
 rownames(M) <- paste0("row", 1:3)
 colnames(M) <- paste0("col", 1:3)
 print(M)
@@ -180,8 +188,10 @@ scmp.obj <- sc.make.design.matrix(scmp.obj,
 
 ## Run-Pvector
 ```{r,  eval=FALSE}
-scmp.obj <- sc.p.vector(scmpObj = scmp.obj, verbose = F, min.obs = 6,
-                        counts = T, theta = 1, epsilon = 0.00001)
+scmp.obj <- sc.p.vector(
+  scmpObj = scmp.obj, verbose = F, min.obs = 6,
+  counts = T, theta = 1, epsilon = 0.00001
+)
 ```
 
 
@@ -190,8 +200,10 @@ scmp.obj <- sc.p.vector(scmpObj = scmp.obj, verbose = F, min.obs = 6,
 
 # Running T-fit
 ```{r,  eval=FALSE}
-scmp.obj <- sc.T.fit(scmp.obj, verbose = F, step.method = "backward", family = 
-                         scmp.obj@scPVector@family)
+scmp.obj <- sc.T.fit(scmp.obj,
+  verbose = F, step.method = "backward", family =
+    scmp.obj@scPVector@family
+)
 ```
 
 ---

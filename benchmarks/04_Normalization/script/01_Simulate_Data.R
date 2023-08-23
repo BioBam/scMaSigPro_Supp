@@ -66,56 +66,55 @@ for (i in names(norm_methods)) {
 
   tryCatch(
     expr = {
-        
-        if (i == "true"){
-            sce.obj <- SingleCellExperiment(list(counts = sim.sce@assays@data@listData$TrueCounts))
-        }else if(i == "raw"){
-          sce.obj <- SingleCellExperiment(list(counts = sim.sce@assays@data@listData$counts))
-        }else if(i == "offset"){
-          sce.obj <- SingleCellExperiment(list(counts = sim.sce@assays@data@listData$counts))
-        }else if(i == "cpm"){
-          tmpCounts <- calcNormCounts(
-            rawCounts =
-              as.matrix(sim.sce@assays@data@listData$counts),
-            cat = "libSize", size_fac = 1000000
-          )
-          sce.obj <- SingleCellExperiment(list(counts = tmpCounts))
-        }else if(i == "clr"){
-          tmpCounts <- calcNormCounts(
-            rawCounts =
-              as.matrix(sim.sce@assays@data@listData$counts),
-            cat = "CLR", size_fac = 10000
-          )
-          sce.obj <- SingleCellExperiment(list(counts = tmpCounts))
-        }else if(i == "logN"){
-          tmpCounts <- calcNormCounts(
-            rawCounts =
-              as.matrix(sim.sce@assays@data@listData$counts),
-            cat = "logLibSize", size_fac = 10000
-          )
-          sce.obj <- SingleCellExperiment(list(counts = tmpCounts))
-        }else if(i == "rc"){
-          tmpCounts <- calcNormCounts(
-            rawCounts =
-              as.matrix(sim.sce@assays@data@listData$counts),
-            cat = "libSize", size_fac = 10000
-          )
-          sce.obj <- SingleCellExperiment(list(counts = tmpCounts))
-        }else if(i == "fquant"){
-          tmpCounts <- calcNormCounts(
-            rawCounts =
-              as.matrix(sim.sce@assays@data@listData$counts),
-            cat = "FQNorm", size_fac = 10000
-          )
-          sce.obj <- SingleCellExperiment(list(counts = tmpCounts))
-        }else if(i == "sct"){
-          tmpCounts <- calcNormCounts(
-            rawCounts =
-              as.matrix(sim.sce@assays@data@listData$counts),
-            cat = "sctransform", size_fac = 10000
-          )
-          sce.obj <- SingleCellExperiment(list(counts = tmpCounts))
-        }
+      if (i == "true") {
+        sce.obj <- SingleCellExperiment(list(counts = sim.sce@assays@data@listData$TrueCounts))
+      } else if (i == "raw") {
+        sce.obj <- SingleCellExperiment(list(counts = sim.sce@assays@data@listData$counts))
+      } else if (i == "offset") {
+        sce.obj <- SingleCellExperiment(list(counts = sim.sce@assays@data@listData$counts))
+      } else if (i == "cpm") {
+        tmpCounts <- calcNormCounts(
+          rawCounts =
+            as.matrix(sim.sce@assays@data@listData$counts),
+          cat = "libSize", size_fac = 1000000
+        )
+        sce.obj <- SingleCellExperiment(list(counts = tmpCounts))
+      } else if (i == "clr") {
+        tmpCounts <- calcNormCounts(
+          rawCounts =
+            as.matrix(sim.sce@assays@data@listData$counts),
+          cat = "CLR", size_fac = 10000
+        )
+        sce.obj <- SingleCellExperiment(list(counts = tmpCounts))
+      } else if (i == "logN") {
+        tmpCounts <- calcNormCounts(
+          rawCounts =
+            as.matrix(sim.sce@assays@data@listData$counts),
+          cat = "logLibSize", size_fac = 10000
+        )
+        sce.obj <- SingleCellExperiment(list(counts = tmpCounts))
+      } else if (i == "rc") {
+        tmpCounts <- calcNormCounts(
+          rawCounts =
+            as.matrix(sim.sce@assays@data@listData$counts),
+          cat = "libSize", size_fac = 10000
+        )
+        sce.obj <- SingleCellExperiment(list(counts = tmpCounts))
+      } else if (i == "fquant") {
+        tmpCounts <- calcNormCounts(
+          rawCounts =
+            as.matrix(sim.sce@assays@data@listData$counts),
+          cat = "FQNorm", size_fac = 10000
+        )
+        sce.obj <- SingleCellExperiment(list(counts = tmpCounts))
+      } else if (i == "sct") {
+        tmpCounts <- calcNormCounts(
+          rawCounts =
+            as.matrix(sim.sce@assays@data@listData$counts),
+          cat = "sctransform", size_fac = 10000
+        )
+        sce.obj <- SingleCellExperiment(list(counts = tmpCounts))
+      }
 
       # Add Row and Col Data
       rowData(sce.obj) <- DataFrame(gene.info)
