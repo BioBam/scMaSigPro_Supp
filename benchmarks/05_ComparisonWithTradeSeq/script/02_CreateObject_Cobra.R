@@ -20,7 +20,7 @@ load(paste0(dirPath, "scmp.obj.sparsity.60.RData"))
 sol <- showSol(scmpObj = scmp.obj, view = F, return = T)
 
 # Select the column with R2 and P-value
-sol <- sol[,c(1,2)]
+sol <- sol[, c(1, 2)]
 
 # Reset column names
 colnames(sol) <- c("p_value", "rsq")
@@ -29,18 +29,20 @@ colnames(sol) <- c("p_value", "rsq")
 sol$p_value[is.na(sol$p_value)] <- 1
 
 # Get genes with r2 > 0.6
-sol.sel <- sol[sol$rsq >= 0.6, c(1,2), drop = F]
+sol.sel <- sol[sol$rsq >= 0.6, c(1, 2), drop = F]
 
 # Load tradeSeq table
-load(paste0(resPath,"TradeSeq_CobraInput_ZI_60.RData"))
+load(paste0(resPath, "TradeSeq_CobraInput_ZI_60.RData"))
 
-# get the genes Not selected 
+# get the genes Not selected
 undetected <- rownames(TradeSeq_Clean)[!(rownames(TradeSeq_Clean) %in% rownames(sol.sel))]
 
 # P_value ==1 and Rsq ==0
-undetected <- data.frame(row.names = undetected,
-                         "p_value" = rep(1, length(undetected)),
-                         "rsq" = rep(0, length(undetected)))
+undetected <- data.frame(
+  row.names = undetected,
+  "p_value" = rep(1, length(undetected)),
+  "rsq" = rep(0, length(undetected))
+)
 
 # join
 sol <- rbind(undetected, sol.sel)
@@ -52,8 +54,9 @@ sol <- sol[mixedorder(rownames(sol)), , drop = F]
 colnames(sol) <- c("scMSP_0.6", "rsq")
 
 # Join with TradeSeq Data
-cobra.dataset <- cbind(TradeSeq_Clean, sol[,1, drop = F])
+cobra.dataset <- cbind(TradeSeq_Clean, sol[, 1, drop = F])
 
 # Save Dataframe
-save(cobra.dataset, 
-     file = paste0(resPath, "CobraInputObject.RData"))
+save(cobra.dataset,
+  file = paste0(resPath, "CobraInputObject.RData")
+)

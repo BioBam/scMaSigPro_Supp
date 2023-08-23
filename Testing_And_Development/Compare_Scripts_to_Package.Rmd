@@ -38,19 +38,22 @@ load("../benchmarks/01_Sparsity/data/simulated/sce/sparsity_70.RData")
 cell.meta.df <- as.data.frame(colData(sim.sce))
 
 # Select Columns of Interest
-cell.meta.df <- cell.meta.df[, c("Cell","Group", "Step"), drop = F]
+cell.meta.df <- cell.meta.df[, c("Cell", "Group", "Step"), drop = F]
 
 # Add Factor Design
-cell.meta.df$Path1 <- ifelse(cell.meta.df$Group == "Path1", 1,0)
-cell.meta.df$Path2 <- ifelse(cell.meta.df$Group == "Path2", 1,0)
+cell.meta.df$Path1 <- ifelse(cell.meta.df$Group == "Path1", 1, 0)
+cell.meta.df$Path2 <- ifelse(cell.meta.df$Group == "Path2", 1, 0)
 
 # Add Replicate Information
-raw.meta <- cell.meta.df %>% mutate(Replicate = data.table::rleid(
-                                           Step, Path1, Path2)) %>% as.data.frame()
+raw.meta <- cell.meta.df %>%
+  mutate(Replicate = data.table::rleid(
+    Step, Path1, Path2
+  )) %>%
+  as.data.frame()
 
 # Select Columns of Interest
-raw.meta <- raw.meta[, c("Step","Replicate","Path1", "Path2"),drop = F]
-colnames(raw.meta) <- c("Pseudotime","Replicate","Path1", "Path2")
+raw.meta <- raw.meta[, c("Step", "Replicate", "Path1", "Path2"), drop = F]
+colnames(raw.meta) <- c("Pseudotime", "Replicate", "Path1", "Path2")
 
 # Counts
 raw_counts <- as.matrix(sim.sce@assays@data@listData$counts)
@@ -59,24 +62,30 @@ raw_counts <- as.matrix(sim.sce@assays@data@listData$counts)
 ## Pseudobulking with Independent Scripts
 ```{r,  "Pseudobulking with Independent Scripts", message=F}
 # Add Compression Columns for Pseudobulking
-pbMeta <- entropy_discretize(raw.meta, time_col = "Pseudotime", drop.fac = 0.6,
-                             method = "Sturges")
-pbMeta.check <- pbMeta[, colnames(pbMeta) %in% c("Pseudotime", "from", "to", "bin_size"  ,"binnedTime")]
+pbMeta <- entropy_discretize(raw.meta,
+  time_col = "Pseudotime", drop.fac = 0.6,
+  method = "Sturges"
+)
+pbMeta.check <- pbMeta[, colnames(pbMeta) %in% c("Pseudotime", "from", "to", "bin_size", "binnedTime")]
 ```
 
 # bulk-the cell Metadata
 ```{r, "bulk-the cell Metadata", message=F}
-design.profile <- make_pseudobulk_design(design.file = pbMeta,
-                                             paths.vector = c("Path1", "Path2"),
-                                             binnedCol = "binnedTime")
+design.profile <- make_pseudobulk_design(
+  design.file = pbMeta,
+  paths.vector = c("Path1", "Path2"),
+  binnedCol = "binnedTime"
+)
 ```
 
 # bulk the counts
 ```{r, " bulk the counts", message=F}
 # Sum, Mean, Average, of Counts
-bulk_counts_list <- make_bulk_counts(counts = raw_counts, cluster_member_col = "cluster.members", 
-                                         bin_col = "bin", pseudo_bulk_profile = design.profile,
-                                         round = T)
+bulk_counts_list <- make_bulk_counts(
+  counts = raw_counts, cluster_member_col = "cluster.members",
+  bin_col = "bin", pseudo_bulk_profile = design.profile,
+  round = T
+)
 # Extract Sum Counts
 bulk_counts_sum <- bulk_counts_list[["pseudo_bulk_counts_sum"]]
 ```
@@ -85,35 +94,36 @@ bulk_counts_sum <- bulk_counts_list[["pseudo_bulk_counts_sum"]]
 ## Create MaSigPro Design File
 ```{r}
 # Extract MetaData
-bulk_cell_metadata <- design.profile[,c("binnedTime", "Path1", "Path2"), drop = F]
-bulk_cell_metadata <- as.data.frame(bulk_cell_metadata %>% 
-                                            mutate(Replicate = data.table::rleid(
-                                                binnedTime, Path1, Path2)))
-bulk_cell_metadata <- bulk_cell_metadata[, c("binnedTime", "Replicate", "Path1", "Path2"),drop = F]
+bulk_cell_metadata <- design.profile[, c("binnedTime", "Path1", "Path2"), drop = F]
+bulk_cell_metadata <- as.data.frame(bulk_cell_metadata %>%
+  mutate(Replicate = data.table::rleid(
+    binnedTime, Path1, Path2
+  )))
+bulk_cell_metadata <- bulk_cell_metadata[, c("binnedTime", "Replicate", "Path1", "Path2"), drop = F]
 colnames(bulk_cell_metadata) <- c("binnedTime", "Replicate", "Path1", "Path2")
-    
+
 design <- make.design.matrix(
-                edesign = as.data.frame(bulk_cell_metadata), # bulkMeta is edesign
-                degree = 2,
-                time.col = 1, repl.col = 2
-            )
+  edesign = as.data.frame(bulk_cell_metadata), # bulkMeta is edesign
+  degree = 2,
+  time.col = 1, repl.col = 2
+)
 ```
 
 ## Run P-vector
 ```{r}
 # Extract MetaData
 garbage <- capture.output(p.vector.fit <- p.vector(
-                data = bulk_counts_sum, design = design, Q = 0.05,
-                MT.adjust = "BH", min.obs = 6, counts = TRUE))
+  data = bulk_counts_sum, design = design, Q = 0.05,
+  MT.adjust = "BH", min.obs = 6, counts = TRUE
+))
 ```
 
 ## Tfit
 ```{r}
 garbage <- capture.output(tstep.fit <- T.fit(p.vector.fit,
-                                  step.method = "backward",
-                                  family = p.vector.fit$family
-                                  )
-               )
+  step.method = "backward",
+  family = p.vector.fit$family
+))
 ```
 
 ---
@@ -125,9 +135,9 @@ unloadNamespace("maSigPro")
 ```
 
 ```{r}
-#detach("package:scMaSigPro", unload = TRUE)
-#unloadNamespace("scMaSigPro")
-remove.packages("scMaSigPro", lib="~/R/x86_64-pc-linux-gnu-library/4.3")
+# detach("package:scMaSigPro", unload = TRUE)
+# unloadNamespace("scMaSigPro")
+remove.packages("scMaSigPro", lib = "~/R/x86_64-pc-linux-gnu-library/4.3")
 install.packages("../scMaSigPro_0.2.2.tar.gz", repos = NULL, type = "source")
 library(scMaSigPro)
 ```
@@ -139,10 +149,12 @@ raw.meta.scmp <- cell.meta.df[, c("Cell", "Group", "Step"), drop = F]
 colnames(raw.meta.scmp) <- c("Cell", "Path", "Pseudotime")
 
 # Entropy
-pb.meta.scmp <- scMaSigPro::entropy_discretize(design_table = raw.meta.scmp,
-                               time_col = "Pseudotime", path_col = "Path",
-                               method = "Sturges", drop.fac = 0.6,
-                               verbose = F, binning = "universal")
+pb.meta.scmp <- scMaSigPro::entropy_discretize(
+  design_table = raw.meta.scmp,
+  time_col = "Pseudotime", path_col = "Path",
+  method = "Sturges", drop.fac = 0.6,
+  verbose = F, binning = "universal"
+)
 
 # Subselet rows
 pb.meta.scmp.check <- pb.meta.scmp[rownames(pbMeta.check), ]
@@ -156,9 +168,11 @@ testthat::expect_equal(pb.meta.scmp.check, pbMeta.check)
 
 ## Check the result of entropy descritize
 ```{r}
-# Apply make.pseudobulk.design 
-design.profile.scmp <- scMaSigPro::make.pseudobulk.design(pb.meta.scmp,
-                                         "Path")
+# Apply make.pseudobulk.design
+design.profile.scmp <- scMaSigPro::make.pseudobulk.design(
+  pb.meta.scmp,
+  "Path"
+)
 ```
 
 ## Comparae output from make.design.file
@@ -172,9 +186,11 @@ testthat::expect_equal(design.profile.scmp.check, design.profile.check)
 
 ## Make Bulk-Counts
 ```{r}
-bulk_counts_sum.scmp <- scMaSigPro::make.pseudobulk.counts(counts = raw_counts,
-                                   cluster_member_col = "cluster.members",
-                                   bin_col = "bin", pseudo_bulk_profile = design.profile.scmp, cluster.count.by = "sum")
+bulk_counts_sum.scmp <- scMaSigPro::make.pseudobulk.counts(
+  counts = raw_counts,
+  cluster_member_col = "cluster.members",
+  bin_col = "bin", pseudo_bulk_profile = design.profile.scmp, cluster.count.by = "sum"
+)
 ```
 
 ## Comparae output from make.design.file
@@ -184,7 +200,7 @@ testthat::expect_equal(bulk_counts_sum.scmp, as.matrix(bulk_counts_sum))
 
 ## ScMakeDesing
 ```{r}
-remove.packages("scMaSigPro", lib="~/R/x86_64-pc-linux-gnu-library/4.3")
+remove.packages("scMaSigPro", lib = "~/R/x86_64-pc-linux-gnu-library/4.3")
 install.packages("../scMaSigPro_0.2.6.tar.gz", repos = NULL, type = "source")
 library(scMaSigPro)
 load("../benchmarks/01_Sparsity/data/simulated/sce/sparsity_70.RData")
@@ -208,7 +224,6 @@ scmp.obj <- squeeze(
   verbose = F,
   cluster.count.by = "sum"
 )
-
 ```
 
 ```{r}
@@ -221,14 +236,18 @@ scmp.obj <- sc.make.design.matrix(scmp.obj,
 
 
 ```{r}
-scmp.obj <- sc.p.vector(scmpObj = scmp.obj, verbose = F, min.obs = 6,
-                        counts = T, theta = 10, offset = T)
+scmp.obj <- sc.p.vector(
+  scmpObj = scmp.obj, verbose = F, min.obs = 6,
+  counts = T, theta = 10, offset = T
+)
 ```
 
 
 ```{r}
-scmp.obj <- sc.T.fit(data = scmp.obj, verbose = F,
-                     step.method = "backward", family = scmp.obj@scPVector@family, offset = T)
+scmp.obj <- sc.T.fit(
+  data = scmp.obj, verbose = F,
+  step.method = "backward", family = scmp.obj@scPVector@family, offset = T
+)
 ```
 
 ## Comparae output from make.design.file
@@ -243,7 +262,7 @@ dis.scmp <- scmp.obj@edesign@dis
 dis.mp <- design$dis
 testthat::expect_equal(dis.scmp, dis.mp)
 
-#groups.vector 
+# groups.vector
 groups.vector.scmp <- scmp.obj@edesign@groups.vector
 groups.vector.mp <- design$groups.vector
 testthat::expect_equal(groups.vector.scmp, groups.vector.mp)
@@ -253,7 +272,7 @@ testthat::expect_equal(groups.vector.scmp, groups.vector.mp)
 ```{r}
 dis.pvec.scmp <- scmp.obj@scPVector@dis
 dis.pvec.mp <- p.vector.fit$dis
-testthat::expect_equal(dis.pvec.scmp,dis.pvec.mp)
+testthat::expect_equal(dis.pvec.scmp, dis.pvec.mp)
 
 ed.pvec.scmp <- scmp.obj@scPVector@edesign
 ed.pvec.mp <- p.vector.fit$edesign
@@ -261,44 +280,44 @@ testthat::expect_equal(as.data.frame(ed.pvec.scmp), as.data.frame(ed.pvec.mp))
 
 SELEC.pvec.scmp <- scmp.obj@scPVector@SELEC
 SELEC.pvec.mp <- p.vector.fit$SELEC
-testthat::expect_equal(SELEC.pvec.scmp,SELEC.pvec.mp)
+testthat::expect_equal(SELEC.pvec.scmp, SELEC.pvec.mp)
 
 
 sc.pvec.scmp <- scmp.obj@scPVector@sc.p.vector
 sc.pvec.mp <- p.vector.fit$p.vector
-testthat::expect_equal(sc.pvec.scmp,sc.pvec.mp)
+testthat::expect_equal(sc.pvec.scmp, sc.pvec.mp)
 
 
 p.adjusted.pvec.scmp <- scmp.obj@scPVector@p.adjusted
 p.adjusted.pvec.mp <- p.vector.fit$p.adjusted
-testthat::expect_equal(p.adjusted.pvec.scmp,p.adjusted.pvec.mp)
+testthat::expect_equal(p.adjusted.pvec.scmp, p.adjusted.pvec.mp)
 
 
 G.pvec.scmp <- scmp.obj@scPVector@G
 G.pvec.mp <- p.vector.fit$G
-testthat::expect_equal(G.pvec.scmp,G.pvec.mp)
+testthat::expect_equal(G.pvec.scmp, G.pvec.mp)
 
 fam.pvec.scmp <- scmp.obj@scPVector@family
 fam.pvec.mp <- p.vector.fit$family
-testthat::expect_equal(fam.pvec.scmp,fam.pvec.mp)
+testthat::expect_equal(fam.pvec.scmp, fam.pvec.mp)
 
 
 g.pvec.scmp <- scmp.obj@scPVector@g
 g.pvec.mp <- p.vector.fit$g
-testthat::expect_equal(g.pvec.scmp,g.pvec.mp)
+testthat::expect_equal(g.pvec.scmp, g.pvec.mp)
 
 FDR.pvec.scmp <- scmp.obj@scPVector@FDR
 FDR.pvec.mp <- p.vector.fit$FDR
-testthat::expect_equal(FDR.pvec.scmp,FDR.pvec.mp)
+testthat::expect_equal(FDR.pvec.scmp, FDR.pvec.mp)
 
 dat.pvec.scmp <- scmp.obj@scPVector@dat
 dat.pvec.mp <- p.vector.fit$dat
-testthat::expect_equal(dat.pvec.scmp,dat.pvec.mp)
+testthat::expect_equal(dat.pvec.scmp, dat.pvec.mp)
 
 
 minobs.pvec.scmp <- scmp.obj@scPVector@min.obs
 minobs.pvec.mp <- p.vector.fit$min.obs
-testthat::expect_equal(minobs.pvec.scmp,minobs.pvec.mp)
+testthat::expect_equal(minobs.pvec.scmp, minobs.pvec.mp)
 
 
 Q.pvec.scmp <- scmp.obj@scPVector@Q
@@ -308,7 +327,7 @@ testthat::expect_equal(Q.pvec.scmp, Q.pvec.mp)
 
 gv.pvec.scmp <- scmp.obj@scPVector@groups.vector
 gv.pvec.mp <- p.vector.fit$groups.vector
-testthat::expect_equal(gv.pvec.scmp,gv.pvec.mp)
+testthat::expect_equal(gv.pvec.scmp, gv.pvec.mp)
 
 i.pvec.scmp <- scmp.obj@scPVector@i
 i.pvec.mp <- p.vector.fit$i
@@ -324,8 +343,10 @@ testthat::expect_equal(sol.tstep.scmp, sol.tstep.mp)
 
 sig.profiles.tstep.scmp <- scmp.obj@scTFit@sig.profiles
 sig.profiles.tstep.mp <- tstep.fit$sig.profiles
-testthat::expect_equal(as.data.frame(sig.profiles.tstep.scmp),
-                       as.data.frame(sig.profiles.tstep.mp))
+testthat::expect_equal(
+  as.data.frame(sig.profiles.tstep.scmp),
+  as.data.frame(sig.profiles.tstep.mp)
+)
 
 coefficients.tstep.scmp <- scmp.obj@scTFit@coefficients
 coefficients.tstep.mp <- tstep.fit$coefficients
@@ -344,8 +365,10 @@ testthat::expect_equal(dis.tstep.scmp, dis.tstep.mp)
 
 group.coeffs.tstep.scmp <- scmp.obj@scTFit@group.coeffs
 group.coeffs.tstep.mp <- tstep.fit$group.coeffs
-testthat::expect_equal(as.data.frame(group.coeffs.tstep.scmp),
-                       as.data.frame(group.coeffs.tstep.mp))
+testthat::expect_equal(
+  as.data.frame(group.coeffs.tstep.scmp),
+  as.data.frame(group.coeffs.tstep.mp)
+)
 
 
 G.tstep.scmp <- scmp.obj@scTFit@G
@@ -358,8 +381,10 @@ testthat::expect_equal(influ.info.tstep.scmp, influ.info.tstep.mp)
 
 edesign.tstep.scmp <- scmp.obj@scTFit@edesign
 edesign.tstep.mp <- tstep.fit$edesign
-testthat::expect_equal(as.data.frame(edesign.tstep.scmp),
-                       as.data.frame(edesign.tstep.mp))
+testthat::expect_equal(
+  as.data.frame(edesign.tstep.scmp),
+  as.data.frame(edesign.tstep.mp)
+)
 
 groups.vector.tstep.scmp <- scmp.obj@scTFit@groups.vector
 groups.vector.tstep.mp <- tstep.fit$groups.vector
@@ -388,5 +413,4 @@ testthat::expect_equal(variables.tstep.scmp, variables.tstep.mp)
 ```
 
 ```{r}
-
 ```
