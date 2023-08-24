@@ -1,9 +1,10 @@
 # Evaluation with iCobra
 suppressPackageStartupMessages(library(iCOBRA))
+suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(SingleCellExperiment))
 
 # Set Path
-dirPath <- "benchmarks/05_ComparisonWithTradeSeq/data/input/"
+dirPath <- "benchmarks/05_ComparisonWithTradeSeq/data/input/sce/"
 resPath <- "benchmarks/05_ComparisonWithTradeSeq/data/output/"
 helpScriptsDir <- "R_Scripts/helper_function/"
 
@@ -17,7 +18,7 @@ cobraInput <- as.data.frame(apply(cobra.dataset, 2, FUN = function(x) {
 rownames(cobraInput) <- rownames(cobra.dataset)
 
 # Read Ground truth
-load(paste0(dirPath, "sparsity_60.RData"))
+load(paste0(dirPath, "Test_TradeSeq.RData"))
 
 # Extract Gene counts
 row_data <- as.data.frame(rowData(sim.sce))

@@ -8,7 +8,7 @@ suppressPackageStartupMessages(library(tradeSeq))
 suppressPackageStartupMessages(library(gtools))
 
 # Set paths
-dirPath <- "benchmarks/05_ComparisonWithTradeSeq/data/input/"
+dirPath <- "benchmarks/05_ComparisonWithTradeSeq/data/input/sce/"
 resPath <- "benchmarks/05_ComparisonWithTradeSeq/data/output/"
 helpScriptsDir <- "R_Scripts/helper_function/"
 
@@ -16,7 +16,7 @@ helpScriptsDir <- "R_Scripts/helper_function/"
 source(paste0(helpScriptsDir, "calcNormCounts.R"))
 
 # ReadData
-load(paste0(dirPath, "sparsity_60.RData"))
+load(paste0(dirPath, "Test_TradeSeq.RData"))
 
 # Extract raw counts
 counts <- as.matrix(sim.sce@assays@data@listData$counts)
@@ -57,12 +57,12 @@ sce.tradeseq <- fitGAM(
   counts = normCounts,
   pseudotime = pseudotime_table,
   cellWeights = lineage_table,
-  parallel = T,
+  parallel = F,
   nknots = 4, verbose = FALSE
 )
 
 # Save Fitted GAM
-save(sce.tradeseq, file = paste0(resPath, "fitGam_ZI_60.RData"))
+save(sce.tradeseq, file = paste0(resPath, "fitGam_TS_Results.RData"))
 
 # Run Different Test
 patternRes <- patternTest(sce.tradeseq)
@@ -102,5 +102,7 @@ TradeSeq_Clean <- cbind(patternResCobra, earlyResCobra, diffEndResCobra)
 
 # Save Dataframe
 save(TradeSeq_Clean,
-  file = paste0(resPath, "TradeSeq_CobraInput_ZI_60.RData")
+  file = paste0(resPath, "TradeSeq_CobraInput.RData")
 )
+
+
