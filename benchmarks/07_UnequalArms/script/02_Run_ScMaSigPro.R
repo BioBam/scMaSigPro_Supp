@@ -20,7 +20,6 @@ names(dataSets) <- str_remove(
 
 # Set-up a for loop
 for (i in names(dataSets)) {
-    
   poly.degree <- 2
   min.gene <- 6
   theta.val <- 1

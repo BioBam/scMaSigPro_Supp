@@ -76,7 +76,7 @@ mbm <- microbenchmark(
       nknots = 4, verbose = FALSE
     )
     gc()
-    
+
     # One of the test
     patternRes <- patternTest(sce.tradeseq)
     gc()
@@ -86,7 +86,7 @@ mbm <- microbenchmark(
     scmp.obj <- as_scmp(sim.sce, from = "sce")
 
     gc()
-    
+
     # Compress
     scmp.obj <- squeeze(
       scmp.ob = scmp.obj,
@@ -143,6 +143,8 @@ compareBar <- ggplot(data, aes(x = expr, y = mean, fill = expr)) +
   theme_minimal()
 
 # Save
-ggsave(plot = compareBar,
-       filename = paste0(resPath, "CompareBarTime.png"),
-       dpi = 600)
+ggsave(
+  plot = compareBar,
+  filename = paste0(resPath, "CompareBarTime.png"),
+  dpi = 600
+)

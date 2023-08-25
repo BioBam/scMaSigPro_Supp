@@ -17,17 +17,16 @@ load(paste0(inPath, "sparsity_60.RData"))
 
 # Define Avaible distributions
 binning.methods <- list(
-    Sturges = "Sturges",
-    Freedman.Diaconis = "Freedman.Diaconis",
-    Sqrt = "Sqrt",
-    Rice = "Rice",
-    Doane = "Doane",
-    Scott.Normal = "Scott.Normal"
+  Sturges = "Sturges",
+  Freedman.Diaconis = "Freedman.Diaconis",
+  Sqrt = "Sqrt",
+  Rice = "Rice",
+  Doane = "Doane",
+  Scott.Normal = "Scott.Normal"
 )
 
 # Set-up a for loop
 for (i in names(binning.methods)) {
-    
   poly.degree <- 2
   min.gene <- 6
   ep <- 0.00001

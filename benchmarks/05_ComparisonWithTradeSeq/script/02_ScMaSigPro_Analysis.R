@@ -21,35 +21,35 @@ scmp.obj <- as_scmp(object = sim.sce, from = "sce")
 
 # Compress
 scmp.obj <- squeeze(
-    scmp.ob = scmp.obj,
-    time.col = "Step",
-    path.col = "Group",
-    method = "Sturges",
-    drop.fac = 0.7,
-    verbose = T,
-    cluster.count.by = "sum"
+  scmp.ob = scmp.obj,
+  time.col = "Step",
+  path.col = "Group",
+  method = "Sturges",
+  drop.fac = 0.7,
+  verbose = T,
+  cluster.count.by = "sum"
 )
 
 # Make Design
 scmp.obj <- sc.make.design.matrix(scmp.obj,
-                                  degree = 2,
-                                  time.col = "binnedTime",
-                                  path.col = "path"
+  degree = 2,
+  time.col = "binnedTime",
+  path.col = "path"
 )
 
 # Run p-vector
 scmp.obj <- sc.p.vector(
-    scmpObj = scmp.obj, verbose = T, min.obs = 6,
-    counts = T, theta = 10,
-    offset = T
+  scmpObj = scmp.obj, verbose = T, min.obs = 6,
+  counts = T, theta = 10,
+  offset = T
 )
 
 # Run-Step-2
 scmp.obj <- sc.T.fit(
-    data = scmp.obj, verbose = T,
-    step.method = "backward",
-    family = scmp.obj@scPVector@family,
-    offset = T
+  data = scmp.obj, verbose = T,
+  step.method = "backward",
+  family = scmp.obj@scPVector@family,
+  offset = T
 )
 
 # Get sol

@@ -104,5 +104,3 @@ TradeSeq_Clean <- cbind(patternResCobra, earlyResCobra, diffEndResCobra)
 save(TradeSeq_Clean,
   file = paste0(resPath, "TradeSeq_CobraInput.RData")
 )
-
-
