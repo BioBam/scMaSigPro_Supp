@@ -30,44 +30,43 @@ path_a_length <- seq(300, 2700, 300)
 path_b_length <- seq(2700, 300, -300)
 time_length <- list()
 for (i in 1:length(path_a_length)) {
-    sublist <- c(path_a_length[i], path_b_length[i])
-    time_length[[i]] <- sublist
+  sublist <- c(path_a_length[i], path_b_length[i])
+  time_length[[i]] <- sublist
 }
 
 time_length <- time_length[c(1:5)]
 
 ## Create a list of parameters
 for (i in time_length) {
-    
-    # Get Sparsity Level
-    ArmLength <- paste(i, collapse = "_and_")
-    
-    # Name of the List
-    cat(paste("\nSimulating for Time-Series Length:", ArmLength))
-    
-    # Create Base parameters/ Same for All groups
-    params.groups <- newSplatParams(
-        batch.rmEffect = TRUE, # No Batch affect
-        batchCells = 3000, # Number of Cells
-        nGenes = 5000, # Number of Genes
-        seed = 2022, # Set seed
-        mean.rate = 0.3, mean.shape = 5, lib.scale = 0.2,
-        lib.loc = 12, dropout.type = "experiment",
-        group.prob = c(0.5, 0.5), path.from = c(0, 0),
-        de.prob = 0.3, de.facLoc = 1, path.nonlinearProb = 0,
-        path.sigmaFac = 0,
-        dropout.mid = 1.7, dropout.shape = -1,
-        path.skew = c(0.5, 0.5)
-    )
-    
-    # Simulate Object
-    sim.sce <- splatSimulate(params.groups,
-                             method = "paths",
-                             verbose = F,
-                             path.nSteps = c(i[1], i[2])
-    )
-    
-    # Proportion of true Sparsity
+  # Get Sparsity Level
+  ArmLength <- paste(i, collapse = "_and_")
+
+  # Name of the List
+  cat(paste("\nSimulating for Time-Series Length:", ArmLength))
+
+  # Create Base parameters/ Same for All groups
+  params.groups <- newSplatParams(
+    batch.rmEffect = TRUE, # No Batch affect
+    batchCells = 3000, # Number of Cells
+    nGenes = 5000, # Number of Genes
+    seed = 2022, # Set seed
+    mean.rate = 0.3, mean.shape = 5, lib.scale = 0.2,
+    lib.loc = 12, dropout.type = "experiment",
+    group.prob = c(0.5, 0.5), path.from = c(0, 0),
+    de.prob = 0.3, de.facLoc = 1, path.nonlinearProb = 0,
+    path.sigmaFac = 0,
+    dropout.mid = 1.7, dropout.shape = -1,
+    path.skew = c(0.5, 0.5)
+  )
+
+  # Simulate Object
+  sim.sce <- splatSimulate(params.groups,
+    method = "paths",
+    verbose = F,
+    path.nSteps = c(i[1], i[2])
+  )
+
+  # Proportion of true Sparsity
   trueSparsity <- round(sparsity(as.matrix(sim.sce@assays@data@listData$TrueCounts)) * 100)
   simulatedSparsity <- round(sparsity(as.matrix(sim.sce@assays@data@listData$counts)) * 100) - trueSparsity
   totSparsity <- round(sparsity(as.matrix(sim.sce@assays@data@listData$counts)) * 100)

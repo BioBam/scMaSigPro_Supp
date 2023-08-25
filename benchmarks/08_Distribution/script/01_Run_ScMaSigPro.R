@@ -17,18 +17,16 @@ load(paste0(inPath, "sparsity_60.RData"))
 
 # Define Avaible distributions
 avail.dist <- list(
-    #"Gaussian" = gaussian(link = "identity"),
-    #"Poisson" = poisson(link = "log"),
-    #"Quasi" = quasi(link = "identity", variance = "constant"),
-    #"Quasipoisson" = quasipoisson(link = "log"),
-    "Negative_Binomial_theta_1" = MASS::negative.binomial(1),
-    "Negative_Binomial_theta_10" = MASS::negative.binomial(10)
-    
+  # "Gaussian" = gaussian(link = "identity"),
+  # "Poisson" = poisson(link = "log"),
+  # "Quasi" = quasi(link = "identity", variance = "constant"),
+  # "Quasipoisson" = quasipoisson(link = "log"),
+  "Negative_Binomial_theta_1" = MASS::negative.binomial(1),
+  "Negative_Binomial_theta_10" = MASS::negative.binomial(10)
 )
 
 # Set-up a for loop
 for (i in names(avail.dist)) {
-    
   poly.degree <- 2
   min.gene <- 6
   ep <- 0.00001

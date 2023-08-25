@@ -18,8 +18,8 @@ source(paste0(helpScriptsDir, "get_performance.R"))
 dataSets <- list.files(paste0(dirPath))
 dataSets <- dataSets[!(dataSets %in% c("Accuracy.png", "ROC.png", "Performance.Table.tsv"))]
 names(dataSets) <- str_remove(
-    str_remove(dataSets, pattern = "scmp.obj.Arm."),
-    ".RData"
+  str_remove(dataSets, pattern = "scmp.obj.Arm."),
+  ".RData"
 )
 
 # Zero-Inflation.evaluation
