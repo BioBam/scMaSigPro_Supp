@@ -8,12 +8,15 @@ set.seed(007)
 
 # Call the required libraries
 suppressPackageStartupMessages(library(Seurat))
+suppressPackageStartupMessages(library(parallel))
 suppressPackageStartupMessages(library(rhdf5))
 suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(Matrix))
 suppressPackageStartupMessages(library(Azimuth))
 suppressPackageStartupMessages(library(SeuratData))
 suppressPackageStartupMessages(library(SeuratDisk))
+
+num_cores <- 16
 
 # Prefix
 prefixIn <- "benchmarks/11_RealDataSmall/data/input/"
