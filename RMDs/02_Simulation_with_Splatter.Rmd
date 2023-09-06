@@ -41,15 +41,24 @@ We simulated bifurcating topologies (One cell type divides into two different ce
 \label{fig:ideal_bifurcating_path}
 \end{figure}
 
-## Annoation of Differential Genes (Ground Truth)
+## Annotation of Differential Genes (Ground Truth)
 
-Let's assume a simple bifurcating trajectory with 4 genes *geneA*, *geneB*, *geneC* and *geneD*. Splatter, simulated the differential expression by simulating fold-change per **path/group** which reflect the resulting change at the end of the **path/Group** in relation to the start i.e. $Gene_{i_{base}}$ . The final expression of any $gene_i$ is the product of $Path_{i_{foldChange}} * Gene_{i_{base}}$. the effective change in expression across the **Steps/Pseudotime** can be obtained by taking the difference between the start $Gene_{i_{base}}$ and end $Path_{i_{foldChange}} * Gene_{i_{base}}$.
+Splatter, simulates the differential expression by simulating fold-change per **path/group** which reflect the resulting change at the end of the **path/Group** in relation to the start i.e. $Gene_{i_{base}}$ . The final expression of $gene_i$ in $Path_{i}$ is the product of $Path_{i_{foldChange}} * Gene_{i_{base}}$. The effective change in expression across the **Steps/Pseudotime** can be obtained by taking the difference between the start $Gene_{i_{base}}$ and end $Path_{i_{foldChange}} * Gene_{i_{base}}$. If the difference is $+ve$ then the gene is over-expressed in the **path/group** along the **Step/Pseudotime** and under-expressed if the difference is $-ve$.
+
+Therefore, we annotated the genes as follows,
+
+1. If the effective change in expression is more than 0: **Differentially Expressed Along the Lineage**
+    - If the difference is more than 2 units: **High-Fold change + Differentially Expressed**
+    - If the difference is less than 2 units: **Low-Fold change + Differentially Expressed**
+2. If the effective change in expression is equal to 0: **Non-Differentially Expressed Along the Lineage**
+
+Given a bifurcating trajectory a gene which is differentially expressed can following 4 patterns along the trajectory, as discussed in figure  \ref{fig:what_is_differentially_expressed}. We further annotated the simulated genes to identify which of the 4 possible patterns each gene follows.
 
 
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=\textwidth]{Images/Fig2_What_is_differentially_Expressed.png}
-\caption{Ideal representation of native biological order. (A) Principal Components of bifurcating trajectory, where each cell is coloured by the associated Steps/Pseudotime. The length of the one path/group $~1500$ where each cell/sample is associated with one Steps/Pseudotime. (B) Each is coloured to represent a bifurcating trajectory}
+\caption{Four possible patterns of the gene along a bifurcating trajectory. (A) A Gene showing a similar change in expression towards the end of the trajectory of both the lineages/paths can be both over/under-expressed, but the effective change will be similar in both the lineage/paths. (B) A Gene showing the opposite change in expression towards the end of the trajectory of both the lineages/paths. (C) A Gene showing the change in expression towards the end of the trajectory of only one lineage/path, can be both over/under-expressed but change in only path relative to the other. (D) A gene which is not differentially expressed.}
 \label{fig:what_is_differentially_expressed}
 \end{figure}
 
