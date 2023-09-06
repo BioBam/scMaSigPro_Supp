@@ -17,8 +17,10 @@ sce <- readRDS("../supp/01_varying_sparsity/data/input/sceObjects/zi_mid_40_mid_
 ```
 
 ```{r}
-x <- plot_loess_fit(sce, gene_name = "Gene1719", assay_name = "counts",
-               dfreedom = 2)
+x <- plot_loess_fit(sce,
+  gene_name = "Gene1719", assay_name = "counts",
+  dfreedom = 2
+)
 
 # Extract the data from the plot
 plot_data_Line1 <- ggplot_build(x)$data[[1]]
@@ -28,15 +30,21 @@ plot_data_Line2_Spline <- ggplot_build(x)$data[[4]]
 
 # Plot One gene pattern
 ggplot() +
-  geom_point(data = plot_data_Line1, aes(x = x, y = y), color = "red", alpha =0.5) +
-  geom_line(data = plot_data_Line1_Spline, aes(x = x, y = y),
-            linewidth = 1.5, color = "blue") +
-     geom_point(data = plot_data_Line2, aes(x = x, y = y), color = "green", alpha =0.5) +
-   geom_line(data = plot_data_Line2_Spline, aes(x = x, y = y),
-             linewidth = 1.5, color = "purple") +
+  geom_point(data = plot_data_Line1, aes(x = x, y = y), color = "red", alpha = 0.5) +
+  geom_line(
+    data = plot_data_Line1_Spline, aes(x = x, y = y),
+    linewidth = 1.5, color = "blue"
+  ) +
+  geom_point(data = plot_data_Line2, aes(x = x, y = y), color = "green", alpha = 0.5) +
+  geom_line(
+    data = plot_data_Line2_Spline, aes(x = x, y = y),
+    linewidth = 1.5, color = "purple"
+  ) +
   theme_classic() +
-  labs(title = "Expression of Single Gene Along Pseudotime",
-       x = "Inferred Pseudotime", y = "Raw Counts")
+  labs(
+    title = "Expression of Single Gene Along Pseudotime",
+    x = "Inferred Pseudotime", y = "Raw Counts"
+  )
 ```
 
 
@@ -51,29 +59,34 @@ source("../old_Scripts/create_range.R")
 sce.counts <- sce@assays@data@listData$counts
 sce.meta <- as.data.frame(colData(sce))
 sce.pb.meta <- as.data.frame(entropy_discretize(sce.meta, time_col = "Step", drop.fac = 0.8))
-sce.pb.meta$Path1 <- ifelse(sce.pb.meta$Group == "Path1", 1,0)
-sce.pb.meta$Path2 <- ifelse(sce.pb.meta$Group == "Path2", 1,0)
-sce.pb.design <- make_pseudobulk_design(design.file = sce.pb.meta,
-                                        addBinSize = F,  paths.vector = c("Path1", "Path2"),
-                                        binnedCol = "binnedTime")
- bulk_counts_list <- make_bulk_counts(counts = sce.counts, cluster_member_col = "cluster.members", 
-                                         bin_col = "bin", pseudo_bulk_profile = sce.pb.design,
-                                         round = T)
- 
- # Create New Sce
- pb.sce <- SingleCellExperiment(List(counts =  as.matrix(bulk_counts_list$pseudo_bulk_counts_sum),
-                           meanCounts = as.matrix(bulk_counts_list$pseudo_bulk_counts_mean),
-                           medianCounts = as.matrix(bulk_counts_list$pseudo_bulk_counts_median)))
- new.meta <- sce.pb.design[, c("binnedTime","path")]
- new.meta$Cell <- rownames(new.meta)
- colnames(new.meta) <- c("Step", "Group", "Cell")
- colData(pb.sce) <- DataFrame(new.meta)
- 
- # Plot
- source("../../scMaSigPro/R/plot_loess_fit.R")
- plot_loess_fit(pb.sce,
-                gene_name = "Gene1719",
-                 assay_name = "counts", dfreedom = 2)
- 
- 
+sce.pb.meta$Path1 <- ifelse(sce.pb.meta$Group == "Path1", 1, 0)
+sce.pb.meta$Path2 <- ifelse(sce.pb.meta$Group == "Path2", 1, 0)
+sce.pb.design <- make_pseudobulk_design(
+  design.file = sce.pb.meta,
+  addBinSize = F, paths.vector = c("Path1", "Path2"),
+  binnedCol = "binnedTime"
+)
+bulk_counts_list <- make_bulk_counts(
+  counts = sce.counts, cluster_member_col = "cluster.members",
+  bin_col = "bin", pseudo_bulk_profile = sce.pb.design,
+  round = T
+)
+
+# Create New Sce
+pb.sce <- SingleCellExperiment(List(
+  counts = as.matrix(bulk_counts_list$pseudo_bulk_counts_sum),
+  meanCounts = as.matrix(bulk_counts_list$pseudo_bulk_counts_mean),
+  medianCounts = as.matrix(bulk_counts_list$pseudo_bulk_counts_median)
+))
+new.meta <- sce.pb.design[, c("binnedTime", "path")]
+new.meta$Cell <- rownames(new.meta)
+colnames(new.meta) <- c("Step", "Group", "Cell")
+colData(pb.sce) <- DataFrame(new.meta)
+
+# Plot
+source("../../scMaSigPro/R/plot_loess_fit.R")
+plot_loess_fit(pb.sce,
+  gene_name = "Gene1719",
+  assay_name = "counts", dfreedom = 2
+)
 ```

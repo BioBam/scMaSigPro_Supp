@@ -47,8 +47,10 @@ library(scMaSigPro)
 
 ### Create the count table
 ```{r, message=FALSE, echo=FALSE, eval=T, warning=FALSE}
-count_table <- matrix(c(50, 100, 150, 200, 400, 600), nrow = 3, ncol = 2, byrow = FALSE,
-                      dimnames = list(c("Gene1", "Gene2", "Gene3"), c("Sample1", "Sample2")))
+count_table <- matrix(c(50, 100, 150, 200, 400, 600),
+  nrow = 3, ncol = 2, byrow = FALSE,
+  dimnames = list(c("Gene1", "Gene2", "Gene3"), c("Sample1", "Sample2"))
+)
 count_table
 ```
 
@@ -126,19 +128,21 @@ print(offsets)
 library(scMaSigPro)
 sce.obj <- readRDS("../benchMarking_Normalization/data/output/SimObjectsSCE/zi_shape_-0.2.RDS")
 
-scmp.obj <- sc_makeDesign(sce.obj, path.col = "Group",
-                          time.col = "Step", poly.order = 2)
+scmp.obj <- sc_makeDesign(sce.obj,
+  path.col = "Group",
+  time.col = "Step", poly.order = 2
+)
 
 # Extract Required Data
 counts <- as.matrix(scmp.obj@assays@data$counts)
 # Extract the metadata
-covarite.data <- as.data.frame(scmp.obj@covariate@covariate) 
+covarite.data <- as.data.frame(scmp.obj@covariate@covariate)
 
 # Construct the dataframe
-covarite.data$y <- counts[rownames(counts) == "Gene2",]
+covarite.data$y <- counts[rownames(counts) == "Gene2", ]
 
 # Calculate Offset
-geo_means <- apply(counts+1, 1, function(row) {
+geo_means <- apply(counts + 1, 1, function(row) {
   exp(mean(log(row)))
 })
 
@@ -149,36 +153,39 @@ size_factors <- apply(counts, 2, function(col) {
 covarite.data$offsets <- log(size_factors)
 sum(is.infinite(covarite.data$offsets))
 
-glm.model <- glm(y ~ ., data = covarite.data,
-                 family = MASS::negative.binomial(10),
-                 offset = offsets, epsilon = 0.1)
-
+glm.model <- glm(y ~ .,
+  data = covarite.data,
+  family = MASS::negative.binomial(10),
+  offset = offsets, epsilon = 0.1
+)
 ```
 
 ---
 
 
 ```{r, message=FALSE, echo=FALSE, eval=T, warning=FALSE}
-size_factors <- estimateSizeFactorsForMatrix(counts+1)
+size_factors <- estimateSizeFactorsForMatrix(counts + 1)
 
 covarite.data$offsets <- log(size_factors)
 
 sum(is.infinite(covarite.data$offsets))
 
-glm.model.1 <- glm(y ~ ., data = covarite.data,
-                 family = MASS::negative.binomial(10),
-                 #offset = offsets,
-                 epsilon = 0.1)
-glm.model.2 <- glm(y ~ ., data = covarite.data,
-                 family = MASS::negative.binomial(10),
-                 offset = offsets,
-                 epsilon = 0.1)
-
+glm.model.1 <- glm(y ~ .,
+  data = covarite.data,
+  family = MASS::negative.binomial(10),
+  # offset = offsets,
+  epsilon = 0.1
+)
+glm.model.2 <- glm(y ~ .,
+  data = covarite.data,
+  family = MASS::negative.binomial(10),
+  offset = offsets,
+  epsilon = 0.1
+)
 ```
 
 ---
 
 
 ```{r, message=FALSE, echo=FALSE, eval=T, warning=FALSE}
-
 ```
