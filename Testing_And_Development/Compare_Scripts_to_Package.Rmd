@@ -138,7 +138,7 @@ unloadNamespace("maSigPro")
 detach("package:scMaSigPro", unload = TRUE)
 unloadNamespace("scMaSigPro")
 remove.packages("scMaSigPro", lib = "~/R/x86_64-pc-linux-gnu-library/4.3")
-install.packages("../scMaSigPro_0.2.7.tar.gz", repos = NULL, type = "source")
+install.packages("../scMaSigPro_0.2.8.tar.gz", repos = NULL, type = "source")
 library(scMaSigPro)
 ```
 
