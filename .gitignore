@@ -5,10 +5,8 @@
 
 scMaSigPro_*.tar.gz
 
-supp/07_Different_Length_of_Pseudotime/data/
-supp/05_Comparison_with_TradeSeq/data/
-supp/08_Computation_Time_Comparison_with_TradeSeq/data/
-supp/06_Monocle3_Pseudotime_Use_Case/data/
-supp/09_Real_Dataset/data/
+
+Testing_And_Development/*.RDS
+
 
 benchmarks/*/data/
