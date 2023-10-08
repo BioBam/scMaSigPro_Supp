@@ -15,6 +15,7 @@ suppressPackageStartupMessages(library(Azimuth))
 suppressPackageStartupMessages(library(SeuratData))
 suppressPackageStartupMessages(library(SeuratDisk))
 suppressPackageStartupMessages(library(monocle3))
+suppressPackageStartupMessages(library(ggpubr))
 
 # Prefix
 prefixIn <- "benchmarks/11_RealDataSmall/data/results/"
@@ -57,17 +58,25 @@ cds <- reduce_dimension(cds,
 # Cluster the Data
 cds <- cluster_cells(cds)
 
+# UMAP
+a <- plot_cells(cds, cell_size = 1, color_cells_by = "orig.ident", alpha = 0.8,
+           cell_stroke = 0.5, show_trajectory_graph = F) + ggtitle("Cells from one Replicate")
+
 # Learn Graph
 cds <- learn_graph(cds)
 
+b <- plot_cells(cds, cell_size = 1, color_cells_by = "orig.ident", alpha = 0.8,
+                cell_stroke = 0.5, trajectory_graph_segment_size = 2) +
+    ggtitle("Inferred MST")
+
 # Plot the Graph
-trajectory.graph <- plot_cells(cds, color_cells_by = "predicted.celltype.l2")
+c <- plot_cells(cds, cell_size = 1, color_cells_by = "predicted.celltype.l2", alpha = 0.8,
+                cell_stroke = 0.5, show_trajectory_graph = F) +
+    ggtitle("Inferred Cell Types") +theme(legend.position = "bottom")
 
-ggsave(trajectory.graph,
-  filename = paste0(prefixOut, i, "_trajectory_graph.png"),
-  dpi = 1400, limitsize = FALSE, width = 8, height = 8
-)
-
+d <- plot_cells(cds, cell_size = 1, color_cells_by = "predicted.celltype.l2", alpha = 0.8,
+                cell_stroke = 0.5,  trajectory_graph_segment_size = 2) +
+    ggtitle("Inferred Cell Types") +theme(legend.position = "bottom")
 
 # Cell metadata
 cell_metadata <- as.data.frame(colData(cds))
@@ -82,11 +91,29 @@ cds <- order_cells(cds,
 )
 
 # Plot the Graph
-pseudotime.umap <- plot_cells(cds, color_cells_by = "pseudotime")
+e <- plot_cells(cds, color_cells_by = "pseudotime", alpha = 0.8,
+                              cell_stroke = 0.5,  trajectory_graph_segment_size = 1.5,
+                label_cell_groups = F, label_branch_points = F, label_leaves = F,
+                label_principal_points = F, label_roots = T) +
+    ggtitle("Inferred Pseudotime") + theme(legend.position = "bottom")
 
-ggsave(pseudotime.umap,
-  filename = paste0(prefixOut, i, "_pseudotime_umap.png"),
-  dpi = 1400, limitsize = FALSE, width = 8, height = 8
+f <- plot_cells(cds, color_cells_by = "pseudotime", alpha = 0.8,
+                cell_stroke = 0.5,  trajectory_graph_segment_size = 1.5,
+                label_cell_groups = F, label_branch_points = F, label_leaves = F,
+                label_principal_points = T, label_roots = F) +
+    ggtitle("Inferred Pseudotime") + theme(legend.position = "bottom")
+
+combined.map <- ggarrange(
+    a,b,c,d,e,f, ncol = 3, nrow = 2
+)
+
+combined.map.2 <- ggarrange(
+   d, e,f, ncol = 3, nrow = 1
+)
+
+ggsave(combined.map.2,
+  filename = paste0(prefixOut, i, "_combined_2map.png"),
+  dpi = 800, limitsize = FALSE, width = 16, height = 6
 )
 
 # Save
@@ -141,4 +168,19 @@ p <- plot_genes_in_pseudotime(cds[rowData(cds)$gene_short_name == "APOBEC3C", ],
 ggsave(p,
   filename = paste0(prefixOut, i, "_APOBEC3C_Trend.png"),
   dpi = 600, limitsize = FALSE
+)
+
+
+# UP in Lymhpoid
+p <- plot_genes_in_pseudotime(cds[rowData(cds)$gene_short_name == "ACY3", ], color_cells_by = "predicted.celltype.l2")
+ggsave(p,
+       filename = paste0(prefixOut, i, "_ACY3_Trend.png"),
+       dpi = 600, limitsize = FALSE
+)
+
+# UP in Lymhpoid
+p <- plot_genes_in_pseudotime(cds[rowData(cds)$gene_short_name == "ACY3", ], color_cells_by = "predicted.celltype.l2")
+ggsave(p,
+       filename = paste0(prefixOut, i, "_ACY3_Trend.png"),
+       dpi = 600, limitsize = FALSE
 )

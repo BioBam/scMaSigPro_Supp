@@ -16,9 +16,10 @@ suppressPackageStartupMessages(library(Azimuth))
 suppressPackageStartupMessages(library(SeuratData))
 suppressPackageStartupMessages(library(SeuratDisk))
 suppressPackageStartupMessages(library(monocle3))
-suppressPackageStartupMessages(library(scMaSigPro))
+
+# Load scMaSigPro
 install.packages("../scMaSigPro_1.0.1.tar.gz")
-suppressPackageStartupMessages(source("../scMaSigPro/R/selectPath.R"))
+suppressPackageStartupMessages(library(scMaSigPro))
 
 
 # Prefix
@@ -35,7 +36,7 @@ cds
 scmp.obj <- as_scmp(cds, from = "cell_data_set")
 
 # Plot the Paths
-Before<- plot_cells(scmp.obj@sce, color_cells_by = "predicted.celltype.l2")
+Before <- plot_cells(scmp.obj@sce, color_cells_by = "predicted.celltype.l2")
 
 # Subset
 scmp.obj <- selectPath(obj = scmp.obj, sel.path = c("Path1", "Path2"),
@@ -44,7 +45,7 @@ scmp.obj <- selectPath(obj = scmp.obj, sel.path = c("Path1", "Path2"),
 
 # Plot the Paths
 after<- plot_cells(scmp.obj@sce, color_cells_by = "Path", cell_size = 2)
-after.cell<- plot_cells(scmp.obj@sce, color_cells_by = "predicted.celltype.l2",cell_size = 2) + theme(legend.position = "bottom")
+after.cell<- plot_cells(scmp.obj@sce, color_cells_by = "Path",cell_size = 2) + theme(legend.position = "bottom")
 after+after.cell
 
 # Compress
@@ -80,38 +81,5 @@ scmp.obj <- sc.T.fit(
     offset = T
 )
 
-# Extract the genes
-sig.gene <- sc.get.siggenes(scmpObj = scmp.obj, rsq = 0.7, vars = "groups")
-
-
-# Get the pseudobulk counts
-blk.counts <- scmp.obj@compress.sce@assays@data@listData$bulk.counts
-
-# Plot the data
-scMaSigPro::PlotGroups(data = blk.counts[rownames(blk.counts) == sig.gene$summary$Path1[1068],], dis = scmp.obj@scTFit@dis,
-                        edesign =  scmp.obj@scTFit@edesign, show.lines = T, show.fit = T,
-                       groups.vector = scmp.obj@scTFit@groups.vector)
-
-scMaSigPro::PlotGroups(data = blk.counts[rownames(blk.counts) == sig.gene$summary$Path1[1278],], dis = scmp.obj@scTFit@dis,
-                       edesign =  scmp.obj@scTFit@edesign, show.lines = T, show.fit = T,
-                       groups.vector = scmp.obj@scTFit@groups.vector)
-
-scMaSigPro::PlotGroups(data = blk.counts[rownames(blk.counts) == sig.gene$summary$Path1[285],], dis = scmp.obj@scTFit@dis,
-                       edesign =  scmp.obj@scTFit@edesign, show.lines = T, show.fit = T,
-                       groups.vector = scmp.obj@scTFit@groups.vector)
-
-scMaSigPro::PlotGroups(data = blk.counts[rownames(blk.counts) == sig.gene$summary$Path1[1014],], dis = scmp.obj@scTFit@dis,
-                       edesign =  scmp.obj@scTFit@edesign, show.lines = T, show.fit = T,
-                       groups.vector = scmp.obj@scTFit@groups.vector)
-
-scMaSigPro::PlotGroups(data = blk.counts[rownames(blk.counts) == sig.gene$summary$Path1[1182],], dis = scmp.obj@scTFit@dis,
-                       edesign =  scmp.obj@scTFit@edesign, show.lines = T, show.fit = T,
-                       groups.vector = scmp.obj@scTFit@groups.vector)
-
-scMaSigPro::PlotGroups(data = blk.counts[rownames(blk.counts) == sig.gene$summary$Path1[1139],], dis = scmp.obj@scTFit@dis,
-                       edesign =  scmp.obj@scTFit@edesign, show.lines = T, show.fit = T,
-                       groups.vector = scmp.obj@scTFit@groups.vector)
-
-scMaSigPro::PlotGroups(data = blk.counts[rownames(blk.counts) == sig.gene$summary$Path1[1180],], dis = scmp.obj@scTFit@dis,
-                       edesign =  scmp.obj@scTFit@edesign, show.lines = T, show.fit = T,
-                       groups.vector = scmp.obj@scTFit@groups.vector)
+# Save the object for further analysis
+save(scmp.obj, file = paste0(prefixOut, "scmp.obj.RData"))
