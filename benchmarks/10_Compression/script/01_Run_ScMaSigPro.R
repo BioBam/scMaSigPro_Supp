@@ -1,4 +1,4 @@
-# Title: Run ScMaSigPro on simulated datasets with different Skewness
+# Title: Run ScMaSigPro on simulated datasets with different lengths of Pseudotime
 # Author: Priyansh Srivastava
 # Email: spriyansh29@gmail.com
 # Year: 2023
@@ -8,29 +8,24 @@ suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(scMaSigPro))
 
 # Set Paths relative to project
-dirPath <- "benchmarks/03_NumCells/data/simulated/sce/"
+inPath <- "benchmarks/10_Compression/data/input/"
+outPath <- "benchmarks/10_Compression/data/output/"
 helpScriptsDir <- "R_Scripts/helper_function/"
 
 # Load names of files
-dataSets <- list.files(paste0(dirPath))
-names(dataSets) <- str_remove(
-  str_split_i(dataSets, pattern = "_", i = 2),
-  ".RData"
-)
+load(paste0(inPath, "sparsity_60.RData"))
+
+# Define Avaible distributions
+drop.fac.list <- seq(0.3, 1, 0.1)
+names(drop.fac.list) <- seq(0.3, 1, 0.1)
 
 # Set-up a for loop
-for (i in names(dataSets)) {
-  poly.degree <- 2
+for (i in names(drop.fac.list)) {
+    poly.degree <- 2
   min.gene <- 6
-  theta.val <- 1
   ep <- 0.00001
-
-  cat(paste("\nRunning for skew:", i))
-
-  # stop("Expected Stop")
-
-  # Load Data
-  load(file = paste0(dirPath, dataSets[i]))
+  
+  cat(paste("\nRunning for Compression :", i))
 
   tryCatch(
     expr = {
@@ -43,7 +38,7 @@ for (i in names(dataSets)) {
         time.col = "Step",
         path.col = "Group",
         method = "Sturges",
-        drop.fac = 0.6,
+        drop.fac = drop.fac.list[i],
         verbose = T,
         cluster.count.by = "sum"
       )
@@ -58,8 +53,9 @@ for (i in names(dataSets)) {
       # Run p-vector
       scmp.obj <- sc.p.vector(
         scmpObj = scmp.obj, verbose = F, min.obs = min.gene,
-        counts = T, theta = theta.val,
-        offset = T, epsilon = ep
+        counts = T,
+        offset = T, epsilon = ep,
+        family = MASS::negative.binomial(10)
       )
 
       # Run-Step-2
@@ -71,7 +67,7 @@ for (i in names(dataSets)) {
       )
 
       # Save Object
-      save(scmp.obj, file = paste0("benchmarks/03_NumCells/data/output/scmp.obj.skew.", i, ".RData"))
+      save(scmp.obj, file = paste0(outPath, "scmp.obj.Compress.", i, ".RData"))
 
       # Validate
       cat(paste("\nCompleted for", i))

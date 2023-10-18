@@ -11,7 +11,7 @@ suppressPackageStartupMessages(library(gtools))
 suppressPackageStartupMessages(library(tidyverse))
 
 # Set Paths relative to project
-dirPath <- "benchmarks/07_UnequalArms/data/simulated/"
+dirPath <- "benchmarks/03_Differentiation_Speed/data/simulated/"
 helpScriptsDir <- "R_Scripts/helper_function/"
 
 # Create Path

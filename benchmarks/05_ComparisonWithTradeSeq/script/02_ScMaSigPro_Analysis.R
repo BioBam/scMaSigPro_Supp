@@ -25,10 +25,12 @@ scmp.obj <- squeeze(
   time.col = "Step",
   path.col = "Group",
   method = "Sturges",
-  drop.fac = 0.7,
+  drop.fac = 0.4,
   verbose = T,
   cluster.count.by = "sum"
 )
+
+sc.plot.bins(scmpObj = scmp.obj)
 
 # Make Design
 scmp.obj <- sc.make.design.matrix(scmp.obj,
@@ -39,7 +41,7 @@ scmp.obj <- sc.make.design.matrix(scmp.obj,
 
 # Run p-vector
 scmp.obj <- sc.p.vector(
-  scmpObj = scmp.obj, verbose = T, min.obs = 6,
+  scmpObj = scmp.obj, verbose = T, min.obs = 5,
   counts = T, theta = 10,
   offset = T
 )

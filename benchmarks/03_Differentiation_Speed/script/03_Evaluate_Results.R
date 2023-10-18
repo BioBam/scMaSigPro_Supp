@@ -8,7 +8,7 @@ suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(scMaSigPro))
 
 # Set Paths relative to project
-dirPath <- "benchmarks/08_Distribution/data/output/"
+dirPath <- "benchmarks/03_Differentiation_Speed/data/output/"
 helpScriptsDir <- "R_Scripts/helper_function/"
 
 # Load helper functions
@@ -18,7 +18,7 @@ source(paste0(helpScriptsDir, "get_performance.R"))
 dataSets <- list.files(paste0(dirPath))
 dataSets <- dataSets[!(dataSets %in% c("Accuracy.png", "ROC.png", "Performance.Table.tsv"))]
 names(dataSets) <- str_remove(
-  str_remove(dataSets, pattern = "scmp.obj.Fam."),
+  str_remove(dataSets, pattern = "scmp.obj.Arm."),
   ".RData"
 )
 
@@ -28,7 +28,7 @@ eval.list <- list()
 # Set-up a for loop
 for (i in names(dataSets)) {
   # Validation
-  cat(paste("\nRunning for Family:", i))
+  cat(paste("\nRunning for lenEq:", i))
 
   # Load
   load(file = paste0(dirPath, dataSets[i]))
@@ -54,7 +54,7 @@ for (i in names(dataSets)) {
   )
 
   # Add Inflation
-  performance.measure[["Family"]] <- i
+  performance.measure[["Arm"]] <- i
 
   # Add to list
   eval.list[[i]] <- performance.measure
@@ -68,45 +68,47 @@ write.table(evaluation.frame, paste0(dirPath, "Performance.Table.tsv"),
 )
 
 # ROC
-roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = Family)) +
+roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = Arm)) +
   geom_point() +
+    geom_text(data = subset(evaluation.frame, Arm == "300_and_2700" & VARIABLE > 0.4 & VARIABLE <= 0.90), aes(label = sprintf("%.2f", VARIABLE)), color = "black", hjust = 1, vjust = 1.7) +
   geom_path(linewidth = 1.5, alpha = 0.6) +
-  scale_x_continuous(breaks = seq(0, 0.5, 0.05)) +
-  scale_y_continuous(breaks = seq(0.5, 1, 0.05)) +
-  scale_color_brewer(palette = "Set1") +
+    scale_x_continuous(breaks = seq(0, 0.10, 0.01), limits = c(0, 0.10)) +
+    scale_y_continuous(breaks = seq(0.5, 1, 0.1), limits = c(0.5, 1)) +
+  scale_color_brewer(palette = "Set2", name = "Length of the Path") +
   labs(
-    title = "ROC-curve, Different Values of R-Square",
+    #title = "ROC-curve, Different Values of R-Square",
     x = "False Positive Rate (1-Specificity)",
     y = "True Positive Rate (Sensitivity)"
   ) +
   theme_classic() +
-  theme(
-    panel.grid.major = element_line(linewidth = 0.7, color = "lightgrey", linetype = "dotted"),
-    panel.grid.minor = element_line(linewidth = 0.2, color = "grey", linetype = "dotted"),
-    legend.position = "bottom",
-    legend.key.size = unit(4, "cm"),
-    legend.key.width = unit(2, "cm"),
-    legend.key.height = unit(1, "cm"),
-    legend.text = element_text(size = 14),
-    axis.text = element_text(size = rel(1.5)),
-    axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 0.5)
-  ) +
-  geom_vline(xintercept = 0.01, colour = "lightgrey") +
+    theme(
+        panel.grid.major = element_line(linewidth = 0.3, color = "lightgrey", linetype = "dotted"),
+        panel.grid.minor = element_line(linewidth = 0.1, color = "lightgrey", linetype = "dotted"),
+        legend.position = "bottom",
+        legend.key.size = unit(2, "cm"),
+        legend.key.width = unit(1, "cm"),
+        legend.key.height = unit(0.7, "cm"),
+        legend.text = element_text(size = 14),
+        axis.text = element_text(size = rel(1)),
+        axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 0.5)
+    )  +
+  geom_vline(xintercept = 0.01, colour = "grey") +
   geom_vline(xintercept = 0.05, colour = "grey") +
   geom_vline(xintercept = 0.1, colour = "darkgrey") +
   guides(color = guide_legend(key_width = unit(3, "cm"), key_height = unit(4, "cm")))
 
+print(roc)
 
 # Accuracy
 acc <- ggplot(evaluation.frame, aes(
   x = VARIABLE, y = ACCURACY,
-  color = Family
+  color = Arm
 )) +
   geom_point() +
   scale_x_continuous(breaks = seq(0.1, 0.9, 0.05)) +
   geom_path(linewidth = 1.5, alpha = 0.6) +
   scale_y_continuous(breaks = seq(0.7, 1, 0.05)) +
-  scale_color_brewer(palette = "Set1") +
+  scale_color_brewer(palette = "Set2") +
   labs(
     title = "Accuracy Against Changing R Square",
     subtitle = "Red Dots: False Negatives",
@@ -129,9 +131,9 @@ acc <- ggplot(evaluation.frame, aes(
 
 ggsave(acc,
   filename = paste0(dirPath, "Accuracy.png"),
-  dpi = 600, height = 8, width = 10
+  dpi = 600, height = 8, width = 14
 )
 ggsave(roc,
-  filename = paste0(dirPath, "ROC.png"),
-  dpi = 600, height = 8, width = 12
+       filename = paste0(dirPath, "ROC.png"),
+       dpi = 1200, height = 12, width = 12
 )

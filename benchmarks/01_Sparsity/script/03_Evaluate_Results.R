@@ -42,7 +42,7 @@ for (i in names(dataSets)) {
   gene.change <- rownames(row_data[row_data$status != "No_Change", ])
   gene.no.change <- rownames(row_data[row_data$status == "No_Change", ])
 
-
+  # Varying R2
   r2_sequence_value <- seq(0.05, 0.95, 0.05)
 
   if (i == "80") {
@@ -72,32 +72,37 @@ write.table(evaluation.frame, paste0(dirPath, "Performance.Table.tsv"),
 
 # ROC
 roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = Zi)) +
-  geom_point() +
-  geom_path(linewidth = 1.5, alpha = 0.6) +
-  scale_x_continuous(breaks = seq(0, 0.5, 0.05)) +
-  scale_y_continuous(breaks = seq(0.5, 1, 0.05)) +
-  scale_color_brewer(palette = "Set1") +
-  labs(
-    title = "ROC-curve, Different Values of R-Square",
-    x = "False Positive Rate (1-Specificity)",
-    y = "True Positive Rate (Sensitivity)"
-  ) +
-  theme_classic() +
-  theme(
-    panel.grid.major = element_line(linewidth = 0.7, color = "lightgrey", linetype = "dotted"),
-    panel.grid.minor = element_line(linewidth = 0.2, color = "grey", linetype = "dotted"),
-    legend.position = "bottom",
-    legend.key.size = unit(4, "cm"),
-    legend.key.width = unit(2, "cm"),
-    legend.key.height = unit(1, "cm"),
-    legend.text = element_text(size = 14),
-    axis.text = element_text(size = rel(1.5)),
-    axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 0.5)
-  ) +
-  geom_vline(xintercept = 0.01, colour = "lightgrey") +
-  geom_vline(xintercept = 0.05, colour = "grey") +
-  geom_vline(xintercept = 0.1, colour = "darkgrey") +
-  guides(color = guide_legend(key_width = unit(3, "cm"), key_height = unit(4, "cm")))
+    geom_point() +
+    geom_text(data = subset(evaluation.frame, Zi == 60 & VARIABLE > 0.3 & VARIABLE <= 0.90), aes(label = sprintf("%.2f", VARIABLE)), color = "black", hjust = 1, vjust = 1.7) + 
+    geom_path(linewidth = 1.5, alpha = 0.6) +
+    scale_x_continuous(breaks = seq(0, 0.10, 0.01), limits = c(0, 0.10)) +
+    scale_y_continuous(breaks = seq(0.5, 1, 0.1), limits = c(0.5, 1)) +
+    scale_color_brewer(palette = "Set1", name = "Amount of Simulated Zero-Inflation") +
+    labs(
+        #title = "ROC-curve",
+        #subtitle = "Varying levels of Coefficient of Determination (R-Square)",
+        x = "False Positive Rate (1-Specificity)",
+        y = "True Positive Rate (Sensitivity)"
+    ) +
+    theme_classic() +
+    theme(
+        panel.grid.major = element_line(linewidth = 0.3, color = "lightgrey", linetype = "dotted"),
+        panel.grid.minor = element_line(linewidth = 0.1, color = "lightgrey", linetype = "dotted"),
+        legend.position = "bottom",
+        legend.key.size = unit(3, "cm"),
+        legend.key.width = unit(1.5, "cm"),
+        legend.key.height = unit(0.7, "cm"),
+        legend.text = element_text(size = 13),
+        axis.text = element_text(size = rel(1)),
+        axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 0.5)
+    ) +
+    geom_vline(xintercept = 0.01, colour = "grey") +  # Highlighted the x-intercept of 0.01
+    geom_vline(xintercept = 0.05, colour = "grey") +
+    geom_vline(xintercept = 0.1, colour = "darkgrey") +
+    guides(color = guide_legend(key_width = unit(3, "cm"), key_height = unit(4, "cm")))
+
+print(roc)
+
 
 
 # Accuracy
@@ -136,5 +141,5 @@ ggsave(acc,
 )
 ggsave(roc,
   filename = paste0(dirPath, "ROC.png"),
-  dpi = 600, height = 8, width = 8
+  dpi = 1200, height = 8, width = 8
 )

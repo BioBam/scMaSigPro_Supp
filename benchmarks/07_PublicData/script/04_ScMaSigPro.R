@@ -38,10 +38,10 @@ scmp.obj <- as_scmp(cds, from = "cell_data_set")
 # Plot the Paths
 Before <- plot_cells(scmp.obj@sce, color_cells_by = "predicted.celltype.l2")
 
-# Subset
+# Select Path
 scmp.obj <- selectPath(obj = scmp.obj, sel.path = c("Path1", "Path2"),
-                       balance_paths = T, pathCol = "Path", pTimeCol = "Pseudotime",
-                       plot_paths = T, verbose = F)
+                       balance_paths = T, pathCol = "Path",
+                       pTimeCol = "Pseudotime", plot_paths = T, verbose = F)
 
 # Plot the Paths
 after<- plot_cells(scmp.obj@sce, color_cells_by = "Path", cell_size = 2)

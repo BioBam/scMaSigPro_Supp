@@ -8,7 +8,7 @@ suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(scMaSigPro))
 
 # Set Paths relative to project
-dirPath <- "benchmarks/03_NumCells/data/output/"
+dirPath <- "benchmarks/02_Skewness/data/output/"
 helpScriptsDir <- "R_Scripts/helper_function/"
 
 # Load helper functions
@@ -72,32 +72,35 @@ evaluation.frame$skew <- as.factor(as.numeric(evaluation.frame$skew))
 # ROC
 roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = skew)) +
   geom_point() +
+geom_text(data = subset(evaluation.frame, skew == 1 & VARIABLE > 0.3 & VARIABLE <= 0.90), aes(label = sprintf("%.2f", VARIABLE)), color = "black", hjust = 1, vjust = 1.7) +
   geom_path(linewidth = 1.5, alpha = 0.6) +
-  scale_x_continuous(breaks = seq(0, 0.5, 0.05)) +
-  scale_y_continuous(breaks = seq(0.5, 1, 0.05)) +
-  scale_color_brewer(palette = "Set3") +
+    scale_x_continuous(breaks = seq(0, 0.10, 0.01), limits = c(0, 0.10)) +
+    scale_y_continuous(breaks = seq(0.5, 1, 0.1), limits = c(0.3, 1)) +
+  scale_color_brewer(palette = "Set3", name = "Skewness of Cells states across path") +
   labs(
-    title = "ROC-curve, Different Values of R-Square",
+    #title = "ROC-curve, Different Values of R-Square",
+    #subtitle = "",
     x = "False Positive Rate (1-Specificity)",
     y = "True Positive Rate (Sensitivity)"
   ) +
   theme_classic() +
   theme(
     panel.grid.major = element_line(linewidth = 0.7, color = "lightgrey", linetype = "dotted"),
-    panel.grid.minor = element_line(linewidth = 0.2, color = "grey", linetype = "dotted"),
+    panel.grid.minor = element_line(linewidth = 0.2, color = "lightgrey", linetype = "dotted"),
     legend.position = "bottom",
-    legend.key.size = unit(4, "cm"),
-    legend.key.width = unit(2, "cm"),
-    legend.key.height = unit(1, "cm"),
-    legend.text = element_text(size = 14),
-    axis.text = element_text(size = rel(1.5)),
+    legend.key.size = unit(3, "cm"),
+    legend.key.width = unit(1.5, "cm"),
+    legend.key.height = unit(0.7, "cm"),
+    legend.text = element_text(size = 13),
+    axis.text = element_text(size = rel(1)),
     axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 0.5)
   ) +
-  geom_vline(xintercept = 0.01, colour = "lightgrey") +
+  geom_vline(xintercept = 0.01, colour = "grey") +
   geom_vline(xintercept = 0.05, colour = "grey") +
   geom_vline(xintercept = 0.1, colour = "darkgrey") +
   guides(color = guide_legend(key_width = unit(3, "cm"), key_height = unit(4, "cm")))
 
+print(roc)
 
 # Accuracy
 acc <- ggplot(evaluation.frame, aes(
@@ -135,5 +138,5 @@ ggsave(acc,
 )
 ggsave(roc,
   filename = paste0(dirPath, "ROC.png"),
-  dpi = 600, height = 8, width = 12
+  dpi = 1200, height = 10, width = 10
 )
