@@ -4,8 +4,8 @@ suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(SingleCellExperiment))
 
 # Set Path
-dirPath <- "benchmarks/05_ComparisonWithTradeSeq/data/input/sce/"
-resPath <- "benchmarks/05_ComparisonWithTradeSeq/data/output/"
+dirPath <- "benchmarks/04_ComparisonWithTradeSeq/data/input/sce/"
+resPath <- "benchmarks/04_ComparisonWithTradeSeq/data/output/"
 helpScriptsDir <- "R_Scripts/helper_function/"
 
 # Read TradeSeq Data
@@ -59,6 +59,8 @@ cobraplot <- prepare_data_for_plot(cobraperf,
 
 ROC <- plot_roc(cobraplot, title = "ROC")
 ROC
+
+stop()
 TPRvsFDR <- plot_fdrtprcurve(cobraplot, title = "TPR vs FDR")
 TPR <- plot_tpr(cobraplot, title = "TPR")
 FPR <- plot_fpr(cobraplot, title = "FPR")

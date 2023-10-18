@@ -8,8 +8,8 @@ suppressPackageStartupMessages(library(tradeSeq))
 suppressPackageStartupMessages(library(gtools))
 
 # Set paths
-dirPath <- "benchmarks/05_ComparisonWithTradeSeq/data/input/sce/"
-resPath <- "benchmarks/05_ComparisonWithTradeSeq/data/output/"
+dirPath <- "benchmarks/04_ComparisonWithTradeSeq/data/input/sce/"
+resPath <- "benchmarks/04_ComparisonWithTradeSeq/data/output/"
 helpScriptsDir <- "R_Scripts/helper_function/"
 
 # Load custom function
@@ -57,7 +57,7 @@ sce.tradeseq <- fitGAM(
   counts = normCounts,
   pseudotime = pseudotime_table,
   cellWeights = lineage_table,
-  parallel = F,
+  parallel = T,
   nknots = 4, verbose = FALSE
 )
 

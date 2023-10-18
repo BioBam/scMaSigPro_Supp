@@ -9,45 +9,46 @@ suppressPackageStartupMessages(library(scMaSigPro))
 suppressPackageStartupMessages(library(gtools))
 
 # Set paths
-dirPath <- "benchmarks/05_ComparisonWithTradeSeq/data/input/sce/"
-resPath <- "benchmarks/05_ComparisonWithTradeSeq/data/output/"
+dirPath <- "benchmarks/04_ComparisonWithTradeSeq/data/input/sce/"
+resPath <- "benchmarks/04_ComparisonWithTradeSeq/data/output/"
 helpScriptsDir <- "R_Scripts/helper_function/"
 
 # Load result of 60% inflation
 load(paste0(dirPath, "Test_TradeSeq.RData"))
 
-# Create Scmp Object
-scmp.obj <- as_scmp(object = sim.sce, from = "sce")
+# Convert
+scmp.obj <- as_scmp(sim.sce, from = "sce",
+                    additional_params = list(
+                        existing_pseudotime_colname = "Step",
+                        existing_path_colname = "Group",
+                        overwrite_labels = T), verbose = F)
 
 # Compress
 scmp.obj <- squeeze(
-  scmp.ob = scmp.obj,
-  time.col = "Step",
-  path.col = "Group",
-  method = "Sturges",
-  drop.fac = 0.4,
-  verbose = T,
-  cluster.count.by = "sum"
+    scmpObject = scmp.obj,
+    bin_method = "Sturges",
+    drop.fac = 1.2,
+    verbose = F,
+    cluster_count_by = "sum"
 )
 
-sc.plot.bins(scmpObj = scmp.obj)
+
+#sc.plot.bins(scmpObj = scmp.obj)
 
 # Make Design
 scmp.obj <- sc.make.design.matrix(scmp.obj,
-  degree = 2,
-  time.col = "binnedTime",
-  path.col = "path"
+  poly_degree = 3
 )
 
 # Run p-vector
 scmp.obj <- sc.p.vector(
   scmpObj = scmp.obj, verbose = T, min.obs = 5,
-  counts = T, theta = 10,
+  counts = T, theta = 10,parallel = T,
   offset = T
 )
 
 # Run-Step-2
-scmp.obj <- sc.T.fit(
+scmp.obj <- scMaSigPro::sc.T.fit(
   data = scmp.obj, verbose = T,
   step.method = "backward",
   family = scmp.obj@scPVector@family,
