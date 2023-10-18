@@ -11,7 +11,7 @@ suppressPackageStartupMessages(library(gtools))
 suppressPackageStartupMessages(library(tidyverse))
 
 # Set Paths relative to project
-dirPath <- "benchmarks/05_ComparisonWithTradeSeq/data/input/"
+dirPath <- "benchmarks/04_ComparisonWithTradeSeq/data/input/"
 helpScriptsDir <- "R_Scripts/helper_function/"
 
 # Create Path
@@ -27,19 +27,19 @@ source(paste0(helpScriptsDir, "calc_bin_size.R"))
 
 # Create Base parameters/ Same for All groups
 params.groups <- newSplatParams(
-  batch.rmEffect = TRUE, # No Batch affect
-  batchCells = 3000, # Number of Cells
-  nGenes = 5000, # Number of Genes
-  seed = 2022, # Set seed
-  mean.rate = 0.3, mean.shape = 1, lib.scale = 0.2,
-  lib.loc = 11, dropout.type = "experiment",
-  group.prob = c(0.4, 0.6), path.from = c(0, 0),
-  de.prob = 0.3, de.facLoc = 1, path.nonlinearProb = 0.2,
-  path.sigmaFac = 0.2,
-  path.skew = c(0.4, 0.5),
-  path.nSteps = c(1600, 1400),
-  dropout.mid = 0,
-  dropout.shape = -1
+    batch.rmEffect = TRUE, # No Batch affect
+    batchCells = 3000, # Number of Cells
+    nGenes = 5000, # Number of Genes
+    seed = 2022, # Set seed
+    mean.rate = 0.5, mean.shape = 1, lib.scale = 0.2,
+    lib.loc = 11, dropout.type = "experiment",
+    group.prob = c(0.4, 0.6), path.from = c(0, 0),
+    de.prob = 0.3, de.facLoc = 1, path.nonlinearProb = 0.2,
+    path.sigmaFac = 0.2,
+    path.skew = c(0.4, 0.5),
+    path.nSteps = c(1600, 1400),
+    dropout.mid = 0,
+    dropout.shape = -1
 )
 
 # Simulate Object
@@ -52,6 +52,9 @@ sim.sce <- splatSimulate(params.groups,
 trueSparsity <- round(sparsity(as.matrix(sim.sce@assays@data@listData$TrueCounts)) * 100)
 simulatedSparsity <- round(sparsity(as.matrix(sim.sce@assays@data@listData$counts)) * 100) - trueSparsity
 totSparsity <- round(sparsity(as.matrix(sim.sce@assays@data@listData$counts)) * 100)
+totSparsity
+simulatedSparsity
+trueSparsity
 
 # Add gene Info
 gene.info <- add_gene_anno(sim.sce = sim.sce)

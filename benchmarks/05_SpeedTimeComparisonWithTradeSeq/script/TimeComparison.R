@@ -11,8 +11,8 @@ suppressPackageStartupMessages(library(microbenchmark))
 suppressPackageStartupMessages(library(tidyverse))
 
 # Set paths
-dirPath <- "benchmarks/06_SpeedTimeComparisonWithTradeSeq/data/input/"
-resPath <- "benchmarks/06_SpeedTimeComparisonWithTradeSeq/data/output/"
+dirPath <- "benchmarks/05_SpeedTimeComparisonWithTradeSeq/data/input/"
+resPath <- "benchmarks/05_SpeedTimeComparisonWithTradeSeq/data/output/"
 helpScriptsDir <- "R_Scripts/helper_function/"
 
 # Load custom function
@@ -83,35 +83,34 @@ mbm <- microbenchmark(
   },
   "ScMaSigPro" = {
     # Running scMaSigPro
-    scmp.obj <- as_scmp(sim.sce, from = "sce")
+    scmp.obj <-as_scmp(sim.sce, from = "sce",
+                       additional_params = list(
+                           existing_pseudotime_colname = "Step",
+                           existing_path_colname = "Group",
+                           overwrite_labels = T), verbose = F)
 
     gc()
 
-    # Compress
     scmp.obj <- squeeze(
-      scmp.ob = scmp.obj,
-      time.col = "Step",
-      path.col = "Group",
-      method = "Sturges",
-      drop.fac = 0.6,
-      verbose = T,
-      cluster.count.by = "sum"
+        scmpObject = scmp.obj,
+        bin_method = "Sturges",
+        drop.fac = 0.6,
+        verbose = F,
+        cluster_count_by = "sum"
     )
     gc()
 
     # Make Design
     scmp.obj <- sc.make.design.matrix(scmp.obj,
-      degree = 2,
-      time.col = "binnedTime",
-      path.col = "path"
+                                      poly_degree = 3
     )
     gc()
 
     # Run p-vector
     scmp.obj <- sc.p.vector(
-      scmpObj = scmp.obj, verbose = F, min.obs = 10,
-      counts = T, theta = 1,
-      offset = T, epsilon = 0.00001
+        scmpObj = scmp.obj, verbose = T, min.obs = 5,
+        counts = T, theta = 10,parallel = T,
+        offset = T
     )
     gc()
 
@@ -124,7 +123,7 @@ mbm <- microbenchmark(
     )
     gc()
   },
-  times = 2
+  times = 5
 )
 
 data <- summary(mbm) %>% as.data.frame()
