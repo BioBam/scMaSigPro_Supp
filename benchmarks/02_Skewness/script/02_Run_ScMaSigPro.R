@@ -1,4 +1,4 @@
-# Title: Run ScMaSigPro on simulated datasets with different levels of sparsity
+# Title: Run ScMaSigPro on simulated datasets with different Skewness
 # Author: Priyansh Srivastava
 # Email: spriyansh29@gmail.com
 # Year: 2023
@@ -8,7 +8,7 @@ suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(scMaSigPro))
 
 # Set Paths relative to project
-dirPath <- "benchmarks/01_Sparsity/data/simulated/sce/"
+dirPath <- "benchmarks/02_Skewness/data/simulated/sce/"
 helpScriptsDir <- "R_Scripts/helper_function/"
 
 # Load names of files
@@ -25,7 +25,7 @@ for (i in names(dataSets)) {
   theta.val <- 1
   ep <- 0.00001
 
-  cat(paste("\nRunning for sparsity:", i))
+  cat(paste("\nRunning for skew:", i))
 
   # stop("Expected Stop")
 
@@ -35,28 +35,24 @@ for (i in names(dataSets)) {
   tryCatch(
     expr = {
       # Convert
-      scmp.obj <- as_scmp(sim.sce, from = "sce",
-                          additional_params = list(
-                              existing_pseudotime_colname = "Step",
-                              existing_path_colname = "Group",
-                              overwrite_labels = T), verbose = F)
+        scmp.obj <- as_scmp(sim.sce, from = "sce",
+                            additional_params = list(
+                                existing_pseudotime_colname = "Step",
+                                existing_path_colname = "Group",
+                                overwrite_labels = T), verbose = F)
 
-      # Compress
-      scmp.obj <- squeeze(
-        scmpObject = scmp.obj,
-        bin_method = "Sturges",
-        drop.fac = 0.6,
-        verbose = F,
-        cluster_count_by = "sum"
-      )
+        # Compress
+        scmp.obj <- squeeze(
+            scmpObject = scmp.obj,
+            bin_method = "Sturges",
+            drop.fac = 0.6,
+            verbose = F,
+            cluster_count_by = "sum"
+        )
 
-      # Make Design
-      scmp.obj <- sc.make.design.matrix(scmp.obj,
-        poly_degree = poly.degree)
-
-      if (i == "80") {
-        theta.val <- 10
-      }
+        # Make Design
+        scmp.obj <- sc.make.design.matrix(scmp.obj,
+                                          poly_degree = poly.degree)
 
       # Run p-vector
       scmp.obj <- sc.p.vector(
@@ -74,7 +70,7 @@ for (i in names(dataSets)) {
       )
 
       # Save Object
-      save(scmp.obj, file = paste0("benchmarks/01_Sparsity/data/output/scmp.obj.sparsity.", i, ".RData"))
+      save(scmp.obj, file = paste0("benchmarks/02_Skewness/data/output/scmp.obj.skew.", i, ".RData"))
 
       # Validate
       cat(paste("\nCompleted for", i))

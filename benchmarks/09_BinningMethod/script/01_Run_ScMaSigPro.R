@@ -17,11 +17,11 @@ load(paste0(inPath, "sparsity_60.RData"))
 
 # Define Avaible distributions
 binning.methods <- list(
-  Sturges = "Sturges",
-  Freedman.Diaconis = "Freedman.Diaconis",
-  Sqrt = "Sqrt",
-  Rice = "Rice",
-  Doane = "Doane",
+  #Sturges = "Sturges",
+  #Freedman.Diaconis = "Freedman.Diaconis",
+  #Sqrt = "Sqrt",
+  #Rice = "Rice",
+  #Doane = "Doane",
   Scott.Normal = "Scott.Normal"
 )
 
@@ -30,7 +30,7 @@ for (i in names(binning.methods)) {
   poly.degree <- 2
   min.gene <- 6
   ep <- 0.00001
-
+  
   cat(paste("\nRunning for Method:", i))
 
   tryCatch(
@@ -44,7 +44,7 @@ for (i in names(binning.methods)) {
         time.col = "Step",
         path.col = "Group",
         method = i,
-        drop.fac = 0.6,
+        drop.fac = 0.3,
         verbose = T,
         cluster.count.by = "sum"
       )
@@ -61,7 +61,7 @@ for (i in names(binning.methods)) {
         scmpObj = scmp.obj, verbose = F, min.obs = min.gene,
         counts = T,
         offset = T, epsilon = ep,
-        family = MASS::negative.binomial(1)
+        family = MASS::negative.binomial(10)
       )
 
       # Run-Step-2

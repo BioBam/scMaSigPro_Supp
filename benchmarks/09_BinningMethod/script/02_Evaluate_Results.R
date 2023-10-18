@@ -62,13 +62,15 @@ for (i in names(dataSets)) {
 
 # Combine
 evaluation.frame <- do.call(rbind, eval.list)
+
+# Write
 write.table(evaluation.frame, paste0(dirPath, "Performance.Table.tsv"),
   sep = "\t",
   row.names = F, quote = F
 )
 
 # ROC
-roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = Family)) +
+roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = Method)) +
   geom_point() +
   geom_path(linewidth = 1.5, alpha = 0.6) +
   scale_x_continuous(breaks = seq(0, 0.5, 0.05)) +
@@ -100,7 +102,7 @@ roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = Family)) +
 # Accuracy
 acc <- ggplot(evaluation.frame, aes(
   x = VARIABLE, y = ACCURACY,
-  color = Family
+  color = Method
 )) +
   geom_point() +
   scale_x_continuous(breaks = seq(0.1, 0.9, 0.05)) +

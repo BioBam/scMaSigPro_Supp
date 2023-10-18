@@ -58,6 +58,7 @@ cobraplot <- prepare_data_for_plot(cobraperf,
 )
 
 ROC <- plot_roc(cobraplot, title = "ROC")
+ROC
 TPRvsFDR <- plot_fdrtprcurve(cobraplot, title = "TPR vs FDR")
 TPR <- plot_tpr(cobraplot, title = "TPR")
 FPR <- plot_fpr(cobraplot, title = "FPR")

@@ -4,22 +4,26 @@ get_performance <- function(r2_sequence, gene_no_change,
   df.performance <- data.frame(
     VARIABLE = 0, TP = 0, FP = 0, TN = 0, FN = 0,
     TPR = 0, FPR = 0, FNR = 0, TNR = 0,
-    INFLU = 0, INFLU_FP = 0, ACCURACY = 0
+    INFLU = 0, INFLU_FP = 0, INFLU_FN = 0, ACCURACY = 0
   )
 
   all_genes <- c(gene_no_change, gene_change)
-
 
   # Run For all Values of R square
   for (j in r2_sequence) {
     # Get Sig genes
     capture.output(
-      sigs <- scMaSigPro::sc.get.siggenes(
+        scmp_obj <- scMaSigPro::sc.get.siggenes(
         scmpObj = scmp_obj,
         rsq = j,
         vars = "groups", r = 0.7
       )
     )
+      
+      sigs <- list(sig.genes = scmp_obj@siggenes@sig.genes,
+                   summary = scmp_obj@siggenes@summary)
+     
+      
     if (is.null(sigs$sig.genes)) {
       classifications <- list(
         detected.genes = "No Significant Genes found",
@@ -64,6 +68,7 @@ get_performance <- function(r2_sequence, gene_no_change,
 
     # Influential + False Positive
     fp_influential <- intersect(fp, colnames(scmp_obj@scTFit@influ.info))
+    fn_influential <- intersect(fn, colnames(scmp_obj@scTFit@influ.info))
 
     # Sensitivity, True Positive Rate / Recall
     senstivity <- length(tp) / (length(tp) + length(fn))
@@ -93,6 +98,7 @@ get_performance <- function(r2_sequence, gene_no_change,
       TNR = round(specificity, 3),
       INFLU = length(influ),
       INFLU_FP = length(fp_influential),
+      INFLU_FN = length(fn_influential),
       ACCURACY = round(accuracy, 3)
     )
 

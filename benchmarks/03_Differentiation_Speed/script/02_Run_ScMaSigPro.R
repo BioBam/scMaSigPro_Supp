@@ -8,7 +8,7 @@ suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(scMaSigPro))
 
 # Set Paths relative to project
-dirPath <- "benchmarks/07_UnequalArms/data/simulated/sce/"
+dirPath <- "benchmarks/03_Differentiation_Speed/data/simulated/sce/"
 helpScriptsDir <- "R_Scripts/helper_function/"
 
 # Load names of files
@@ -34,31 +34,31 @@ for (i in names(dataSets)) {
 
   tryCatch(
     expr = {
-      # Convert
-      scmp.obj <- as_scmp(sim.sce, from = "sce")
+        # Convert
+        scmp.obj <- as_scmp(sim.sce, from = "sce",
+                            additional_params = list(
+                                existing_pseudotime_colname = "Step",
+                                existing_path_colname = "Group",
+                                overwrite_labels = T), verbose = F)
 
-      # Compress
-      scmp.obj <- squeeze(
-        scmp.ob = scmp.obj,
-        time.col = "Step",
-        path.col = "Group",
-        method = "Sturges",
-        drop.fac = 0.6,
-        verbose = T,
-        cluster.count.by = "sum"
-      )
+        # Compress
+        scmp.obj <- squeeze(
+            scmpObject = scmp.obj,
+            bin_method = "Sturges",
+            drop.fac = 0.6,
+            verbose = F,
+            cluster_count_by = "sum"
+        )
+        
 
-      # Make Design
-      scmp.obj <- sc.make.design.matrix(scmp.obj,
-        degree = poly.degree,
-        time.col = "binnedTime",
-        path.col = "path"
-      )
+        # Make Design
+        scmp.obj <- sc.make.design.matrix(scmp.obj,
+                                          poly_degree = poly.degree)
 
       # Run p-vector
       scmp.obj <- sc.p.vector(
         scmpObj = scmp.obj, verbose = F, min.obs = min.gene,
-        counts = T, theta = theta.val,
+        counts = T, theta = theta.val,parallel = T,
         offset = T, epsilon = ep
       )
 
@@ -71,7 +71,7 @@ for (i in names(dataSets)) {
       )
 
       # Save Object
-      save(scmp.obj, file = paste0("benchmarks/07_UnequalArms/data/output/scmp.obj.Arm.", i, ".RData"))
+      save(scmp.obj, file = paste0("benchmarks/03_Differentiation_Speed/data/output/scmp.obj.Arm.", i, ".RData"))
 
       # Validate
       cat(paste("\nCompleted for", i))

@@ -8,29 +8,29 @@ suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(scMaSigPro))
 
 # Set Paths relative to project
-dirPath <- "benchmarks/02_Length/data/simulated/sce/"
+inPath <- "benchmarks/08_Distribution/data/input/"
+outPath <- "benchmarks/08_Distribution/data/output/"
 helpScriptsDir <- "R_Scripts/helper_function/"
 
 # Load names of files
-dataSets <- list.files(paste0(dirPath))
-names(dataSets) <- str_remove(
-  str_split_i(dataSets, pattern = "_", i = 2),
-  ".RData"
+load(paste0(inPath, "sparsity_60.RData"))
+
+# Define Avaible distributions
+avail.dist <- list(
+  "Gaussian" = gaussian(link = "identity"),
+  "Poisson" = poisson(link = "log"),
+  "Quasi" = quasi(link = "identity", variance = "constant"),
+  "Quasipoisson" = quasipoisson(link = "log"),
+  "Negative_Binomial_theta_1" = MASS::negative.binomial(1)
 )
 
 # Set-up a for loop
-for (i in names(dataSets)) {
+for (i in names(avail.dist)) {
   poly.degree <- 2
   min.gene <- 6
-  theta.val <- 1
   ep <- 0.00001
 
-  cat(paste("\nRunning for LenEq:", i))
-
-  # stop("Expected Stop")
-
-  # Load Data
-  load(file = paste0(dirPath, dataSets[i]))
+  cat(paste("\nRunning for Family:", i))
 
   tryCatch(
     expr = {
@@ -58,8 +58,9 @@ for (i in names(dataSets)) {
       # Run p-vector
       scmp.obj <- sc.p.vector(
         scmpObj = scmp.obj, verbose = F, min.obs = min.gene,
-        counts = T, theta = theta.val,
-        offset = T, epsilon = ep
+        counts = F,
+        offset = T, epsilon = ep,
+        family = avail.dist[[i]]
       )
 
       # Run-Step-2
@@ -71,7 +72,7 @@ for (i in names(dataSets)) {
       )
 
       # Save Object
-      save(scmp.obj, file = paste0("benchmarks/02_Length/data/output/scmp.obj.LenEq.", i, ".RData"))
+      save(scmp.obj, file = paste0(outPath, "scmp.obj.Fam.", i, ".RData"))
 
       # Validate
       cat(paste("\nCompleted for", i))
