@@ -1,5 +1,5 @@
 ---
-title: "Compare Scripts to Package"
+title: "Compare Scriptss to Package"
 author: "Priyansh Srivastava"
 date: "`r Sys.Date()`"
 knit: (function(inputFile, encoding) {
