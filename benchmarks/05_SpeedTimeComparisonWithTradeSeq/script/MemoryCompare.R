@@ -87,98 +87,112 @@ scmp.obj <- sc.make.design.matrix(scmp.obj,
                                   poly_degree = 2
 )
 
-# Benchmark time
-mbm <- microbenchmark(
-  "TradeSeq_1_CPU" = {
-    # Fit GAM
+# Function to measure memory consumption for a block of code
+measure_memory_diff <- function(expr) {
+    start_mem <- mem_used()
+    eval(expr)
+    end_mem <- mem_used()
+    return(end_mem - start_mem)
+}
+
+# Measure memory consumption for TradeSeq_1_CPU
+TradeSeq_1_CPU <- measure_memory_diff(quote({
     sce.tradeseq <- fitGAM(
-      counts = normCounts,
-      pseudotime = pseudotime_table,
-      cellWeights = lineage_table,
-      parallel = F,
-      nknots = 4, verbose = FALSE
+        counts = normCounts,
+        pseudotime = pseudotime_table,
+        cellWeights = lineage_table,
+        parallel = F,
+        nknots = 4, verbose = FALSE
     )
     gc()
-
-    # One of the test
     patternRes <- patternTest(sce.tradeseq)
     gc()
-  },
-  "TradeSeq_8_CPU" = {
-      # Fit GAM
-      sce.tradeseq <- fitGAM(
-          counts = normCounts,
-          pseudotime = pseudotime_table,
-          cellWeights = lineage_table,
-          parallel = T,
-          nknots = 4, verbose = FALSE
-      )
-      gc()
-      
-      # One of the test
-      patternRes <- patternTest(sce.tradeseq)
-      gc()
-  },
-  "ScMaSigPro_1_CPU" = {
-    # Run p-vector
+}))
+
+# Measure memory consumption for TradeSeq_8_CPU
+TradeSeq_8_CPU <- measure_memory_diff(quote({
+    sce.tradeseq <- fitGAM(
+        counts = normCounts,
+        pseudotime = pseudotime_table,
+        cellWeights = lineage_table,
+        parallel = T,
+        nknots = 4, verbose = FALSE
+    )
+    gc()
+    patternRes <- patternTest(sce.tradeseq)
+    gc()
+}))
+
+# Measure memory consumption for ScMaSigPro_1_CPU
+ScMaSigPro_1_CPU <- measure_memory_diff(quote({
     scmp.obj <- sc.p.vector(
         scmpObj = scmp.obj, verbose = F, min.obs = 5,
-        counts = T, theta = 10,parallel = F,
+        counts = T, theta = 10, parallel = F,
         offset = T
     )
     gc()
-
-    # Run-Step-2
     scmp.obj <- sc.T.fit(
-      data = scmp.obj, verbose = F,
-      step.method = "backward",
-      family = scmp.obj@scPVector@family,
-      offset = T,parallel = F
+        data = scmp.obj, verbose = F,
+        step.method = "backward",
+        family = scmp.obj@scPVector@family,
+        offset = T, parallel = F
     )
     gc()
-  },
-  "ScMaSigPro_8_CPU" = {
-      # Run p-vector
-      scmp.obj <- sc.p.vector(
-          scmpObj = scmp.obj, verbose = T, min.obs = 5,
-          counts = T, theta = 10,parallel = T,
-          offset = T
-      )
-      gc()
-      
-      # Run-Step-2
-      scmp.obj <- sc.T.fit(
-          data = scmp.obj, verbose = F,
-          step.method = "backward",
-          family = scmp.obj@scPVector@family,
-          offset = T, parallel = T
-      )
-      gc()
-  },
-  times = 1
+}))
+
+# Measure memory consumption for ScMaSigPro_8_CPU
+ScMaSigPro_8_CPU <- measure_memory_diff(quote({
+    scmp.obj <- sc.p.vector(
+        scmpObj = scmp.obj, verbose = T, min.obs = 5,
+        counts = T, theta = 10, parallel = T,
+        offset = T
+    )
+    gc()
+    scmp.obj <- sc.T.fit(
+        data = scmp.obj, verbose = F,
+        step.method = "backward",
+        family = scmp.obj@scPVector@family,
+        offset = T, parallel = T
+    )
+    gc()
+}))
+
+# Create a dataframe for plotting
+mem_data <- data.frame(
+    Method = c("TradeSeq_1_CPU", "TradeSeq_8_CPU", "ScMaSigPro_1_CPU", "ScMaSigPro_8_CPU"),
+    Memory = c(TradeSeq_1_CPU, TradeSeq_8_CPU, ScMaSigPro_1_CPU, ScMaSigPro_8_CPU)
 )
 
-# Process the results
-data <-summary(mbm) %>% as.data.frame()
+# Convert bytes to MB
+mem_data$Memory_MB <- mem_data$Memory / (1024^2)
 
-compareBar_Time <- ggplot(data, aes(x = expr, y = mean, fill = expr)) +
+# Check the maximum memory in the data to decide if we need GB scale
+max_mem_gb <- max(mem_data$Memory_MB) / 1024
+
+# If the maximum memory is greater than 1 GB, convert to GB
+if(max_mem_gb > 1) {
+    mem_data$Memory_MB <- mem_data$Memory_MB / 1024
+    y_label <- "Memory Used (GB)"
+} else {
+    y_label <- "Memory Used (MB)"
+}
+
+# Plotting
+memBar <- ggplot(mem_data, aes(x = Method, y = Memory_MB, fill = Method)) +
     geom_bar(stat = "identity") +
-    labs(
-        title = "Execution Times for a bifurcating trajectory",
-        subtitle = "Number of Cells: 1500; Number of Genes: 2500",
-        x = "Method",
-        y = "Time (seconds)"
-    ) + 
-    coord_flip() + 
+    labs(title = "Memory Consumption Comparison",
+         y = y_label,
+         x = "Method") + coord_flip()+
     scale_fill_viridis(discrete = TRUE, name = "Custom Legend Title",
                        breaks = c("TradeSeq_1_CPU", "ScMaSigPro_1_CPU", "TradeSeq_8_CPU", "ScMaSigPro_8_CPU"),
                        labels = c("Custom Label 1", "Custom Label 2", "Custom Label 3", "Custom Label 4")) +
     theme_minimal(base_size = 20) + 
     theme(legend.position = "none", legend.justification = "left", legend.box.just = "left")
 
+
 # Save
 ggsave(
-  plot = compareBar_Time,
-  filename = paste0(resPath, "CompareBarTime.png"),
-  dpi = 1200, width = 10
+    plot = memBar,
+    filename = paste0(resPath, "CompareBarMemory.png"),
+    dpi = 800, width = 10
 )
