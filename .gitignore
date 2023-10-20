@@ -10,3 +10,4 @@ Testing_And_Development/*.RDS
 
 
 benchmarks/*/data/
+Analysis_Public_Data/data/*
