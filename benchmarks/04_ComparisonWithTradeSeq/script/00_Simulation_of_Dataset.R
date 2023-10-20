@@ -31,13 +31,13 @@ params.groups <- newSplatParams(
     batchCells = 3000, # Number of Cells
     nGenes = 5000, # Number of Genes
     seed = 2022, # Set seed
-    mean.rate = 0.5, mean.shape = 1, lib.scale = 0.2,
+    mean.rate = 1, mean.shape = 1, lib.scale = 0.2,
     lib.loc = 11, dropout.type = "experiment",
     group.prob = c(0.4, 0.6), path.from = c(0, 0),
-    de.prob = 0.3, de.facLoc = 1, path.nonlinearProb = 0.2,
-    path.sigmaFac = 0.2,
+    de.prob = 0.3, de.facLoc = 1, path.nonlinearProb = 0,
+    path.sigmaFac = 0,
     path.skew = c(0.4, 0.5),
-    path.nSteps = c(1600, 1400),
+    path.nSteps = c(1500, 1400),
     dropout.mid = 0,
     dropout.shape = -1
 )

@@ -14,7 +14,7 @@ resPath <- "benchmarks/04_ComparisonWithTradeSeq/data/output/"
 helpScriptsDir <- "R_Scripts/helper_function/"
 
 # Load result of 60% inflation
-load(paste0(dirPath, "Test_TradeSeq.RData"))
+#load(paste0(dirPath, "Test_TradeSeq.RData"))
 
 # Convert
 scmp.obj <- as_scmp(sim.sce, from = "sce",
@@ -27,9 +27,10 @@ scmp.obj <- as_scmp(sim.sce, from = "sce",
 scmp.obj <- squeeze(
     scmpObject = scmp.obj,
     bin_method = "Sturges",
-    drop.fac = 1.2,
-    verbose = F,
-    cluster_count_by = "sum"
+    drop.fac = 0.4,
+    verbose = T,
+    cluster_count_by = "sum",
+    binning = "universal"
 )
 
 
@@ -37,20 +38,20 @@ scmp.obj <- squeeze(
 
 # Make Design
 scmp.obj <- sc.make.design.matrix(scmp.obj,
-  poly_degree = 3
+  poly_degree = 2
 )
 
 # Run p-vector
 scmp.obj <- sc.p.vector(
-  scmpObj = scmp.obj, verbose = T, min.obs = 5,
-  counts = T, theta = 10,parallel = T,
+  scmpObj = scmp.obj, verbose = T, min.obs = 1,
+  counts = T, theta = 1,parallel = T,MT.adjust = "fdr",
   offset = T
 )
 
 # Run-Step-2
 scmp.obj <- scMaSigPro::sc.T.fit(
   data = scmp.obj, verbose = T,
-  step.method = "backward",
+  step.method = "backward",parallel = T,
   family = scmp.obj@scPVector@family,
   offset = T
 )
@@ -68,7 +69,7 @@ colnames(sol) <- c("p_value", "rsq")
 sol$p_value[is.na(sol$p_value)] <- 1
 
 # Get genes with r2 > 0.6
-sol.sel <- sol[sol$rsq >= 0.6, c(1, 2), drop = F]
+sol.sel <- sol[sol$rsq >= 0.7, c(1, 2), drop = F]
 
 # Load tradeSeq table
 load(paste0(resPath, "TradeSeq_CobraInput.RData"))
@@ -90,7 +91,7 @@ sol <- rbind(undetected, sol.sel)
 sol <- sol[mixedorder(rownames(sol)), , drop = F]
 
 # Select the column and rename
-colnames(sol) <- c("scMSP_0.6", "rsq")
+colnames(sol) <- c("scmp_0.6", "rsq")
 
 # Join with TradeSeq Data
 cobra.dataset <- cbind(TradeSeq_Clean, sol[, 1, drop = F])
