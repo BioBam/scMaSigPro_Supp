@@ -27,6 +27,7 @@ reg.out <- c(unique(biomart.anno$SYMBOL))
 
 # Get folder names
 rep_vec <- list.dirs(prefixIn, full.names = F, recursive = F)
+rep_vec <- rep_vec[!(rep_vec %in% c("Azimuth_Human_BoneMarrow", "Setty_et_al_2019_Integrated_sob.h5seurat"))]
 names(rep_vec) <- rep_vec
 
 # Run lapply

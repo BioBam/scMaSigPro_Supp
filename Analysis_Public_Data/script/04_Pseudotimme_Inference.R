@@ -18,71 +18,43 @@ suppressPackageStartupMessages(library(monocle3))
 suppressPackageStartupMessages(library(ggpubr))
 
 # Prefix
-prefixIn <- "benchmarks/11_RealDataSmall/data/results/"
-prefixOut <- "benchmarks/11_RealDataSmall/data/results/"
-
-# Set Variables
-i <- "rep1"
-individual <- "1"
-age <- "35"
-sex <- "Male"
+prefixIn <- "Analysis_Public_Data/data/"
+prefixOut <- "Analysis_Public_Data/data/"
 
 #  the Processed Seurat Object
-sob <- LoadH5Seurat(file = paste0(prefixIn, "rep1_Annotated_sob.h5seurat"), verbose = F)
-
-# Plot
-DimPlot(sob, reduction = "umap", pt.size = 1, group.by = "predicted.celltype.l2") +
-  ggtitle(paste0("Individual: ", individual, " Age: ", age, " Sex: ", sex)) +
-  scale_color_hue(l = 50) + theme(legend.position = "bottom")
+sob <- LoadH5Seurat(file = paste(prefixIn, "Setty_et_al_2019_Integrated_sob.h5seurat", sep = "/"), verbose = F)
 
 # Construct Cell Dataset object
 cds <- new_cell_data_set(
-  expression_data = sob@assays$RNA@counts,
+  expression_data = sob@assays$integrated@scale.data,
   cell_metadata = DataFrame(sob@meta.data),
   gene_metadata = data.frame(
-    gene_short_name = rownames(sob@assays$RNA@counts),
-    row.names = rownames(sob@assays$RNA@counts)
+    gene_short_name = rownames(sob@assays$integrated@scale.data),
+    row.names = rownames(sob@assays$integrated@scale.data)
   )
 )
 
+
 # Pre-process
-cds <- preprocess_cds(cds, num_dim = 5)
+cds <- preprocess_cds(cds, num_dim = 50, scaling = F, norm_method = "none")
 
 # Reduce dimensions
 cds <- reduce_dimension(cds,
-  max_components = 2,
-  umap.min_dist = 0.5,
+  max_components = 3,
   preprocess_method = "PCA"
 )
 
 # Cluster the Data
 cds <- cluster_cells(cds)
 
-# UMAP
-a <- plot_cells(cds, cell_size = 1, color_cells_by = "orig.ident", alpha = 0.8,
-           cell_stroke = 0.5, show_trajectory_graph = F) + ggtitle("Cells from one Replicate")
-
 # Learn Graph
 cds <- learn_graph(cds)
-
-b <- plot_cells(cds, cell_size = 1, color_cells_by = "orig.ident", alpha = 0.8,
-                cell_stroke = 0.5, trajectory_graph_segment_size = 2) +
-    ggtitle("Inferred MST")
-
-# Plot the Graph
-c <- plot_cells(cds, cell_size = 1, color_cells_by = "predicted.celltype.l2", alpha = 0.8,
-                cell_stroke = 0.5, show_trajectory_graph = F) +
-    ggtitle("Inferred Cell Types") +theme(legend.position = "bottom")
-
-d <- plot_cells(cds, cell_size = 1, color_cells_by = "predicted.celltype.l2", alpha = 0.8,
-                cell_stroke = 0.5,  trajectory_graph_segment_size = 2) +
-    ggtitle("Inferred Cell Types") +theme(legend.position = "bottom")
 
 # Cell metadata
 cell_metadata <- as.data.frame(colData(cds))
 
 # Select barcodes
-root_barcodes <- rownames(cell_metadata[cell_metadata$predicted.celltype.l2 == "HSC", ])
+root_barcodes <- rownames(cell_metadata[cell_metadata$azimuth_celltype == "HSC", ])
 
 # Calculate the Pseudotime
 cds <- order_cells(cds,
@@ -91,7 +63,7 @@ cds <- order_cells(cds,
 )
 
 # Plot the Graph
-e <- plot_cells(cds, color_cells_by = "pseudotime", alpha = 0.8,
+plot_cells(cds, color_cells_by = "pseudotime", alpha = 0.8,
                               cell_stroke = 0.5,  trajectory_graph_segment_size = 1.5,
                 label_cell_groups = F, label_branch_points = F, label_leaves = F,
                 label_principal_points = F, label_roots = T) +
