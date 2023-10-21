@@ -23,7 +23,7 @@ prefixOut <- "Analysis_Public_Data/data"
 
 # Get file names
 rep_vec <- list.dirs(prefixIn, full.names = F, recursive = F)
-rep_vec <- rep_vec[!(rep_vec %in% c("Azimuth_Human_BoneMarrow", "Setty_et_al_2019_Integrated_sob.h5seurat"))]
+rep_vec <- rep_vec[!(rep_vec %in% c("Azimuth_Human_BoneMarrow", "Setty_et_al_2019_Integrated_sob.h5seurat", "Human_Cell_Atlas"))]
 names(rep_vec) <- rep_vec
 
 # Run lapply
@@ -69,7 +69,7 @@ umap.list <- lapply(rep_vec, function(rep_i, inPath = prefixIn, outPath = prefix
     )
     
     # Subset the Scores
-    sob.bm <- subset(sob.bm, subset = predicted.celltype.l2.score >= 0.6)
+    #sob.bm <- subset(sob.bm, subset = predicted.celltype.l2.score >= 0.6)
 
     # Plot the Annotations
     p <- DimPlot(sob.bm, reduction = "umap", pt.size = 1, group.by = "predicted.celltype.l2") +
@@ -79,8 +79,7 @@ umap.list <- lapply(rep_vec, function(rep_i, inPath = prefixIn, outPath = prefix
     # Subset the Major Cell States representing all lineage
     sob.bm <- subset(sob.bm,
                       subset = predicted.celltype.l2 %in% c(
-                          "GMP", "HSC",
-                          "LMPP",
+                          "GMP", "LMPP","HSC",
                           "CLP", "EMP"
                       )
     )
