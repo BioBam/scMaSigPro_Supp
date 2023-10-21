@@ -152,13 +152,14 @@ marker.list <- lapply(cds.list, FUN = function(cds, inPath = prefixIn, outPath =
     rep_i <- levels(unique(cds@colData@listData$orig.ident))
     
     # Combined Plot
-    combined_plot <- ggarrange( = rep_plots, ncol = 3, nrow = 3)
-    
-    print(combined_plot)
+    combined_plot <- ggarrange(rep_plots[[1]], rep_plots[[2]], rep_plots[[3]], 
+                               rep_plots[[4]], rep_plots[[5]], rep_plots[[6]],
+                               rep_plots[[7]], rep_plots[[8]], rep_plots[[9]],
+                               ncol = 3, nrow = 3)
     
     # Save
     ggsave(file = paste0(paste(inPath, rep_i ,sep = "/"), "/",rep_i, "_Markers.png"),
-           plot = combined_plot, width = 16, height = 16, dpi = 1600, limitsize = FALSE)
+           plot = combined_plot, width = 12, height = 8, dpi = 800, limitsize = FALSE)
     
     return(rep_plots)
 })
