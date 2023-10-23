@@ -69,7 +69,7 @@ sce.list <- mclapply(rep_vec, FUN = function(rep_i, inPath = prefixIn, outPath =
                                         )))
     
     # Dimension reduction
-    sce <- runTSNE(sce, exprs_values = "norm")
+    reducedDim(sce)$UMAP <- sob[["umap"]]@cell.embeddings
     
     # Clustring
     sce@colData$mclusters <- as.factor(as.character(Mclust(reducedDim(sce))$classification))
@@ -86,9 +86,9 @@ sce.plot.list <- lapply(sce.list, FUN = function(rep_i, inPath = prefixIn, outPa
     # Plot UMAP and PCA
     #pca <- plotPCA(rep_i, colour_by = "predicted.celltype.l2")
     #umap <- plotUMAP(rep_i, colour_by = "predicted.celltype.l2")
-    tsne_cell = plotTSNE(rep_i, colour_by = "predicted.celltype.l2")
-    tsne_cluster = plotTSNE(rep_i, colour_by = "mclusters")
-    tsne <- tsne_cell + tsne_cluster
+    umap_cell = plotUMAP(rep_i, colour_by = "predicted.celltype.l2")
+    umap_cluster = plotUMAP(rep_i, colour_by = "mclusters")
+    umap <- umap_cell + umap_cluster
     
     # Return
     return(list(
@@ -125,25 +125,7 @@ sling.plot.list <-  mclapply(sling.sce.list, FUN = function(rep_i, inPath = pref
 }, mc.cores = detectCores(), mc.set.seed = 123)
 
 
-
-df <- as.data.frame(reducedDim(sling.sce.list$rep1))
-df <- cbind(df, data.frame(mclusters = sling.sce.list$rep1@colData$mclusters,
-                           azimuth_cells = sling.sce.list$rep1@colData$predicted.celltype.l2))
-curve.df <- slingCurves(sling.sce.list$rep1, as.df = TRUE)
-
-
-ggplot(df, aes(x = TSNE1, y = TSNE2)) +
-    geom_point(aes(fill = mclusters), col = "grey70", shape = 21) + 
-    geom_path(data = curve.df, aes(x = TSNE1, y = TSNE2))+
-    theme_classic()
-
-ggplot(df, aes(x = TSNE1, y = TSNE2)) +
-    geom_point(aes(fill = azimuth_cells), col = "grey70", shape = 21) + 
-    geom_path(data = curve.df, aes(x = TSNE1, y = TSNE2))+
-    theme_classic()
-
-
-Slomgh# Basic Pre-Processing and log Normalization
+# Basic Pre-Processing and log Normalization
 cds.umap.list <- lapply(cds.list, FUN = function(cds, inPath = prefixIn, outPath = prefixOut){
     
     # Plot the Graph
