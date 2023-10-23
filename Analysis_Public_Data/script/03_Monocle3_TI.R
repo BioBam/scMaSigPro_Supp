@@ -165,8 +165,6 @@ marker.list <- lapply(cds.list, FUN = function(cds, inPath = prefixIn, outPath =
 })
 
 
-
-
 # HPO in Monocyte Like cells
 ggsave(p,
   filename = paste0(prefixOut, i, "_MPO_Trend.png"),

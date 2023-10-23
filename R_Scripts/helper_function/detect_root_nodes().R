@@ -1,7 +1,9 @@
-find_root_pp <- function(cds.object, cell = "HSC", cell_col = "predicted.celltype.l2", top_nodes = 5){
+find_root_pp <- function(object, cell = "HSC", cell_col = "predicted.celltype.l2", factor_col = "mclusters", top_nodes = 5, objType = "cds", end_cells = c("GMP", "EMP", "CLP")){
+    
+    if(objType == "cds"){
     
     # Retrieve the cell metadata from the given cds object
-    cell_meta <- as.data.frame(colData(cds.object))
+    cell_meta <- as.data.frame(colData(object))
     
     # Subset the metadata to only include the column specified by 'cell_col'
     cell_meta <- cell_meta[, cell_col, drop = F]
@@ -10,7 +12,7 @@ find_root_pp <- function(cds.object, cell = "HSC", cell_col = "predicted.celltyp
     cell_meta$barcode <- rownames(cell_meta)
     
     # Extract the principal graph from the cds object
-    ppgraph <- principal_graph_aux(cds.object)
+    ppgraph <- principal_graph_aux(object)
     
     # Get the closest vertex data from the principal graph
     vertex <- as.data.frame(ppgraph@listData$UMAP$pr_graph_cell_proj_closest_vertex)
@@ -40,5 +42,25 @@ find_root_pp <- function(cds.object, cell = "HSC", cell_col = "predicted.celltyp
     top_pp <- names(sorted_pp_counts)[1:top_nodes]
     
     # Return the top 'pp' values
-    return(top_pp) 
+    return(top_pp)
+    
+    }else if (objType == "sling"){
+        
+        cell.meta <- as.data.frame(colData(object))
+        cell.meta <- cell.meta[, c(factor_col, cell_col)]
+        count_cluster <- table(cell.meta) %>% as.data.frame()
+        start_factor <- count_cluster[count_cluster[[cell_col]] == cell & count_cluster[["Freq"]] == max(count_cluster[["Freq"]]), factor_col]
+        start_factor <- droplevels(start_factor)
+        
+        end_factor = list()
+        for (i in end_cells){
+            end <- count_cluster[count_cluster[[cell_col]] == i ,]
+            end <- end[(end[["Freq"]] == max(end[["Freq"]])),]
+            end <- end[[factor_col]]
+            end <- droplevels(end)
+            end_factor[[i]] <- end
+        }
+        return(list(root = start_factor, 
+                    end = unlist(end_factor)))
+    }
 }
