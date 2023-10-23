@@ -53,10 +53,22 @@ sce.list <- mclapply(rep_vec, FUN = function(rep_i, inPath = prefixIn, outPath =
     }
     
     # Step-2: Load the Seurat Object
-    sob <- LoadH5Seurat(
+    sob.prs <- LoadH5Seurat(
         paste0(paste(inPath, rep_i,sep = "/"), "/",rep_i, "_azimuth.h5seurat"),
         verbose = FALSE
     )
+    
+    # Run PCA
+    sob.prs <- RunPCA(sob.prs,
+                      features = VariableFeatures(sob.prs),
+                      verbose = F, ndims.print = 0, nfeatures.print = 0
+    )
+    
+    # Compute UMAP
+    sob.prs <- FindNeighbors(sob.prs, verbose = F)
+    sob.prs <- FindClusters(sob.prs, verbose = F)
+    sob.prs <- RunUMAP(sob.prs, dims = 1:50, verbose = F)
+    sob <- sob.prs
     
     # Create SCE
     sce <- SingleCellExperiment(assays = List(counts = sob@assays$RNA@counts, # raw Counts
@@ -69,10 +81,10 @@ sce.list <- mclapply(rep_vec, FUN = function(rep_i, inPath = prefixIn, outPath =
                                         )))
     
     # Dimension reduction
-    reducedDim(sce)$UMAP <- sob[["umap"]]@cell.embeddings
+    reducedDims(sce)$UMAP <- sob@reductions$umap@cell.embeddings
     
     # Clustring
-    sce@colData$mclusters <- as.factor(as.character(Mclust(reducedDim(sce))$classification))
+    sce@colData$seurat_clusters <- as.factor(as.character(sob@meta.data$seurat_clusters))
     
     # Return CDS
     return(sce)
@@ -81,120 +93,52 @@ sce.list <- mclapply(rep_vec, FUN = function(rep_i, inPath = prefixIn, outPath =
 
 
 # Basic Pre-Processing and log Normalization
-sce.plot.list <- lapply(sce.list, FUN = function(rep_i, inPath = prefixIn, outPath = prefixOut){
+sce.plot.list <- mclapply(sce.list, FUN = function(rep_i, inPath = prefixIn, outPath = prefixOut){
     
     # Plot UMAP and PCA
-    #pca <- plotPCA(rep_i, colour_by = "predicted.celltype.l2")
-    #umap <- plotUMAP(rep_i, colour_by = "predicted.celltype.l2")
     umap_cell = plotUMAP(rep_i, colour_by = "predicted.celltype.l2")
-    umap_cluster = plotUMAP(rep_i, colour_by = "mclusters")
+    umap_cluster = plotUMAP(rep_i, colour_by = "seurat_clusters")
     umap <- umap_cell + umap_cluster
     
     # Return
     return(list(
-        TSNE = tsne
+        UMAP = umap
         ))
-    
-    #}, mc.cores = detectCores(), mc.set.seed = 123)
-})
+}, mc.cores = detectCores(), mc.set.seed = 123)
 
 # Run slingshot
 sling.sce.list <-  mclapply(sce.list, FUN = function(rep_i, inPath = prefixIn, outPath = prefixOut){
-    rep_i <- slingshot(rep_i, clusterLabels = 'mclusters', reducedDim = 'TSNE',
-                       start.clus = find_root_pp(rep_i,
-                                                 objType = "sling")$root,
-                       end.clus = find_root_pp(rep_i,
+    rep_i <- slingshot(rep_i, clusterLabels = 'seurat_clusters', reducedDim = 'UMAP',
+                       start.clus =  find_root_pp(rep_i,factor_col = "seurat_clusters",
+                                                  cell_col = "predicted.celltype.l2",
+                                                  objType = "sling")$root,
+                       end.clus = find_root_pp(rep_i,factor_col = "seurat_clusters",
+                                               cell_col = "predicted.celltype.l2",
                                                objType = "sling")$end
                        )
 }, mc.cores = detectCores(), mc.set.seed = 123)
 
-
 # Plot trajectory
-sling.plot.list <-  mclapply(sling.sce.list, FUN = function(rep_i, inPath = prefixIn, outPath = prefixOut){
+sling.plot.list <-  mclapply(names(sling.sce.list), FUN = function(rep_i, inPath = prefixIn, outPath = prefixOut){
     
-    df <- as.data.frame(reducedDim(rep_i))
-    df <- cbind(df, data.frame(mclusters = rep_i@colData$mclusters,
-                               azimuth_cells = rep_i@colData$predicted.celltype.l2))
-    curve.df <- slingCurves(rep_i, as.df = TRUE)
+    slingsce <- sling.sce.list[[rep_i]]
     
-    ggplot(df, aes(x = TSNE1, y = TSNE2)) +
+    df <- as.data.frame(reducedDim(slingsce))
+    df <- cbind(df, data.frame(seurat_clusters = slingsce@colData$seurat_clusters,
+                               azimuth_cells = slingsce@colData$predicted.celltype.l2))
+    curve.df <- slingCurves(slingsce, as.df = TRUE)
+    
+    p <- ggplot(df, aes(x = UMAP_1, y = UMAP_2)) +
         geom_point(aes(fill = azimuth_cells), col = "grey70", shape = 21) + 
-        geom_path(data = curve.df, aes(x = TSNE1, y = TSNE2))+
+        geom_path(data = curve.df, aes(x = UMAP_1, y = UMAP_2))+
         theme_classic()
     
-}, mc.cores = detectCores(), mc.set.seed = 123)
-
-
-# Basic Pre-Processing and log Normalization
-cds.umap.list <- lapply(cds.list, FUN = function(cds, inPath = prefixIn, outPath = prefixOut){
-    
-    # Plot the Graph
-    pseudotime <- plot_cells(cds, color_cells_by = "pseudotime", alpha = 0.8,
-                             cell_stroke = 0.5,  trajectory_graph_segment_size = 1.5,
-                             label_cell_groups = F, label_branch_points = F, label_leaves = F,
-                             label_principal_points = F, label_roots = T) +
-        ggtitle("Inferred Pseudotime") + theme(legend.position = "bottom")
-    
-    # Cell Type
-    cell_type <- plot_cells(cds, color_cells_by = "predicted.celltype.l2", alpha = 0.8,
-                            cell_stroke = 0.5,  trajectory_graph_segment_size = 1.5,
-                            label_cell_groups = F, label_branch_points = T, label_leaves = F,
-                            label_principal_points = F, label_roots = T) +
-        ggtitle("Cell Type") + theme(legend.position = "bottom")
-    
-    # Rep
-    rep_i <- levels(unique(cds@colData@listData$orig.ident))
-    
-    # Save
-    save(cds, file = paste0(paste(inPath, rep_i ,sep = "/"), "/",rep_i, "_processed.RData"))
-    
-    # Join plots
-    umap <- ggarrange(pseudotime, cell_type)
-    
-    # Save Images
-    ggsave(umap,
-           filename = paste0(paste(inPath, rep_i ,sep = "/"), "/",rep_i, "_Monocle3.png"),
+    ggsave(p,
+           filename = paste0(paste(inPath, rep_i ,sep = "/"), "/",rep_i, "_Slingshot.png"),
            dpi = 800, limitsize = FALSE, width = 11, height = 6
     )
     
-    return(umap)
-})
-
-#---------------------------------------
-
-# Plot Markers
-
-marker_list <- c("CD34", "MPO", "GATA2", "GATA1", "IRF8", "EPOR", "APOBEC3C", "ACY3", "RUNX1")
-
-# Marker list
-marker.list <- lapply(cds.list, FUN = function(cds, inPath = prefixIn, outPath = prefixOut, markerList = marker_list){
-    
-    rep_plots <- lapply(markerList, function(gene_i){
-        gene_i_plot <- plot_genes_in_pseudotime(cds[rowData(cds)$gene_short_name == gene_i, ],
-                                                color_cells_by = "predicted.celltype.l2")
-        return(gene_i_plot)
-    })
-    names(rep_plots) <- markerList
-    
-    # Rep
-    rep_i <- levels(unique(cds@colData@listData$orig.ident))
-    
-    # Combined Plot
-    combined_plot <- ggarrange(rep_plots[[1]], rep_plots[[2]], rep_plots[[3]], 
-                               rep_plots[[4]], rep_plots[[5]], rep_plots[[6]],
-                               rep_plots[[7]], rep_plots[[8]], rep_plots[[9]],
-                               ncol = 3, nrow = 3)
-    
-    # Save
-    ggsave(file = paste0(paste(inPath, rep_i ,sep = "/"), "/",rep_i, "_Markers.png"),
-           plot = combined_plot, width = 12, height = 8, dpi = 800, limitsize = FALSE)
-    
-    return(rep_plots)
-})
-
-
-# HPO in Monocyte Like cells
-ggsave(p,
-       filename = paste0(prefixOut, i, "_MPO_Trend.png"),
-       dpi = 600, limitsize = FALSE
-)
+    saveRDS(slingsce,
+            file = paste0(paste(inPath, rep_i ,sep = "/"), "/",rep_i, "_Slingshot.RDS")
+            )
+}, mc.cores = detectCores(), mc.set.seed = 123)
