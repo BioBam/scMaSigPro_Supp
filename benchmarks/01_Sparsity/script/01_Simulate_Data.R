@@ -38,6 +38,9 @@ zi <- list(
   "sparsity_80" = c(0, 0.85)
 )
 
+# List of Images
+img.list <- list()
+
 ## Create a list of parameters
 for (i in names(zi)) {
   # stop("Expected Stop")
@@ -116,6 +119,8 @@ for (i in names(zi)) {
     title.2d = paste("Sparsity:", totSparsity, "Simulated:", simulatedSparsity)
   )
   ggsave(filename = simTopImgName, plot = simTopImg.plot, dpi = 600)
+  
+  img.list[[sparsityLevel]] <- simTopImg.plot
 
   # Plotting True Trajectory Topology Group
   truTopImgNameGroup <- paste0(imgPath, "true_topology_pca_group/", "zi_", sparsityLevel, ".png")
@@ -155,7 +160,7 @@ for (i in names(zi)) {
   cellAssociation <- paste0(imgPath, "cellAssociation/", "zi_", sparsityLevel, ".png")
   p <- ggplot(plt.table, aes(x = Num)) +
     geom_histogram(
-      binwidth = 0.5, ,
+      binwidth = 0.5,
       color = "#f68a53", fill = "#f68a53", alpha = 0.5
     ) +
     geom_vline(aes(xintercept = mean(Num)), linetype = "dashed", color = "#139289") +
@@ -180,3 +185,17 @@ for (i in names(zi)) {
   obj.path <- paste0(sce_path, paste0("sparsity_", sparsityLevel, ".RData"))
   save(sim.sce, file = obj.path)
 }
+
+
+combined_pplot <- ggarrange(img.list[["10"]],
+          img.list[["20"]],
+          img.list[["30"]],
+          img.list[["40"]],
+          img.list[["50"]],
+          img.list[["60"]],
+          img.list[["70"]],
+          img.list[["80"]],
+          ncol = 4, nrow = 2,
+          labels = c("A.","B.","C.","D.","E.","F.","G.", "H."))
+
+ggsave(filename = "Images/Supp_Fig_2_Vary_Zero_Inflation.png", plot = combined_pplot, dpi = 600, height = 8, width = 14)

@@ -35,25 +35,24 @@ for (i in names(dataSets)) {
   tryCatch(
     expr = {
       # Convert
-      scmp.obj <- as_scmp(sim.sce, from = "sce")
+      scmp.obj <- as_scmp(sim.sce, from = "sce",
+                          additional_params = list(
+                              existing_pseudotime_colname = "Step",
+                              existing_path_colname = "Group",
+                              overwrite_labels = T), verbose = F)
 
       # Compress
       scmp.obj <- squeeze(
-        scmp.ob = scmp.obj,
-        time.col = "Step",
-        path.col = "Group",
-        method = "Sturges",
+        scmpObject = scmp.obj,
+        bin_method = "Sturges",
         drop.fac = 0.6,
-        verbose = T,
-        cluster.count.by = "sum"
+        verbose = F,
+        cluster_count_by = "sum"
       )
 
       # Make Design
       scmp.obj <- sc.make.design.matrix(scmp.obj,
-        degree = poly.degree,
-        time.col = "binnedTime",
-        path.col = "path"
-      )
+        poly_degree = poly.degree)
 
       if (i == "80") {
         theta.val <- 10
@@ -63,7 +62,7 @@ for (i in names(dataSets)) {
       scmp.obj <- sc.p.vector(
         scmpObj = scmp.obj, verbose = F, min.obs = min.gene,
         counts = T, theta = theta.val,
-        offset = T, epsilon = ep
+        offset = T, epsilon = ep, parallel = T
       )
 
       # Run-Step-2

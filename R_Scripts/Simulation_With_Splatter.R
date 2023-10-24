@@ -8,7 +8,7 @@ source("R_Scripts/helper_function/plot_simulations().R")
 source("R_Scripts/helper_function/add_gene_anno().R")
 
 # Set Prefix
-imgDir <- "RMDs/Images/"
+imgDir <- "Images/"
 
 # Simulate a general splatter dataset
 params.groups <- newSplatParams(
@@ -50,7 +50,7 @@ general.plot <- ggarrange(step.plot, group.plot)
 ggsave(
   plot = general.plot, filename = paste0(
     imgDir,
-    "Fig1_Simulation_with_Splatter.png"
+    "Supp_Fig1_Bifurcation_Trajectory.png"
   ),
   dpi = 600, width = 9
 )

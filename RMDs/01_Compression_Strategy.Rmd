@@ -1,9 +1,9 @@
 ---
-title: "Compression Strategy Along Time Series"
+title: "Compression Strategy Along inferred Pseudotime"
 
 subtitle: "ScMaSigPro Supplementary Material-I"
 
-author: "Priyansh Srivastava, ... Ana Conesa"
+author: "Priyansh Srivastava, Stefan Götz, María José Nueda, Ana Conesa"
 
 date: "`r Sys.Date()`"
 
@@ -14,21 +14,39 @@ knit: (function(inputFile, encoding) {
 output:
  pdf_document:
      latex_engine: lualatex
+     citation_package: natbib
+     toc: true
+
+bibliography: ../References/reference.bib
+biblio-style: plainnat
 
 header-includes:
   - "\\usepackage{fontspec}"
   - "\\setmainfont{TeX Gyre Termes}"
 ---
 
-## Required Library
+# Introduction
+
 ```{r,"Load Library", message=FALSE, echo=FALSE, eval=TRUE}
 suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(knitr))
 suppressPackageStartupMessages(library(kableExtra))
 ```
 
-## Define some custom functions
-```{r,"Define custom function", message=FALSE, echo=TRUE, eval=TRUE}
+## Pseudotime Binning
+_scMaSigPro_ works by binning the raw expression data along the inferred Pseudotime. Previous studies have shown that the pseudo-bulk approaches for finding DE genes achieve the highest fidelity to the ground truth compared to approaches that modelled cells individually [@murphy_balanced_2022, @junttila_benchmarking_2022, @squair_confronting_2021]. Specifically, a cumulative sum of raw counts at the cell level (e.g. per cell type) followed by normalization yields superior performance in detecting DE genes (@junttila_benchmarking_2022).
+
+Unlike clustering, where each bin or pseudo-bulk cluster contains cells of the same type, in trajectory inference (TI) related datasets, cellular states are arranged according to pseudotime. Therefore, it becomes not only crucial to group similar cells within a bin but also to preserve the original sequence of the cell state as dictated by the pseudotime.
+
+_scMaSigPro_ introduces a unique approach for binning that is tailored to data analysed in the context of pseudotime. It employs a three-step strategy to determine the optimal number of bins and the size of the bin width, based on the original range of the inferred pseudotime keeping the original sequence of the cell states unchanged.
+
+
+## Binning Steps
+
+### Histogram Binning
+_scMaSigPro_ offers a range of binning methods for pseudo-bulking, with "Sturges" set as the default. Here we will demosntrate the binning with "Sturges".
+
+```{r,"Define custom function hide", message=FALSE, echo=FALSE, eval=TRUE}
 # Define a function 'create_random_repeated_vector'
 create_random_repeated_vector <- function(start, end, min_repetitions, max_repetitions) {
   repetitions <- sample(min_repetitions:max_repetitions,
@@ -59,42 +77,69 @@ create_range <- function(x) {
 }
 ```
 
-## Create Sample Data
+#### Create a sample Time series data
+
 ```{r,"Create a short time-series", message=FALSE, echo=TRUE, eval=TRUE}
 # Short Pseudotime with repetitions
 short.rep.pseudotime <- data.frame(
   real_pseudotime = create_random_repeated_vector(1, 100, 1, 3)
 )
-hist(short.rep.pseudotime$real_pseudotime)
+
+# Print the time series
+kable(head(short.rep.pseudotime))
 ```
 
----
+### Get the optimal number of bins
 
-## Sturges Binning
+To get the optimal number of the bins with Sturges binning
 
-### Step-0: Get the time-series
-```{r,"Get the time-series", message=FALSE, echo=TRUE, eval=TRUE}
+
+\begin{itemize}
+  \item Let the inferred Pseudotime be represented as:
+    $$
+    T_{Pseudotime} = \{{t_{1}, t_{2}, t_{3}, t_{4}, ..., t_{N}}\}
+    $$
+
+  \item Let the number of bins equal
+    $$
+    N_{Bins} = (log2(N) + 1 ) * k
+    $$
+    where, $k \in [0.3, \infty]$
+  
+  \item The interval width, $I$ is then calculated by:
+    $$
+    I = \frac{max(T_{Pseudotime}) -min(T_{Pseudotime})}{N_{Bins}}
+    $$
+    
+\item Finally,the index range of each bin, spanning from lowest to highest: 
+
+$$
+T_{Pseudotime}^{Binned}= \{ index \space\space of \space\space bin \space\space (I_{min} - I_{max}) \}
+$$
+
+\end{itemize}
+
+
+```{r,"Count Optimal bins", message=FALSE, echo=TRUE, eval=TRUE}
+# Extract the time series
 time_series <- short.rep.pseudotime$real_pseudotime
-head(time_series)
-```
 
-### Step-1: Calculate the number of time-points
-```{r,"Calculate the number of time-", message=FALSE, echo=TRUE, eval=TRUE}
+# Number of Time points
 time_points <- length(time_series)
-time_points
-```
 
-### Step-2: Take the log2 of the length
-```{r,"Take the log2", message=FALSE, echo=TRUE, eval=TRUE}
+# Number of Bins "Sturges Method"
 estBins <- log2(time_points) + 1
+
+# Multiply by drop.factor 
+estBins <- round(estBins * 0.7) # drop.fac
+
+# Print the number of bins
 estBins
 ```
 
-### Step-3: Multiply with drop-factor to further reduce the bin-size
-```{r,"Multiply with drop-factor", message=FALSE, echo=TRUE, eval=TRUE}
-estBins <- estBins * 0.7 # drop.fac
-estBins
-```
+### Bin Intervals
+
+Using these calculated bin intervals $I$, the raw expression counts corresponding to each $T_{Pseudotime}^{Binned}$ value are aggregated into $N_{Bins}$.
 
 ### Step-4: Calculate Bin intervals
 ```{r,"Calculate Bin intervals", message=FALSE, echo=TRUE, eval=TRUE}
@@ -102,25 +147,13 @@ bin_intervals <- as.data.frame(discretize(time_series,
   numBins = estBins,
   r = range(time_series)
 ))
-kable(bin_intervals)
-```
 
-### Step-5: Clean the table before merge
-```{r,"Clean the table before merge", message=FALSE, echo=TRUE, eval=TRUE}
 colnames(bin_intervals) <- c("bin", "bin_size")
 bin_intervals$customTime <- rownames(bin_intervals)
-kable(bin_intervals)
-```
 
-### Step-6: Create the bin table
-```{r,"Create the bin table", message=FALSE, echo=TRUE, eval=TRUE}
 bin_table <- as.data.frame(t(as.data.frame(apply(bin_intervals, 1, create_range))))
 colnames(bin_table) <- c("from", "to", "bin_size", "binnedTime")
-kable(bin_table)
-```
 
-### Step-7: Merge with Original time-series
-```{r,"Merge with Original time-series", message=FALSE, echo=TRUE, eval=TRUE}
 short.rep.pseudotime.pooled <- as.data.frame(
   left_join(
     short.rep.pseudotime, bin_table,
@@ -133,5 +166,41 @@ short.rep.pseudotime.pooled <- as.data.frame(
 kable(short.rep.pseudotime.pooled[c(c(1:3), c(29:33), c(55:58)), ])
 ```
 
+# Custom Function
+
+Following function has been used to create a time-seires with repetitions, to mimic a pseudotime series.
+```{r,"Define custom function", message=FALSE, echo=TRUE, eval=FALSE}
+# Define a function 'create_random_repeated_vector'
+create_random_repeated_vector <- function(start, end, min_repetitions, max_repetitions) {
+  repetitions <- sample(min_repetitions:max_repetitions,
+    size = end - start + 1, replace = TRUE
+  )
+  result_vector <- rep(seq(from = start, to = end, by = 1),
+    times = repetitions
+  )
+  return(result_vector)
+}
+
+# Define a function 'discretize'
+discretize <- function(x, numBins, r = range(x)) {
+  b <- seq(from = r[1], to = r[2], length.out = numBins + 1)
+  cut_x <- cut(x, breaks = b, include.lowest = TRUE)
+  y <- table(cut_x)
+  return(y)
+}
+
+# Define a function 'create_range'
+create_range <- function(x) {
+  y <- as.character(x[["bin"]])
+  y <- y %>% stringr::str_remove_all(pattern = "\\[|\\]|\\(|\\)")
+  y1 <- as.numeric(sapply(strsplit(y, ","), "[", 1))
+  y2 <- as.numeric(sapply(strsplit(y, ","), "[", 2))
+  rangeVec <- c(y1, y2, x[["bin_size"]], x[["customTime"]])
+  return(as.numeric(rangeVec))
+}
+```
 
 
+
+
+---
