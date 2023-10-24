@@ -50,7 +50,7 @@ general.plot <- ggarrange(step.plot, group.plot)
 ggsave(
   plot = general.plot, filename = paste0(
     imgDir,
-    "Fig1_Simulation_with_Splatter.png"
+    "Supp_Fig1_Bifurcation_Trajectory.png"
   ),
   dpi = 600, width = 9
 )
