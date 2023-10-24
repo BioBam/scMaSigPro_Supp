@@ -180,18 +180,12 @@ for (i in time_length) {
   save(sim.sce, file = obj.path)
 }
 
-
-
-combined_pplot <- ggarrange(img.list[["0.1"]],
-                            img.list[["0.2"]],
-                            img.list[["0.3"]],
-                            img.list[["0.4"]],
-                            img.list[["0.5"]],
-                            img.list[["0.6"]],
-                            img.list[["0.7"]],
-                            img.list[["0.8"]],
-                            img.list[["0.9"]],
+combined_pplot <- ggarrange(img.list[["300_and_2700"]],
+                            img.list[["600_and_2400"]],
+                            img.list[["900_and_2100"]],
+                            img.list[["1200_and_1800"]],
+                            img.list[["1500_and_1500"]],
                             ncol = 3, nrow = 3,
-                            labels = c("A.","B.","C.","D.","E.","F.","G.", "H.", "I."))
+                            labels = c("A.","B.","C.","D.","E."))
 
 ggsave(filename = "Images/Supp_Fig_4_Vary_Branch_Length.png", plot = combined_pplot, dpi = 600, height = 8, width = 14)
