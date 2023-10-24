@@ -36,6 +36,9 @@ for (i in 1:length(path_a_length)) {
 
 time_length <- time_length[c(1:5)]
 
+# List of Images
+img.list <- list()
+
 ## Create a list of parameters
 for (i in time_length) {
   # Get Sparsity Level
@@ -99,9 +102,11 @@ for (i in time_length) {
   truTopImg.plot <- plot_simulations(sim.sce,
     assay_type = "TrueCounts",
     plot3d = F, plot2d = T, frame = 2,
-    title.2d = paste("PathLength:", totSparsity, "Simulated:", simulatedSparsity)
+    title.2d = paste("PathLength:", ArmLength, totSparsity, "Simulated:", simulatedSparsity)
   )
   ggsave(filename = truTopImgName, plot = truTopImg.plot, dpi = 600)
+  
+  img.list[[ArmLength]] <- truTopImg.plot
 
   # Plot Simulated Topology
   simTopImgName <- paste0(imgPath, "sim_topology_pca_step/", "Arm_", ArmLength, ".png")
@@ -149,7 +154,7 @@ for (i in time_length) {
   cellAssociation <- paste0(imgPath, "cellAssociation/", "Arm_", ArmLength, ".png")
   p <- ggplot(plt.table, aes(x = Num)) +
     geom_histogram(
-      binwidth = 0.5, ,
+      binwidth = 0.5,
       color = "#f68a53", fill = "#f68a53", alpha = 0.5
     ) +
     geom_vline(aes(xintercept = mean(Num)), linetype = "dashed", color = "#139289") +
@@ -174,3 +179,19 @@ for (i in time_length) {
   obj.path <- paste0(sce_path, paste0("Arm_", ArmLength, ".RData"))
   save(sim.sce, file = obj.path)
 }
+
+
+
+combined_pplot <- ggarrange(img.list[["0.1"]],
+                            img.list[["0.2"]],
+                            img.list[["0.3"]],
+                            img.list[["0.4"]],
+                            img.list[["0.5"]],
+                            img.list[["0.6"]],
+                            img.list[["0.7"]],
+                            img.list[["0.8"]],
+                            img.list[["0.9"]],
+                            ncol = 3, nrow = 3,
+                            labels = c("A.","B.","C.","D.","E.","F.","G.", "H.", "I."))
+
+ggsave(filename = "Images/Supp_Fig_4_Vary_Branch_Length.png", plot = combined_pplot, dpi = 600, height = 8, width = 14)
