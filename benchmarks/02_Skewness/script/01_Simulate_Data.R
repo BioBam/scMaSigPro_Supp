@@ -29,6 +29,9 @@ source(paste0(helpScriptsDir, "calc_bin_size.R"))
 skew <- seq(0.1, 1, 0.1) # 0.5
 names(skew) <- as.character(skew)
 
+# List of Images
+img.list <- list()
+
 ## Create a list of parameters
 for (i in names(skew)) {
   # Get Sparsity Level
@@ -93,9 +96,11 @@ for (i in names(skew)) {
   truTopImg.plot <- plot_simulations(sim.sce,
     assay_type = "TrueCounts",
     plot3d = F, plot2d = T, frame = 2,
-    title.2d = paste("SkewValue:", totSparsity, "Simulated:", simulatedSparsity)
+    title.2d = paste("SkewValue:", SkewValue,totSparsity, "Simulated:", simulatedSparsity)
   )
   ggsave(filename = truTopImgName, plot = truTopImg.plot, dpi = 600)
+  
+  img.list[[SkewValue]] <- truTopImg.plot
 
   # Plot Simulated Topology
   simTopImgName <- paste0(imgPath, "sim_topology_pca_step/", "skew_", SkewValue, ".png")
@@ -105,7 +110,7 @@ for (i in names(skew)) {
     title.2d = paste("SkewValue:", totSparsity, "Simulated:", simulatedSparsity)
   )
   ggsave(filename = simTopImgName, plot = simTopImg.plot, dpi = 600)
-
+  
   # Plotting True Trajectory Topology Group
   truTopImgNameGroup <- paste0(imgPath, "true_topology_pca_group/", "skew_", SkewValue, ".png")
   truTopImgGroup.plot <- plot_simulations(sim.sce,
@@ -143,7 +148,7 @@ for (i in names(skew)) {
   cellAssociation <- paste0(imgPath, "cellAssociation/", "skew_", SkewValue, ".png")
   p <- ggplot(plt.table, aes(x = Num)) +
     geom_histogram(
-      binwidth = 0.5, ,
+      binwidth = 0.5,
       color = "#f68a53", fill = "#f68a53", alpha = 0.5
     ) +
     geom_vline(aes(xintercept = mean(Num)), linetype = "dashed", color = "#139289") +
@@ -168,3 +173,19 @@ for (i in names(skew)) {
   obj.path <- paste0(sce_path, paste0("SkewValue_", SkewValue, ".RData"))
   save(sim.sce, file = obj.path)
 }
+
+
+
+combined_pplot <- ggarrange(img.list[["0.1"]],
+                            img.list[["0.2"]],
+                            img.list[["0.3"]],
+                            img.list[["0.4"]],
+                            img.list[["0.5"]],
+                            img.list[["0.6"]],
+                            img.list[["0.7"]],
+                            img.list[["0.8"]],
+                            img.list[["0.9"]],
+                            ncol = 3, nrow = 3,
+                            labels = c("A.","B.","C.","D.","E.","F.","G.", "H.", "I."))
+
+ggsave(filename = "Images/Supp_Fig_3_Vary_Capture_Bias.png", plot = combined_pplot, dpi = 600, height = 8, width = 14)
