@@ -113,7 +113,7 @@ plot_cell_time_distribution <- function(sce_object,
 
   p2 <- ggplot(plt.table.2, aes(x = Num)) +
     geom_histogram(
-      binwidth = 0.5, ,
+      binwidth = 0.5,
       color = "#f68a53", fill = "#f68a53", alpha = 05
     ) +
     geom_vline(aes(xintercept = mean(Num)), linetype = "dashed", color = "#139289") +
