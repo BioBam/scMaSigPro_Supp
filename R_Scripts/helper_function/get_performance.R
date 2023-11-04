@@ -16,12 +16,12 @@ get_performance <- function(r2_sequence, gene_no_change,
         scmp_obj <- scMaSigPro::sc.get.siggenes(
         scmpObj = scmp_obj,
         rsq = j,
-        vars = "groups", r = 0.7
+        vars = "groups"
       )
     )
       
-      sigs <- list(sig.genes = scmp_obj@siggenes@sig.genes,
-                   summary = scmp_obj@siggenes@summary)
+      sigs <- list(sig.genes = scmp_obj@sig.genes@sig.genes,
+                   summary = scmp_obj@sig.genes@summary)
      
       
     if (is.null(sigs$sig.genes)) {
