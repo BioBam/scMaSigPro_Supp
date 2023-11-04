@@ -43,7 +43,7 @@ for (i in names(dataSets)) {
   gene.no.change <- rownames(row_data[row_data$status == "No_Change", ])
 
   # Varying R2
-  r2_sequence_value <- seq(0.05, 0.95, 0.05)
+  r2_sequence_value <- seq(0.05, 0.95, 0.01)
 
   if (i == "80") {
     r2_sequence_value <- seq(0.05, 0.9, 0.05)
@@ -75,8 +75,12 @@ roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = Zi)) +
     geom_point() +
     geom_text(data = subset(evaluation.frame, Zi == 60 & VARIABLE > 0.3 & VARIABLE <= 0.90), aes(label = sprintf("%.2f", VARIABLE)), color = "black", hjust = 1, vjust = 1.7) + 
     geom_path(linewidth = 1.5, alpha = 0.6) +
-    scale_x_continuous(breaks = seq(0, 0.10, 0.01), limits = c(0, 0.10)) +
-    scale_y_continuous(breaks = seq(0.5, 1, 0.1), limits = c(0.5, 1)) +
+    scale_x_continuous(breaks = seq(0, 0.10, 0.01), 
+                       limits = c(0, 0.10)
+                       ) +
+    scale_y_continuous(breaks = seq(0.5, 1, 0.1), 
+                       limits = c(0.5, 1)
+                       ) +
     scale_color_brewer(palette = "Set1", name = "Amount of Simulated Zero-Inflation") +
     labs(
         #title = "ROC-curve",
@@ -143,3 +147,65 @@ ggsave(roc,
   filename = paste0(dirPath, "ROC.png"),
   dpi = 1200, height = 8, width = 8
 )
+
+sensitivity_specificity_plot <- ggplot(evaluation.frame, aes(x=VARIABLE)) +
+geom_line(aes(y=TPR, color="Sensitivity", group = Zi)) +
+geom_line(aes(y=TNR, color="Specificity", group = Zi)) +
+scale_color_manual(values=c("blue", "green"), name="Metric") +
+labs(x = "Threshold", y = "Rate") +
+theme_minimal()
+print(sensitivity_specificity_plot)
+
+
+# Calculate precision
+evaluation.frame$Precision <- with(evaluation.frame, TP / (TP + FP))
+
+# Precision-Recall Plot
+precision_recall_plot <- ggplot(evaluation.frame, aes(x=TPR, y=Precision, color=as.factor(Zi))) +
+    geom_line() +
+    geom_point() +
+    scale_color_brewer(palette = "Set1", name = "Amount of Simulated Zero-Inflation") +
+    labs(x = "Recall", y = "Precision") +
+    theme_minimal()
+
+print(precision_recall_plot)
+
+
+library(ggplot2)
+library(reshape2)
+
+# Assuming 'evaluation.frame' is your dataframe and 'VARIABLE' is your varying parameter
+
+# First, you might want to reshape your data frame to a long format.
+long_data <- melt(evaluation.frame, id.vars = "VARIABLE", measure.vars = c("ACCURACY", "Precision", "F1", "Zi"))
+
+# Now create the plot
+p <- ggplot(long_data, aes(x = VARIABLE, y = value, color = variable)) +
+    geom_path(aes(group = variable)) +
+    facet_wrap(~variable, scales = "free_y") +
+    labs(x = "VARIABLE", y = "Performance Metric") +
+    theme_minimal()
+
+print(p)
+
+
+
+library(ggplot2)
+library(reshape2)
+
+# Reshape the data to a long format for ggplot
+long_data <- melt(evaluation.frame, id.vars = c("VARIABLE", "Zi"), measure.vars = c("ACCURACY", "Precision", "F1", "FPR", "TPR", "FNR"))
+
+# Create a line plot with VARIABLE on the x-axis and the performance metrics on the y-axis
+# Facet by 'Zi' to create a separate plot for each zero inflation group
+performance_plot <- ggplot(long_data, aes(x = VARIABLE, y = value, group = interaction(Zi, variable), color = variable)) +
+    geom_line(linewidth = 1) +
+    facet_wrap(~Zi, scales = "free_y") +
+    labs(x = "VARIABLE", y = "Performance Metric") +
+    theme_minimal() #+
+    #scale_color_manual(
+       # values = c("red", "green", "blue", "purple", "orange","pink" ), labels = c("Accuracy", "Precision", "F1", "FPR", "TPR","FNR"))
+
+# Print the plot
+print(performance_plot)
+
