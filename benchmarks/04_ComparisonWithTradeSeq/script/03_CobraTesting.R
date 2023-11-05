@@ -66,7 +66,6 @@ stop()
 TPRvsFDR <- plot_fdrtprcurve(cobraplot, title = "TPR vs FDR")
 TPR <- plot_tpr(cobraplot, title = "TPR")
 FPR <- plot_fpr(cobraplot, title = "FPR")
-plot_overlap(cobraplot)
 
 ggsave(filename = paste0(resPath, "ROC.png"), plot = ROC, dpi = 600, width = 7, height = 5)
 ggsave(filename = paste0(resPath, "TPRvsFDR.png"), plot = TPRvsFDR, dpi = 600, width = 7, height = 5)
