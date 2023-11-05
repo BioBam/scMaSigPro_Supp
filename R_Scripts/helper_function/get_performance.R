@@ -4,7 +4,8 @@ get_performance <- function(r2_sequence, gene_no_change,
   df.performance <- data.frame(
     VARIABLE = 0, TP = 0, FP = 0, TN = 0, FN = 0,
     TPR = 0, FPR = 0, FNR = 0, TNR = 0,
-    INFLU = 0, INFLU_FP = 0, INFLU_FN = 0, ACCURACY = 0
+    INFLU = 0, INFLU_FP = 0, INFLU_FN = 0, ACCURACY = 0,
+    PRECISION = 0
   )
 
   all_genes <- c(gene_no_change, gene_change)
@@ -84,6 +85,9 @@ get_performance <- function(r2_sequence, gene_no_change,
 
     # Accuracy
     accuracy <- (length(tp) + length(tn)) / (length(tp) + length(tn) + length(fp) + length(fn))
+    
+    # Calculate Precison
+    precision <- length(tp) / (length(tp) + length(fp))
 
     # Make the vector of results
     res.perfom <- data.frame(
@@ -99,7 +103,8 @@ get_performance <- function(r2_sequence, gene_no_change,
       INFLU = length(influ),
       INFLU_FP = length(fp_influential),
       INFLU_FN = length(fn_influential),
-      ACCURACY = round(accuracy, 3)
+      ACCURACY = round(accuracy, 3),
+      PRECISION = round(precision, 3)
     )
 
     # Add vector to the frame

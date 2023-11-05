@@ -9,6 +9,7 @@ suppressPackageStartupMessages(library(scMaSigPro))
 
 # Set Paths relative to project
 dirPath <- "benchmarks/02_Skewness/data/simulated/sce/"
+dir.create("benchmarks/02_Skewness/data/output/", showWarnings = F)
 helpScriptsDir <- "R_Scripts/helper_function/"
 
 # Load names of files
@@ -37,37 +38,39 @@ for (i in names(dataSets)) {
       # Convert
         scmp.obj <- as_scmp(sim.sce, from = "sce",
                             additional_params = list(
+                                labels_exist = TRUE,
                                 existing_pseudotime_colname = "Step",
-                                existing_path_colname = "Group",
-                                overwrite_labels = T), verbose = F)
+                                existing_path_colname = "Group"), verbose = F)
 
+        # Compress
         # Compress
         scmp.obj <- squeeze(
             scmpObject = scmp.obj,
             bin_method = "Sturges",
             drop.fac = 0.6,
             verbose = F,
-            cluster_count_by = "sum"
+            cluster_count_by = "sum",
+            split_bins = T,
+            prune_bins = T,
+            drop_trails = T
         )
 
         # Make Design
         scmp.obj <- sc.make.design.matrix(scmp.obj,
                                           poly_degree = poly.degree)
 
-      # Run p-vector
-      scmp.obj <- sc.p.vector(
-        scmpObj = scmp.obj, verbose = F, min.obs = min.gene,
-        counts = T, theta = theta.val,
-        offset = T, epsilon = ep, parallel = T
-      )
-
-      # Run-Step-2
-      scmp.obj <- sc.T.fit(
-        data = scmp.obj, verbose = F,
-        step.method = "backward",
-        family = scmp.obj@scPVector@family,
-        offset = T
-      )
+        # Run p-vector
+        scmp.obj <- sc.p.vector(
+            scmpObj = scmp.obj, verbose = F, min.obs = min.gene,
+            offset = T, epsilon = ep, parallel = T
+        )
+        
+        # Run-Step-2
+        scmp.obj <- sc.T.fit(
+            scmpObj = scmp.obj, verbose = F,
+            step.method = "backward",
+            offset = T
+        )
 
       # Save Object
       save(scmp.obj, file = paste0("benchmarks/02_Skewness/data/output/scmp.obj.skew.", i, ".RData"))
@@ -76,7 +79,7 @@ for (i in names(dataSets)) {
       cat(paste("\nCompleted for", i))
     },
     error = function(e) {
-      cat(paste("\nFailed for", i))
+      cat(paste("\nFailed for", i, "because", e$message))
     }
   )
 }

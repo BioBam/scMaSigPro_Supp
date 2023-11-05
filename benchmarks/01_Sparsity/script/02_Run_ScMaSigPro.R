@@ -25,6 +25,7 @@ for (i in names(dataSets)) {
   min.gene <- 6
   theta.val <- 1
   ep <- 0.00001
+  drop_fac <- 1
 
   cat(paste("\nRunning for sparsity:", i))
 
@@ -32,6 +33,20 @@ for (i in names(dataSets)) {
 
   # Load Data
   load(file = paste0(dirPath, dataSets[i]))
+  
+  if (i == "80") {
+      drop_fac <- 0.3
+      
+      # Extract the counts
+      raw.counts <- as.matrix(sim.sce@assays@data@listData$counts) 
+      # Count the number of zeros for each gene
+      zero_counts_per_gene <- apply(raw.counts, 1, function(x) sum(x == 0))
+      gene_names <- rownames(raw.counts)
+      zero_count_table <- data.frame(Gene = gene_names, ZeroCounts = zero_counts_per_gene)
+      keep_genes <- rownames(zero_count_table[zero_count_table$ZeroCounts< 2800,])
+      sim.sce <- sim.sce[keep_genes,]
+      
+  }
 
   tryCatch(
     expr = {
@@ -41,35 +56,42 @@ for (i in names(dataSets)) {
                               labels_exist = TRUE,
                               existing_pseudotime_colname = "Step",
                               existing_path_colname = "Group"), verbose = F)
+      
+      if (i == "80") {
+          drop_fac <- 0.3
+      }
 
       # Compress
       scmp.obj <- squeeze(
         scmpObject = scmp.obj,
         bin_method = "Sturges",
-        drop.fac = 0.6,
+        drop.fac = drop_fac,
         verbose = F,
         cluster_count_by = "sum",
-        split_bins = T,
-        prune_bins = T,
-        drop_trails = T
+        split_bins = F,
+        prune_bins = F,
+        drop_trails = F,
+        fill_gaps = F
       )
+      
 
       # Make Design
       scmp.obj <- sc.make.design.matrix(scmp.obj,
         poly_degree = poly.degree)
 
       if (i == "80") {
-        theta.val <- 10
+        scmp.obj@distribution <- MASS::negative.binomial(10)
       }
 
       # Run p-vector
       scmp.obj <- sc.p.vector(
-        scmpObj = scmp.obj, verbose = F, min.obs = min.gene,
-        offset = T, epsilon = ep, parallel = T
+          scmpObj = scmp.obj, verbose = F, min.obs = 1,
+          offset = T, parallel = T
       )
 
       # Run-Step-2
       scmp.obj <- sc.T.fit(
+          parallel = T,
         scmpObj = scmp.obj, verbose = F,
         step.method = "backward",
         offset = T
@@ -86,3 +108,26 @@ for (i in names(dataSets)) {
     }
   )
 }
+
+
+# # Explore
+# 
+# gene.metadata <- rowData(sim.sce) %>% as.data.frame()
+# raw.counts <- as.matrix(sim.sce@assays@data@listData$counts)%>% as.data.frame()
+# gene.of.interest <- as.matrix(raw.counts[raw.counts$gene_short_name %in% c("Gene3087", "Gene3088"), ])
+# 
+# 
+# # Count the number of zeros for each gene
+# zero_counts_per_gene <- apply(raw.counts, 1, function(x) sum(x == 0))
+# 
+# # Create a data frame with gene names and their zero counts
+# gene_names <- rownames(raw.counts)
+# zero_count_table <- data.frame(Gene = gene_names, ZeroCounts = zero_counts_per_gene)
+# 
+# # Look at the table
+# print(zero_count_table)
+# 
+# # If you want to order the table based on the number of zeros
+# zero_count_table_ordered <- zero_count_table[order(zero_count_table$ZeroCounts, decreasing = TRUE), ]
+# print(zero_count_table_ordered)
+# 
