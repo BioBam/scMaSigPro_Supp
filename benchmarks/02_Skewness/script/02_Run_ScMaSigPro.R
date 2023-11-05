@@ -25,6 +25,11 @@ for (i in names(dataSets)) {
   min.gene <- 6
   theta.val <- 1
   ep <- 0.00001
+  split_bins <- TRUE
+  
+  if (i > 0.3 | i < 0.7){
+      split_bins <- FALSE
+  }
 
   cat(paste("\nRunning for skew:", i))
 
@@ -43,16 +48,16 @@ for (i in names(dataSets)) {
                                 existing_path_colname = "Group"), verbose = F)
 
         # Compress
-        # Compress
         scmp.obj <- squeeze(
             scmpObject = scmp.obj,
             bin_method = "Sturges",
-            drop.fac = 0.6,
+            drop.fac = 1,
             verbose = F,
             cluster_count_by = "sum",
-            split_bins = T,
-            prune_bins = T,
-            drop_trails = T
+            split_bins = split_bins,
+            prune_bins = F,
+            drop_trails = F,
+            fill_gaps = F
         )
 
         # Make Design
@@ -61,12 +66,13 @@ for (i in names(dataSets)) {
 
         # Run p-vector
         scmp.obj <- sc.p.vector(
-            scmpObj = scmp.obj, verbose = F, min.obs = min.gene,
-            offset = T, epsilon = ep, parallel = T
+            scmpObj = scmp.obj, verbose = F, min.obs = 1,
+            offset = T, parallel = T
         )
         
         # Run-Step-2
         scmp.obj <- sc.T.fit(
+            parallel = T,
             scmpObj = scmp.obj, verbose = F,
             step.method = "backward",
             offset = T
