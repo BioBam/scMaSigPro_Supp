@@ -18,23 +18,25 @@ helpScriptsDir <- "R_Scripts/helper_function/"
 
 # Convert
 scmp.obj <- as_scmp(sim.sce, from = "sce",
+                    align_pseudotime = F,
                     additional_params = list(
+                        labels_exist = TRUE,
                         existing_pseudotime_colname = "Step",
-                        existing_path_colname = "Group",
-                        overwrite_labels = T), verbose = F)
+                        existing_path_colname = "Group"), verbose = F)
 
 # Compress
 scmp.obj <- squeeze(
     scmpObject = scmp.obj,
     bin_method = "Sturges",
-    drop.fac = 0.4,
-    verbose = T,
+    drop.fac = 0.7,
+    verbose = F,
     cluster_count_by = "sum",
-    binning = "universal"
+    split_bins = T,
+    prune_bins = F,
+    drop_trails = T,
+    fill_gaps = F
 )
-
-
-#sc.plot.bins(scmpObj = scmp.obj)
+sc.plot.bins.tile(scmp.obj)
 
 # Make Design
 scmp.obj <- sc.make.design.matrix(scmp.obj,
