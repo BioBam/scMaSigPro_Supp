@@ -10,6 +10,7 @@ suppressPackageStartupMessages(library(gtools))
 # Set paths
 dirPath <- "benchmarks/04_ComparisonWithTradeSeq/data/input/sce/"
 resPath <- "benchmarks/04_ComparisonWithTradeSeq/data/output/"
+dir.create(resPath, showWarnings = F)
 helpScriptsDir <- "R_Scripts/helper_function/"
 
 # Load custom function

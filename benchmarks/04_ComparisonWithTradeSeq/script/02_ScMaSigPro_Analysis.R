@@ -14,11 +14,11 @@ resPath <- "benchmarks/04_ComparisonWithTradeSeq/data/output/"
 helpScriptsDir <- "R_Scripts/helper_function/"
 
 # Load result of 60% inflation
-#load(paste0(dirPath, "Test_TradeSeq.RData"))
+load(paste0(dirPath, "Test_TradeSeq.RData"))
 
 # Convert
 scmp.obj <- as_scmp(sim.sce, from = "sce",
-                    align_pseudotime = F,
+                    align_pseudotime = T,
                     additional_params = list(
                         labels_exist = TRUE,
                         existing_pseudotime_colname = "Step",
@@ -28,10 +28,10 @@ scmp.obj <- as_scmp(sim.sce, from = "sce",
 scmp.obj <- squeeze(
     scmpObject = scmp.obj,
     bin_method = "Sturges",
-    drop.fac = 0.7,
+    drop.fac = 0.5,
     verbose = F,
     cluster_count_by = "sum",
-    split_bins = T,
+    split_bins = F,
     prune_bins = F,
     drop_trails = T,
     fill_gaps = F
@@ -45,16 +45,16 @@ scmp.obj <- sc.make.design.matrix(scmp.obj,
 
 # Run p-vector
 scmp.obj <- sc.p.vector(
+    family = MASS::negative.binomial(0.5),
   scmpObj = scmp.obj, verbose = T, min.obs = 1,
-  counts = T, theta = 1,parallel = T,MT.adjust = "fdr",
+  parallel = T,MT.adjust = "fdr",
   offset = T
 )
 
 # Run-Step-2
-scmp.obj <- scMaSigPro::sc.T.fit(
-  data = scmp.obj, verbose = T,
+scmp.obj <- sc.T.fit(
+scmpObj = scmp.obj, verbose = T,
   step.method = "backward",parallel = T,
-  family = scmp.obj@scPVector@family,
   offset = T
 )
 
@@ -71,7 +71,7 @@ colnames(sol) <- c("p_value", "rsq")
 sol$p_value[is.na(sol$p_value)] <- 1
 
 # Get genes with r2 > 0.6
-sol.sel <- sol[sol$rsq >= 0.7, c(1, 2), drop = F]
+sol.sel <- sol[sol$rsq >= 0.6, c(1, 2), drop = F]
 
 # Load tradeSeq table
 load(paste0(resPath, "TradeSeq_CobraInput.RData"))
