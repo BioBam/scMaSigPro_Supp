@@ -186,16 +186,16 @@ for (i in names(zi)) {
   save(sim.sce, file = obj.path)
 }
 
-
-combined_pplot <- ggarrange(img.list[["10"]],
-          img.list[["20"]],
-          img.list[["30"]],
-          img.list[["40"]],
-          img.list[["50"]],
-          img.list[["60"]],
-          img.list[["70"]],
-          img.list[["80"]],
-          ncol = 4, nrow = 2,
-          labels = c("A.","B.","C.","D.","E.","F.","G.", "H."))
-
-ggsave(filename = "Images/Supp_Fig_2_Vary_Zero_Inflation.png", plot = combined_pplot, dpi = 600, height = 8, width = 14)
+# 
+# combined_pplot <- ggarrange(img.list[["10"]],
+#           img.list[["20"]],
+#           img.list[["30"]],
+#           img.list[["40"]],
+#           img.list[["50"]],
+#           img.list[["60"]],
+#           img.list[["70"]],
+#           img.list[["80"]],
+#           ncol = 4, nrow = 2,
+#           labels = c("A.","B.","C.","D.","E.","F.","G.", "H."))
+# 
+# ggsave(filename = "Images/Supp_Fig_2_Vary_Zero_Inflation.png", plot = combined_pplot, dpi = 600, height = 8, width = 14)

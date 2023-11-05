@@ -22,7 +22,7 @@ names(dataSets) <- str_remove(
   ".RData"
 )
 
-# Zero-Inflation.evaluation
+# Skewness Evaluation
 eval.list <- list()
 
 # Set-up a for loop
@@ -72,10 +72,10 @@ evaluation.frame$skew <- as.factor(as.numeric(evaluation.frame$skew))
 # ROC
 roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = skew)) +
   geom_point() +
-geom_text(data = subset(evaluation.frame, skew == 1 & VARIABLE > 0.3 & VARIABLE <= 0.90), aes(label = sprintf("%.2f", VARIABLE)), color = "black", hjust = 1, vjust = 1.7) +
+#geom_text(data = subset(evaluation.frame, skew == 1 & VARIABLE > 0.3 & VARIABLE <= 0.90), aes(label = sprintf("%.2f", VARIABLE)), color = "black", hjust = 1, vjust = 1.7) +
   geom_path(linewidth = 1.5, alpha = 0.6) +
-    scale_x_continuous(breaks = seq(0, 0.10, 0.01), limits = c(0, 0.10)) +
-    scale_y_continuous(breaks = seq(0.5, 1, 0.1), limits = c(0.3, 1)) +
+    #scale_x_continuous(breaks = seq(0, 0.10, 0.01), limits = c(0, 0.10)) +
+    #scale_y_continuous(breaks = seq(0.5, 1, 0.1), limits = c(0.3, 1)) +
   scale_color_brewer(palette = "Set3", name = "Skewness of Cells states across path") +
   labs(
     #title = "ROC-curve, Different Values of R-Square",

@@ -174,18 +174,18 @@ for (i in names(skew)) {
   save(sim.sce, file = obj.path)
 }
 
-
-
-combined_pplot <- ggarrange(img.list[["0.1"]],
-                            img.list[["0.2"]],
-                            img.list[["0.3"]],
-                            img.list[["0.4"]],
-                            img.list[["0.5"]],
-                            img.list[["0.6"]],
-                            img.list[["0.7"]],
-                            img.list[["0.8"]],
-                            img.list[["0.9"]],
-                            ncol = 3, nrow = 3,
-                            labels = c("A.","B.","C.","D.","E.","F.","G.", "H.", "I."))
-
-ggsave(filename = "Images/Supp_Fig_3_Vary_Capture_Bias.png", plot = combined_pplot, dpi = 600, height = 8, width = 14)
+# 
+# 
+# combined_pplot <- ggarrange(img.list[["0.1"]],
+#                             img.list[["0.2"]],
+#                             img.list[["0.3"]],
+#                             img.list[["0.4"]],
+#                             img.list[["0.5"]],
+#                             img.list[["0.6"]],
+#                             img.list[["0.7"]],
+#                             img.list[["0.8"]],
+#                             img.list[["0.9"]],
+#                             ncol = 3, nrow = 3,
+#                             labels = c("A.","B.","C.","D.","E.","F.","G.", "H.", "I."))
+# 
+# ggsave(filename = "Images/Supp_Fig_3_Vary_Capture_Bias.png", plot = combined_pplot, dpi = 600, height = 8, width = 14)
