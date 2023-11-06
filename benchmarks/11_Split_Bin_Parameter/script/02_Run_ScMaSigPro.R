@@ -27,6 +27,8 @@ for (i in names(dataSets)) {
   ep <- 0.00001
   
   cat(paste("\nRunning for skew:", i))
+  
+  stop()
 
   # Load Data
   load(file = paste0(dirPath, dataSets[i]))
@@ -44,7 +46,7 @@ for (i in names(dataSets)) {
         scmp.obj.split.bin.true <- squeeze(
             scmpObject = scmp.obj,
             bin_method = "Sturges",
-            drop.fac = 0.5,
+            drop.fac = 0.6,
             verbose = F,
             cluster_count_by = "sum",
             split_bins = TRUE,
@@ -58,7 +60,7 @@ for (i in names(dataSets)) {
         scmp.obj.split.bin.false <- squeeze(
             scmpObject = scmp.obj,
             bin_method = "Sturges",
-            drop.fac = 0.5,
+            drop.fac = 0.6,
             verbose = F,
             cluster_count_by = "sum",
             split_bins = FALSE,
@@ -66,7 +68,7 @@ for (i in names(dataSets)) {
             drop_trails = F,
             fill_gaps = F
         )
-        #sc.plot.bins.bar(scmp.obj.split.bin.false)
+        sc.plot.bins.bar(scmp.obj.split.bin.false)
 
         # Make Design
   scmp.obj.split.bin.true <- sc.make.design.matrix(scmp.obj.split.bin.true,
