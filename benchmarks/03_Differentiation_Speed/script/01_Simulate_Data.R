@@ -27,15 +27,14 @@ source(paste0(helpScriptsDir, "add_gene_anno().R"))
 source(paste0(helpScriptsDir, "calc_bin_size.R"))
 
 # Unequal Arms
-path_a_length <- seq(100, 2900, 100)
-path_b_length <- seq(2900, 100, -100)
+path_a_length <- seq(100, 1500, 300)
+path_b_length <- seq(1500, 300, -300)
 time_length <- list()
 for (i in 1:length(path_a_length)) {
   sublist <- c(path_a_length[i], path_b_length[i])
   time_length[[i]] <- sublist
 }
-
-time_length <- time_length[c(1:10)]
+time_length
 
 # List of Images
 img.list <- list()
@@ -47,6 +46,18 @@ for (i in time_length) {
 
   # Name of the List
   cat(paste("\nSimulating for Time-Series Length:", ArmLength))
+  
+  # Adjust group probablity according to path length
+  path1_length <- str_split_i(ArmLength, pattern = "_", 1)
+  path2_length <- str_split_i(ArmLength, pattern = "_", 3)
+  
+  if(path2_length > path1_length){
+      path1.prob <- 0.3
+      path2.prob <- 0.7
+  }else{
+      path2.prob <- 0.3
+      path1.prob <- 0.7
+  }
 
   # Create Base parameters/ Same for All groups
   params.groups <- newSplatParams(
@@ -56,7 +67,7 @@ for (i in time_length) {
     seed = 2022, # Set seed
     mean.rate = 0.3, mean.shape = 5, lib.scale = 0.2,
     lib.loc = 12, dropout.type = "experiment",
-    group.prob = c(0.5, 0.5), path.from = c(0, 0),
+    group.prob = c(path1.prob, path2.prob), path.from = c(0, 0),
     de.prob = 0.3, de.facLoc = 1, path.nonlinearProb = 0,
     path.sigmaFac = 0,
     dropout.mid = 1.7, dropout.shape = -1,

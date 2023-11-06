@@ -28,7 +28,7 @@ for (i in names(dataSets)) {
     
     cat(paste("\nRunning for Arm:", i))
     
-    stop("Expected Stop")
+    #stop("Expected Stop")
     
     # Load Data
     load(file = paste0(dirPath, dataSets[i]))
@@ -47,10 +47,10 @@ for (i in names(dataSets)) {
             scmp.obj <- squeeze(
                 scmpObject = scmp.obj,
                 bin_method = "Sturges",
-                drop.fac = 0.7,
+                drop.fac = 1,
                 verbose = F,
                 cluster_count_by = "sum",
-                split_bins = T,
+                split_bins = F,
                 prune_bins = F,
                 drop_trails = T,
                 fill_gaps = F

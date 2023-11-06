@@ -20,10 +20,10 @@ roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = as.factor(Arm))) +
     geom_point() +
     #geom_text(data = subset(evaluation.frame, skew == 60 & VARIABLE > 0.3 & VARIABLE <= 0.90), aes(label = sprintf("%.2f", VARIABLE)), color = "black", hjust = 1, vjust = 1.7) + 
     geom_path(linewidth = 1, alpha = 0.7) +
-    scale_x_continuous(breaks = seq(0, 0.10, 0.01), 
+    scale_x_continuous(breaks = seq(0, 0.10, 0.05), 
                        limits = c(0, 0.10)
     ) +
-    scale_y_continuous(breaks = seq(0.5, 1, 0.1),
+    scale_y_continuous(breaks = seq(0.5, 1, 0.05),
                        limits = c(0.5, 1)
     ) +
     scale_color_manual(values = colorConesa(12))+
@@ -92,7 +92,7 @@ performance <- ggplot(long_data, aes(x = VARIABLE, y = value, group = interactio
          title = "Performance Metric for relative Path Length",
          color = "Measure") +
     scale_x_continuous(breaks = seq(0.1, 0.95, 0.2), limits = c(0, 0.95)) +
-    theme_minimal(base_size = 10) + 
+    theme_minimal(base_size = 15) + 
     theme(legend.position = "bottom")
 
 print(performance)
