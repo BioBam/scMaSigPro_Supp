@@ -13,21 +13,12 @@ suppressPackageStartupMessages(library(reshape2))
 dirPath <- "Article_Image/data/output/"
 
 # Load Evaluation
-evaluation.frame <- read.table(paste0(dirPath, "Performance.Table.tsv"), header = T)
-# Make sure that the data is sorted by the FPR in ascending order
-evaluation.frame <- evaluation.frame[order(evaluation.frame$FPR), ]
-
-# Approximate the AUC using the trapezoidal rule
-auroc_value <- sum(with(evaluation.frame, diff(FPR) * (TPR[-length(TPR)] + TPR[-1]) / 2))
-
-# Printing out the AUC value
-print(auroc_value)
-
+evaluation.frame <- as.data.frame(read.table(paste0(dirPath, "Performance.Table.tsv"), header = T))
 
 # ROC Curve
 roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR)) +
-    geom_point(data = subset(evaluation.frame,VARIABLE %in% c(0.6, 0.65, 0.7, 0.75)), color = colorConesa(4, reverse = T, palette = "hot")) +
-    geom_text(data = subset(evaluation.frame,VARIABLE %in% c(0.6, 0.65, 0.7, 0.75)), aes(label = sprintf("%.2f", VARIABLE)), color = "black", hjust = 1, vjust = -0.6)+
+    geom_point(data = subset(evaluation.frame,RSQ %in% c(0.6, 0.65, 0.7, 0.75)), color = colorConesa(4, reverse = T, palette = "hot")) +
+    geom_text(data = subset(evaluation.frame,RSQ %in% c(0.6, 0.65, 0.7, 0.75)), aes(label = sprintf("%.2f", RSQ)), color = "black", hjust = 1, vjust = -0.6)+
     geom_path(linewidth = 1, alpha = 1, color = colorConesa(1)) +
     scale_x_continuous(breaks = seq(0, 0.10, 0.05), 
                        limits = c(0, 0.10)
@@ -54,13 +45,13 @@ roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR)) +
 print(roc)
 
 # Plot all values against zero inflation
-long_data <- melt(evaluation.frame, id.vars = c("VARIABLE"), measure.vars = c("ACCURACY", "PRECISION", "FPR", "TPR", "FNR"))
+long_data <- melt(evaluation.frame, id.vars = c("RSQ"), measure.vars = c("Accuracy", "Precision", "FPR", "TPR", "Recall", "F1_Score"))
 
 # Plot performance
-performance <- ggplot(long_data, aes(x = VARIABLE, y = value, group = interaction(variable), color = variable)) +
+performance <- ggplot(long_data, aes(x = RSQ, y = value, group = interaction(variable), color = variable)) +
     geom_line(linewidth = 0.6) + 
     geom_point(size = 0.8) +
-    scale_color_manual(values = colorConesa(5)) +
+    scale_color_manual(values = colorConesa(6)) +
     labs(x = "Varying R-Square", y = "Performance Metric",
          title = "Performance Metric for different levels of zero-inflation",
          color = "Measure") +
@@ -69,8 +60,6 @@ performance <- ggplot(long_data, aes(x = VARIABLE, y = value, group = interactio
     theme(legend.position = "bottom")
 
 print(performance)
-
-stop()
 
 # Save All RDS
 saveRDS(performance, file = paste(dirPath, "Performance_plot.RDS"))
