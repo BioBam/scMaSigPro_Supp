@@ -16,17 +16,17 @@ dirPath <- "benchmarks/12_bin_size_weights/data/output/"
 evaluation.frame <- read.table(paste0(dirPath, "Performance.Table.tsv"), header = T)
 
 # ROC Curve
-roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = as.factor(UseBinSizeWeights))) +
+roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = as.factor(Combination))) +
     geom_point() +
-    #geom_text(data = subset(evaluation.frame, SplitBinbSkew == 60 & VARIABLE > 0.3 & VARIABLE <= 0.90), aes(label = sprintf("%.2f", VARIABLE)), color = "black", hjust = 1, vjust = 1.7) + 
+    geom_text(data = evaluation.frame[(evaluation.frame$TPR> 0.5 & evaluation.frame$FPR < 0.05),], aes(label = sprintf("%.2f", VARIABLE)), color = "black", hjust = 1, vjust = 1.7) + 
     geom_path(linewidth = 1, alpha = 0.7) +
-    scale_x_continuous(breaks = seq(0, 0.1, 0.01), 
-                       limits = c(0, 0.1)
+    scale_x_continuous(breaks = seq(0, 0.05, 0.01), 
+                       limits = c(0, 0.05)
     ) +
-    scale_y_continuous(breaks = seq(0, 1, 0.1),
-                       limits = c(0, 1)
+    scale_y_continuous(breaks = seq(0.6, 1, 0.1),
+                       limits = c(0.6, 1)
     ) +
-    scale_color_manual(values = colorConesa(10))+
+    #scale_color_manual(values = colorConesa(16))+
     labs(
         title = "ROC-curve for Skewness",
         subtitle = "Extreme Cases",
@@ -34,7 +34,7 @@ roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = as.factor(UseBinSi
         y = "True Positive Rate (Sensitivity)",
         color = "Use Bin Size as Weights"
     ) +
-    theme_classic(base_size = 15) +
+    theme_classic(base_size = 10) +
     theme(
         panel.grid.major = element_line(linewidth = 0.3, color = "lightgrey", linetype = "dotted"),
         panel.grid.minor = element_line(linewidth = 0.1, color = "lightgrey", linetype = "dotted"),

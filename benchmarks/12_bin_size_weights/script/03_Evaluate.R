@@ -17,10 +17,7 @@ source(paste0(helpScriptsDir, "get_performance.R"))
 # Load names of files
 dataSets <- list.files(paste0(dirPath))
 dataSets <- dataSets[!(dataSets %in% c("Accuracy.png", "ROC.png", "Performance.Table.tsv"))]
-names(dataSets) <- str_remove(paste(
-    paste(str_split_i(dataSets, pattern = "\\.", i = 5),
-          str_split_i(dataSets, pattern = "\\.", i = 6), sep = "."),
-    str_split_i(dataSets, pattern = "\\.", i = 4), sep = "_"), pattern = ".RData")
+names(dataSets) <- str_split_i(dataSets, "\\.", 2)
 
 # Skewness Evaluation
 eval.list <- list()
@@ -54,7 +51,7 @@ for (i in names(dataSets)) {
     )
     
     # Add Inflation
-    performance.measure[["UseBinSizeWeights"]] <- str_remove(i, "_weights")
+    performance.measure[["Combination"]] <-i
     
     # Add to list
     eval.list[[i]] <- performance.measure
