@@ -13,6 +13,7 @@ helpScriptsDir <- "R_Scripts/helper_function/"
 
 # Load helper functions
 source(paste0(helpScriptsDir, "get_performance_ROCR_.R"))
+source(paste0(helpScriptsDir, "calculate_metrics_binary.R"))
 
 # Load
 load(file = paste0(dirPath, "scmp.obj.article.image.RData"))

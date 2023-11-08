@@ -42,13 +42,17 @@ sc.plot.bins.bar(scmp.obj)
 # Make Design
 scmp.obj <- sc.make.design.matrix(
     scmpObject = scmp.obj,
-    poly_degree = 1)
+    poly_degree = 2)
 
 # Run p-vector
 scmp.obj <- sc.p.vector(
     scmpObj = scmp.obj, verbose = F, min.obs = 1,
     offset = T, parallel = T,
-    family = MASS::negative.binomial(theta = 0.5, link = "log")#logit
+    useWeights = T,
+    useInverseWeights = F,
+    logOffset = T,
+    useBinWeightAsOffset = F,
+    family = MASS::negative.binomial(theta = 10, link = "log")#logit
     )
 
 # Run-Step-2
