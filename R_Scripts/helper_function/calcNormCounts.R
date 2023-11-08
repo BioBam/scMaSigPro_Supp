@@ -40,7 +40,7 @@ calcNormCounts <- function(rawCounts, cat, size_fac = 10000) {
       scale.factor = size_fac
     )
     # Extract Counts
-    seuratNormCounts <- seuratNormObject@assays$RNA@data
+    seuratNormCounts <- as.matrix(seuratNormObject@assays$RNA$data)
     # Return dgCMatrix
     return(seuratNormCounts)
   }
@@ -53,7 +53,7 @@ calcNormCounts <- function(rawCounts, cat, size_fac = 10000) {
       normalization.method = "LogNormalize"
     )
     # Extract Counts
-    seuratNormCounts <- seuratNormObject@assays$RNA@data
+    seuratNormCounts <- seuratNormObject@assays$RNA$data
     # Return dgCMatrix
     return(seuratNormCounts)
   }
@@ -66,7 +66,7 @@ calcNormCounts <- function(rawCounts, cat, size_fac = 10000) {
       normalization.method = "RC"
     )
     # Extract Counts
-    seuratNormCounts <- t(as.matrix(seuratNormObject@assays$RNA@data))
+    seuratNormCounts <- t(as.matrix(seuratNormObject@assays$RNA$data))
     seuratNormCounts <- scale(seuratNormCounts, center = TRUE, scale = F)
     seuratNormCounts <- t(seuratNormCounts)
     # Return dgCMatrix
@@ -78,7 +78,7 @@ calcNormCounts <- function(rawCounts, cat, size_fac = 10000) {
       normalization.method = "RC"
     )
     # Extract Counts
-    seuratNormCounts <- t(as.matrix(seuratNormObject@assays$RNA@data))
+    seuratNormCounts <- t(as.matrix(seuratNormObject@assays$RNA$data))
     seuratNormCounts <- scale(seuratNormCounts, center = TRUE, scale = T)
     seuratNormCounts <- t(seuratNormCounts)
     # Return dgCMatrix
@@ -92,7 +92,7 @@ calcNormCounts <- function(rawCounts, cat, size_fac = 10000) {
       normalization.method = "LogNormalize"
     )
     # Extract Counts
-    seuratNormCounts <- t(as.matrix(seuratNormObject@assays$RNA@data))
+    seuratNormCounts <- t(as.matrix(seuratNormObject@assays$RNA$data))
     seuratNormCounts <- scale(seuratNormCounts, center = TRUE, scale = F)
     seuratNormCounts <- t(seuratNormCounts)
     # Return dgCMatrix
@@ -104,7 +104,7 @@ calcNormCounts <- function(rawCounts, cat, size_fac = 10000) {
       normalization.method = "LogNormalize"
     )
     # Extract Counts
-    seuratNormCounts <- t(as.matrix(seuratNormObject@assays$RNA@data))
+    seuratNormCounts <- t(as.matrix(seuratNormObject@assays$RNA$data))
     seuratNormCounts <- scale(seuratNormCounts, center = TRUE, scale = T)
     seuratNormCounts <- t(seuratNormCounts)
     # Return dgCMatrix
@@ -154,7 +154,7 @@ calcNormCounts <- function(rawCounts, cat, size_fac = 10000) {
       scale.factor = size_fac
     )
     # Extract Counts
-    seuratNormCounts <- seuratNormObject@assays$RNA@data
+    seuratNormCounts <- seuratNormObject@assays$RNA$data
     # Return dgCMatrix
     return(seuratNormCounts)
   } else {

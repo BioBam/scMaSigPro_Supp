@@ -11,7 +11,7 @@ suppressPackageStartupMessages(library(gtools))
 suppressPackageStartupMessages(library(tidyverse))
 
 # Set Paths relative to project
-dirPath <- "benchmarks/04_Normalization/data/simulated/"
+dirPath <- "benchmarks/07_Normalization/data/simulated/"
 helpScriptsDir <- "R_Scripts/helper_function/"
 
 # Create Path
@@ -134,7 +134,7 @@ for (i in names(norm_methods)) {
       save(sce.obj, file = obj.path)
     },
     error = function(e) {
-      cat(paste("\nFailed for", i))
+      cat(paste("\nFailed for", i, "because", e$message))
     }
   )
 }
