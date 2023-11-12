@@ -38,7 +38,7 @@ names(time_length) <- lapply(time_length, FUN = function(i){
     return(paste(i, collapse = "_"))
 })
 
-time_length[names(time_length) %in% c("400_2600",
+time_length <- time_length[names(time_length) %in% c("400_2600",
               "600_2400",
               "800_2200",
               "1000_2000",
@@ -79,7 +79,7 @@ for (i in time_length) {
     group.prob = c(path1.prob, path2.prob), path.from = c(0, 0),
     de.prob = 0.3, de.facLoc = 1, path.nonlinearProb = 0,
     path.sigmaFac = 0,
-    dropout.mid = 1.7, dropout.shape = -1,
+    dropout.mid = 0, dropout.shape = 0.03,
     path.skew = c(0.5, 0.5)
   )
 
