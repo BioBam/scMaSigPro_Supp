@@ -68,6 +68,10 @@ for (i in names(skew)) {
   trueSparsity <- round(sparsity(as.matrix(sim.sce@assays@data@listData$TrueCounts)) * 100)
   simulatedSparsity <- round(sparsity(as.matrix(sim.sce@assays@data@listData$counts)) * 100) - trueSparsity
   totSparsity <- round(sparsity(as.matrix(sim.sce@assays@data@listData$counts)) * 100)
+  
+  cat(paste("\nTotal:",totSparsity))
+  cat(paste("\nsimulatedSparsity:", simulatedSparsity))
+  cat(paste("\ntrueSparsity:", trueSparsity))
 
   cat(paste("\nTotal:",totSparsity))
   cat(paste("\nsimulatedSparsity:", simulatedSparsity))
