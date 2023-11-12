@@ -14,6 +14,7 @@ helpScriptsDir <- "R_Scripts/helper_function/"
 
 # Load names of files
 dataSets <- list.files(paste0(dirPath))
+dataSets <- dataSets[!(dataSets %in% c("Accuracy.png", "ROC.png", "Performance.Table.tsv"))]
 names(dataSets) <- str_remove(
   str_split_i(dataSets, pattern = "_", i = 2),
   ".RData"
@@ -24,10 +25,10 @@ dataSets <- dataSets[names(dataSets) %in% c("70", "80", "90")]
 # Set-up a for loop
 for (i in names(dataSets)) {
   poly.degree <- 2
-  min.gene <- 6
   drop_fac <- 1
   gTheta<- FALSE
-  off <- T
+  maxit<- 100
+  split.bins = F
   
   cat(paste("\nRunning for sparsity:", i))
 
@@ -35,7 +36,6 @@ for (i in names(dataSets)) {
   load(file = paste0(dirPath, dataSets[i]))
   
   if (i %in% c("70", "80", "90")) {
-      drop_fac <- 0.3
       
       # Extract the counts
       raw.counts <- as.matrix(sim.sce@assays@data@listData$counts) 
@@ -46,7 +46,25 @@ for (i in names(dataSets)) {
       keep_genes <- rownames(zero_count_table[zero_count_table$ZeroCounts< 2800,])
       sim.sce <- sim.sce[keep_genes,]
       
+      # Increase number of iteration
+      #gTheta = T
+      
+      #split.bins = T
   }
+  if (i %in% c("90")){
+      
+      # Additinal Compression
+      drop_fac = 0.3
+  }
+  # 
+  # if (i %in% c("70")) {
+  #     
+  #     # More Compression
+  #     drop_fac <- 0.5
+  #     
+  #     # Increase number of iteration
+  #     maxit <- 10000
+  # }
 
   tryCatch(
     expr = {
@@ -57,16 +75,6 @@ for (i in names(dataSets)) {
                               existing_pseudotime_colname = "Step",
                               existing_path_colname = "Group"), verbose = F)
       
-      if (i %in% c("80", "90")) {
-          drop_fac <- 0.3
-          maxit <- 10000
-          gTheta <- T
-      }
-      
-      if (i %in% c("70")) {
-          maxit <- 10000
-      }
-
       # Compress
       scmp.obj <- squeeze(
         scmpObject = scmp.obj,
@@ -74,33 +82,31 @@ for (i in names(dataSets)) {
         drop.fac = drop_fac,
         verbose = F,
         cluster_count_by = "sum",
-        split_bins = T,
+        split_bins = split.bins,
         prune_bins = F,
         drop_trails = F,
         fill_gaps = F
       )
       
-
       # Make Design
       scmp.obj <- sc.make.design.matrix(scmp.obj,
         poly_degree = poly.degree)
 
       # Run p-vector
       scmp.obj <- sc.p.vector(
-          scmpObj = scmp.obj, verbose = F, min.obs = 1,
-          offset = T, parallel = F, useWeights = T,
-          logWeights = F, logOffset = F,
+          scmpObj = scmp.obj, verbose = F, min.obs = 1, parallel = T,
+          offset = T, logOffset = T,
+          useWeights = T, logWeights = T, useInverseWeights = F,
           max_it = maxit, 
-          useInverseWeights = F, globalTheta = gTheta
+          globalTheta = gTheta
       )
 
       # Run-Step-2
       scmp.obj <- sc.T.fit(
           parallel = T,
-        scmpObj = scmp.obj, verbose = F,
-        step.method = "backward",
-        offset = T
-      )
+          scmpObj = scmp.obj, verbose = F,
+          step.method = "backward"
+          )
 
       # Save Object
       save(scmp.obj, file = paste0("benchmarks/01_Sparsity/data/output/scmp.obj.sparsity.", i, ".RData"))
