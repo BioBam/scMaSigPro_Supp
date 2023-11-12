@@ -8,8 +8,8 @@ suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(scMaSigPro))
 
 # Set Paths relative to project
-dirPath <- "benchmarks/03_Differentiation_Speed/data/simulated/sce/"
-dir.create("benchmarks/03_Differentiation_Speed/data/output/", showWarnings = F)
+dirPath <- "benchmarks/03_Different_Length/data/simulated/sce/"
+dir.create("benchmarks/03_Different_Length/data/output/", showWarnings = F)
 helpScriptsDir <- "R_Scripts/helper_function/"
 
 # Load names of files
@@ -22,10 +22,11 @@ names(dataSets) <- str_remove(
 # Set-up a for loop
 for (i in names(dataSets)) {
     poly.degree <- 2
-    min.gene <- 6
-    theta.val <- 1
-    ep <- 0.00001
-    
+    drop_fac <- 1
+    gTheta<- FALSE
+    maxit<- 100
+    split.bins = F
+    drop_trails  = F
     cat(paste("\nRunning for Arm:", i))
     
     #stop("Expected Stop")
@@ -43,40 +44,44 @@ for (i in names(dataSets)) {
                                     existing_pseudotime_colname = "Step",
                                     existing_path_colname = "Group"), verbose = F)
             
+            if(i %in% c("800_and_2200", "600_and_2400")){
+                drop_trails = T
+                split.bins = T
+            }
             # Compress
             scmp.obj <- squeeze(
                 scmpObject = scmp.obj,
                 bin_method = "Sturges",
-                drop.fac = 1,
+                drop.fac = drop_fac,
                 verbose = F,
                 cluster_count_by = "sum",
-                split_bins = F,
+                split_bins = split.bins,
                 prune_bins = F,
-                drop_trails = T,
+                drop_trails = drop_trails,
                 fill_gaps = F
             )
-            sc.plot.bins.tile(scmp.obj)
-            
             # Make Design
             scmp.obj <- sc.make.design.matrix(scmp.obj,
                                               poly_degree = poly.degree)
             
             # Run p-vector
             scmp.obj <- sc.p.vector(
-                scmpObj = scmp.obj, verbose = F, min.obs = 1,
-                offset = T, parallel = T
+                scmpObj = scmp.obj, verbose = F, min.obs = 1, parallel = T,
+                offset = T, logOffset = T,
+                useWeights = T, logWeights = T, useInverseWeights = F,
+                max_it = maxit, 
+                globalTheta = gTheta
             )
             
             # Run-Step-2
             scmp.obj <- sc.T.fit(
                 parallel = T,
                 scmpObj = scmp.obj, verbose = F,
-                step.method = "backward",
-                offset = T
+                step.method = "backward"
             )
             
             # Save Object
-            save(scmp.obj, file = paste0("benchmarks/03_Differentiation_Speed/data/output/scmp.obj.Arm.", i, ".RData"))
+            save(scmp.obj, file = paste0("benchmarks/03_Different_Length/data/output/scmp.obj.Arm.", i, ".RData"))
             
             # Validate
             cat(paste("\nCompleted for", i))
