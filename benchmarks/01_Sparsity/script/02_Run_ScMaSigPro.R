@@ -19,22 +19,22 @@ names(dataSets) <- str_remove(
   ".RData"
 )
 
+dataSets <- dataSets[names(dataSets) %in% c("70", "80", "90")]
+
 # Set-up a for loop
 for (i in names(dataSets)) {
   poly.degree <- 2
   min.gene <- 6
-  theta.val <- 1
-  ep <- 0.00001
   drop_fac <- 1
-
+  gTheta<- FALSE
+  off <- T
+  
   cat(paste("\nRunning for sparsity:", i))
-
-  # stop("Expected Stop")
 
   # Load Data
   load(file = paste0(dirPath, dataSets[i]))
   
-  if (i == "80") {
+  if (i %in% c("70", "80", "90")) {
       drop_fac <- 0.3
       
       # Extract the counts
@@ -57,8 +57,14 @@ for (i in names(dataSets)) {
                               existing_pseudotime_colname = "Step",
                               existing_path_colname = "Group"), verbose = F)
       
-      if (i == "80") {
+      if (i %in% c("80", "90")) {
           drop_fac <- 0.3
+          maxit <- 10000
+          gTheta <- T
+      }
+      
+      if (i %in% c("70")) {
+          maxit <- 10000
       }
 
       # Compress
@@ -68,7 +74,7 @@ for (i in names(dataSets)) {
         drop.fac = drop_fac,
         verbose = F,
         cluster_count_by = "sum",
-        split_bins = F,
+        split_bins = T,
         prune_bins = F,
         drop_trails = F,
         fill_gaps = F
@@ -79,14 +85,13 @@ for (i in names(dataSets)) {
       scmp.obj <- sc.make.design.matrix(scmp.obj,
         poly_degree = poly.degree)
 
-      if (i == "80") {
-        scmp.obj@distribution <- MASS::negative.binomial(10)
-      }
-
       # Run p-vector
       scmp.obj <- sc.p.vector(
           scmpObj = scmp.obj, verbose = F, min.obs = 1,
-          offset = T, parallel = T
+          offset = T, parallel = F, useWeights = T,
+          logWeights = F, logOffset = F,
+          max_it = maxit, 
+          useInverseWeights = F, globalTheta = gTheta
       )
 
       # Run-Step-2

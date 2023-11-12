@@ -3,7 +3,7 @@ get_performance_ROCR <- function(r2_sequence, groundTruth, scmpObj, include_infl
     
     
     # Get the sol frame
-    solData <- showSol(scmpObj, view = FALSE, return = TRUE,  influ = include_influ)
+    solData <- showSol(scmpObj, view = FALSE, return = TRUE,  includeInflu = include_influ)
     
     # Extract the counts
     bulkCounts <- scmpObj@compress.sce@assays@data@listData$bulk.counts
