@@ -12,7 +12,7 @@ suppressPackageStartupMessages(library(ggpubr))
 suppressPackageStartupMessages(library(tidyverse))
 
 # Set Paths relative to project
-dirPath <- "benchmarks/03_Differentiation_Speed/data/simulated/"
+dirPath <- "benchmarks/03_Different_Length/data/simulated/"
 helpScriptsDir <- "R_Scripts/helper_function/"
 
 # Create Path
@@ -27,14 +27,17 @@ source(paste0(helpScriptsDir, "add_gene_anno().R"))
 source(paste0(helpScriptsDir, "calc_bin_size.R"))
 
 # Unequal Arms
-path_a_length <- seq(100, 1500, 300)
-path_b_length <- seq(1500, 300, -300)
+path_a_length <- seq(100, 2900, 100)
+path_b_length <- seq(2900, 100, -100)
 time_length <- list()
 for (i in 1:length(path_a_length)) {
   sublist <- c(path_a_length[i], path_b_length[i])
   time_length[[i]] <- sublist
 }
-time_length
+names(time_length) <- lapply(time_length, FUN = function(i){
+    return(paste(i, collapse = "_"))
+})
+time_length <- time_length[seq(2,15,2)]
 
 # List of Images
 img.list <- list()
@@ -85,6 +88,10 @@ for (i in time_length) {
   trueSparsity <- round(sparsity(as.matrix(sim.sce@assays@data@listData$TrueCounts)) * 100)
   simulatedSparsity <- round(sparsity(as.matrix(sim.sce@assays@data@listData$counts)) * 100) - trueSparsity
   totSparsity <- round(sparsity(as.matrix(sim.sce@assays@data@listData$counts)) * 100)
+  
+  cat(paste("\nTotal:",totSparsity))
+  cat(paste("\nsimulatedSparsity:", simulatedSparsity))
+  cat(paste("\ntrueSparsity:", trueSparsity))
 
   # Add gene Info
   gene.info <- add_gene_anno(sim.sce = sim.sce)
@@ -191,13 +198,13 @@ for (i in time_length) {
   obj.path <- paste0(sce_path, paste0("Arm_", ArmLength, ".RData"))
   save(sim.sce, file = obj.path)
 }
-# 
-# combined_pplot <- ggarrange(img.list[["300_and_2700"]],
-#                             img.list[["600_and_2400"]],
-#                             img.list[["900_and_2100"]],
-#                             img.list[["1200_and_1800"]],
-#                             img.list[["1500_and_1500"]],
-#                             ncol = 3, nrow = 3,
-#                             labels = c("A.","B.","C.","D.","E."))
-# 
-# ggsave(filename = "Images/Supp_Fig_4_Vary_Branch_Length.png", plot = combined_pplot, dpi = 600, height = 8, width = 14)
+
+combined_pplot <- ggarrange(img.list[["300_and_2700"]],
+                            img.list[["600_and_2400"]],
+                            img.list[["900_and_2100"]],
+                            img.list[["1200_and_1800"]],
+                            img.list[["1500_and_1500"]],
+                            ncol = 3, nrow = 3,
+                            labels = c("A.","B.","C.","D.","E."))
+
+ggsave(filename = "Images/Supp_Fig_4_Vary_Branch_Length.png", plot = combined_pplot, dpi = 600, height = 8, width = 14)

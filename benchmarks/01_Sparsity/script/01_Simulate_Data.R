@@ -1,4 +1,4 @@
-# Title: Simulate Datasets with different levels of sparsity
+# Title: Simulate 8 Datasets with different levels of sparsity
 # Author: Priyansh Srivastava
 # Email: spriyansh29@gmail.com
 # Year: 2023
@@ -9,6 +9,7 @@ suppressPackageStartupMessages(library(SingleCellExperiment))
 suppressPackageStartupMessages(library(coop))
 suppressPackageStartupMessages(library(gtools))
 suppressPackageStartupMessages(library(tidyverse))
+suppressPackageStartupMessages(library(ggpubr))
 
 # Set Paths relative to project
 dirPath <- "benchmarks/01_Sparsity/data/simulated/"
@@ -25,8 +26,8 @@ source(paste0(helpScriptsDir, "plot_simulations().R"))
 source(paste0(helpScriptsDir, "add_gene_anno().R"))
 source(paste0(helpScriptsDir, "calc_bin_size.R"))
 
-# Zero-Inflation
-# "Inflation Level" = c(dropout.mid, dropout.shape)
+#Zero-Inflation
+#"Inflation Level" = c(dropout.mid, dropout.shape)
 zi <- list(
   "sparsity_10" = c(0, -1.25),
   "sparsity_20" = c(0, -0.7),
@@ -35,7 +36,8 @@ zi <- list(
   "sparsity_50" = c(0, 0.03),
   "sparsity_60" = c(0, 0.25),
   "sparsity_70" = c(0, 0.5),
-  "sparsity_80" = c(0, 0.85)
+  "sparsity_80" = c(0, 0.85),
+  "sparsity_90" = c(0, 1.05)
 )
 
 # List of Images
@@ -78,6 +80,10 @@ for (i in names(zi)) {
   trueSparsity <- round(sparsity(as.matrix(sim.sce@assays@data@listData$TrueCounts)) * 100)
   simulatedSparsity <- round(sparsity(as.matrix(sim.sce@assays@data@listData$counts)) * 100) - trueSparsity
   totSparsity <- round(sparsity(as.matrix(sim.sce@assays@data@listData$counts)) * 100)
+  
+  cat(paste("\nTotal:",totSparsity))
+  cat(paste("\nsimulatedSparsity:", simulatedSparsity))
+  cat(paste("\ntrueSparsity:", trueSparsity))
 
   # Add gene Info
   gene.info <- add_gene_anno(sim.sce = sim.sce)
@@ -186,16 +192,19 @@ for (i in names(zi)) {
   save(sim.sce, file = obj.path)
 }
 
-# 
-# combined_pplot <- ggarrange(img.list[["10"]],
-#           img.list[["20"]],
-#           img.list[["30"]],
-#           img.list[["40"]],
-#           img.list[["50"]],
-#           img.list[["60"]],
-#           img.list[["70"]],
-#           img.list[["80"]],
-#           ncol = 4, nrow = 2,
-#           labels = c("A.","B.","C.","D.","E.","F.","G.", "H."))
-# 
-# ggsave(filename = "Images/Supp_Fig_2_Vary_Zero_Inflation.png", plot = combined_pplot, dpi = 600, height = 8, width = 14)
+# Plot for supplemnetary Material
+combined_pplot <- ggarrange(
+    img.list[["10"]],
+    img.list[["20"]],
+    img.list[["30"]],
+    img.list[["40"]],
+    img.list[["50"]],
+    img.list[["60"]],
+    img.list[["70"]],
+    img.list[["80"]],
+    img.list[["90"]],
+    ncol = 3, nrow = 3,
+    labels = c("A.","B.","C.","D.","E.","F.","G.", "H.", "I."))
+
+ggsave(filename = "Images/Supp_Fig_2_Vary_Zero_Inflation.png",
+       plot = combined_pplot, dpi = 600, height = 8, width = 14)

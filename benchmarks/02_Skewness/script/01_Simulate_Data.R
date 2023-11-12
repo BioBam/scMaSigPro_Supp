@@ -1,4 +1,4 @@
-# Title: Simulate Datasets with different Number of cells
+# Title: Simulate Datasets with skewness
 # Author: Priyansh Srivastava
 # Email: spriyansh29@gmail.com
 # Year: 2023
@@ -9,6 +9,7 @@ suppressPackageStartupMessages(library(SingleCellExperiment))
 suppressPackageStartupMessages(library(coop))
 suppressPackageStartupMessages(library(gtools))
 suppressPackageStartupMessages(library(tidyverse))
+suppressPackageStartupMessages(library(ggpubr))
 
 # Set Paths relative to project
 dirPath <- "benchmarks/02_Skewness/data/simulated/"
@@ -26,7 +27,7 @@ source(paste0(helpScriptsDir, "add_gene_anno().R"))
 source(paste0(helpScriptsDir, "calc_bin_size.R"))
 
 # Zero-Inflation
-skew <- seq(0.1, 1, 0.1) # 0.5
+skew <- seq(0.1, 0.9, 0.1) # 0.5
 names(skew) <- as.character(skew)
 
 # List of Images
@@ -68,6 +69,10 @@ for (i in names(skew)) {
   simulatedSparsity <- round(sparsity(as.matrix(sim.sce@assays@data@listData$counts)) * 100) - trueSparsity
   totSparsity <- round(sparsity(as.matrix(sim.sce@assays@data@listData$counts)) * 100)
 
+  cat(paste("\nTotal:",totSparsity))
+  cat(paste("\nsimulatedSparsity:", simulatedSparsity))
+  cat(paste("\ntrueSparsity:", trueSparsity))
+  
   # Add gene Info
   gene.info <- add_gene_anno(sim.sce = sim.sce)
   gene.info <- gene.info[mixedsort(gene.info$gene_short_name), ]
@@ -174,18 +179,16 @@ for (i in names(skew)) {
   save(sim.sce, file = obj.path)
 }
 
-# 
-# 
-# combined_pplot <- ggarrange(img.list[["0.1"]],
-#                             img.list[["0.2"]],
-#                             img.list[["0.3"]],
-#                             img.list[["0.4"]],
-#                             img.list[["0.5"]],
-#                             img.list[["0.6"]],
-#                             img.list[["0.7"]],
-#                             img.list[["0.8"]],
-#                             img.list[["0.9"]],
-#                             ncol = 3, nrow = 3,
-#                             labels = c("A.","B.","C.","D.","E.","F.","G.", "H.", "I."))
-# 
-# ggsave(filename = "Images/Supp_Fig_3_Vary_Capture_Bias.png", plot = combined_pplot, dpi = 600, height = 8, width = 14)
+combined_pplot <- ggarrange(img.list[["0.1"]],
+                            img.list[["0.2"]],
+                            img.list[["0.3"]],
+                            img.list[["0.4"]],
+                            img.list[["0.5"]],
+                            img.list[["0.6"]],
+                            img.list[["0.7"]],
+                            img.list[["0.8"]],
+                            img.list[["0.9"]],
+                            ncol = 3, nrow = 3,
+                            labels = c("A.","B.","C.","D.","E.","F.","G.", "H.", "I."))
+
+ggsave(filename = "Images/Supp_Fig_3_Vary_Capture_Bias.png", plot = combined_pplot, dpi = 600, height = 8, width = 14)
