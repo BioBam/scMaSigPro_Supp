@@ -37,7 +37,13 @@ for (i in 1:length(path_a_length)) {
 names(time_length) <- lapply(time_length, FUN = function(i){
     return(paste(i, collapse = "_"))
 })
-time_length <- time_length[seq(2,15,2)]
+
+time_length[names(time_length) %in% c("400_2600",
+              "600_2400",
+              "800_2200",
+              "1000_2000",
+              "1200_1800",
+              "1400_1600")]
 
 # List of Images
 img.list <- list()
@@ -199,12 +205,13 @@ for (i in time_length) {
   save(sim.sce, file = obj.path)
 }
 
-combined_pplot <- ggarrange(img.list[["300_and_2700"]],
+combined_pplot <- ggarrange(img.list[["400_and_2600"]],
                             img.list[["600_and_2400"]],
-                            img.list[["900_and_2100"]],
+                            img.list[["800_and_2200"]],
+                            img.list[["1000_and_2000"]],
                             img.list[["1200_and_1800"]],
-                            img.list[["1500_and_1500"]],
-                            ncol = 3, nrow = 3,
-                            labels = c("A.","B.","C.","D.","E."))
+                            img.list[["1400_and_1600"]],
+                            ncol = 3, nrow = 2,
+                            labels = c("A.","B.","C.","D.","E.", "F."))
 
 ggsave(filename = "Images/Supp_Fig_4_Vary_Branch_Length.png", plot = combined_pplot, dpi = 600, height = 8, width = 14)
