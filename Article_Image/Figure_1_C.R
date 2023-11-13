@@ -8,6 +8,8 @@ suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(scMaSigPro))
 suppressPackageStartupMessages(library(RColorConesa))
 suppressPackageStartupMessages(library(reshape2))
+suppressPackageStartupMessages(library(grid))
+suppressPackageStartupMessages(library(ggrepel))
 
 # Load Evaluation
 evaluation.frame.zi <- as.data.frame(read.table("benchmarks/01_Sparsity/data/output/Performance.Table.tsv", header = T))
@@ -30,76 +32,163 @@ evaluation.frame <- rbind(evaluation.frame.zi.sub,
                           evaluation.frame.skew.sub,
                           evaluation.frame.len.sub)
 
+# Assuming evaluation.frame is your data frame
+# Extract starting points
+start_points <- subset(evaluation.frame, RSQ == 0.7 & parameter == "ZI")
+
+# Define end coordinates (example)
+end_x <- 0.8
+end_y <- 0.02
+
+# Create a new data frame for segments
+segments_data <- data.frame(xstart = start_points$TPR, 
+                            ystart = start_points$FPR, 
+                            xend = 0.8, 
+                            yend = 0.05)
+
 # ROC Curve
 roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = parameter)) +
     geom_path(linewidth = 1, alpha = 0.7) +
-    scale_color_manual(values = colorConesa(3)) +
+    scale_color_manual( labels = c("Different Lengths: 400 & 2600",
+                                   "Skewness: nCells Start >> nCells End", 
+                                   "Zero-Inflation of 60%"),
+                        
+                        values = c(colorConesa(6)[1],
+                                  colorConesa(6)[2],
+                                  colorConesa(6)[6]),
+                       ) +
     scale_x_continuous(breaks = seq(0, 0.10, 0.05), 
                        limits = c(0, 0.10)
     ) +
-    scale_y_continuous(breaks = seq(0, 1, 0.1),
+    scale_y_continuous(breaks = seq(0, 1, 0.2),
                        limits = c(0, 1)
     ) +
+    
+    # Zero-Inflation
     geom_point(
         data = subset(evaluation.frame, RSQ == 0.7 & parameter == "ZI"),
-        color = colorConesa(3)[3],
+        color = colorConesa(6)[6],
         size = 2) +
+    
+    geom_label_repel(
+        data = subset(evaluation.frame, RSQ == 0.7 & parameter == "ZI"),
+        aes(label = RSQ,
+            color = parameter),
+        nudge_x = 0.007, nudge_y = -0.12, # Adjust these values as needed
+            size = 3,
+            segment.color = colorConesa(6)[6], # Color of the line connecting label and point
+            segment.size = 0.5, # Size of the line connecting label and point
+        show.legend = FALSE # Prevent the creation of a legend for this aesthetic
+    )+
+   
+    geom_point(
+        data = subset(evaluation.frame, TPR >= 0.8 & FPR < 0.01 & parameter == "ZI"),
+        color = colorConesa(6)[6],
+        size = 2) +
+
+    
+    # Skew
     geom_point(
         data = subset(evaluation.frame, RSQ == 0.7 & parameter == "Skew"),
         color = colorConesa(3)[2],
         size = 2) +
+    
+    geom_label_repel(
+        data = subset(evaluation.frame, RSQ == 0.7 & parameter == "Skew"),
+        aes(label = RSQ,
+            color = parameter),
+        nudge_x = 0.04, nudge_y = -0.1, # Adjust these values as needed
+        size = 3,
+        segment.color = colorConesa(3)[2], # Color of the line connecting label and point
+        segment.size = 0.5, # Size of the line connecting label and point
+        show.legend = FALSE # Prevent the creation of a legend for this aesthetic
+    )+
+    
+    geom_point(
+        data = subset(evaluation.frame, TPR >= 0.8 & FPR <= 0.01 & parameter == "Skew"),
+        color = colorConesa(3)[2],
+        size = 2) +
+    geom_label_repel(
+        data = subset(evaluation.frame, TPR >= 0.8 & FPR <= 0.01 & parameter == "Skew"),
+        aes(label = RSQ,
+            color = parameter),
+        nudge_x = 0.04, nudge_y = -0.2, # Adjust these values as needed
+        size = 3,
+        segment.color = colorConesa(3)[2], # Color of the line connecting label and point
+        segment.size = 0.5, # Size of the line connecting label and point
+        show.legend = FALSE # Prevent the creation of a legend for this aesthetic
+    )+
+   
+    # Length
     geom_point(
         data = subset(evaluation.frame, RSQ == 0.7 & parameter == "Length"),
         color = colorConesa(3)[1],
         size = 2) +
-    
-    
+    geom_label_repel(
+        data = subset(evaluation.frame, RSQ == 0.7 & parameter == "Length"),
+        aes(label = RSQ,
+            color = parameter),
+        nudge_x = 0.0, nudge_y = 0.1, # Adjust these values as needed
+        size = 3,
+        segment.color = colorConesa(3)[1], # Color of the line connecting label and point
+        segment.size = 0.5, # Size of the line connecting label and point
+        show.legend = FALSE # Prevent the creation of a legend for this aesthetic
+    )+
+   
     geom_point(
-        data = subset(evaluation.frame, TPR > 0.9 & TPR < 0.92 & FPR < 0.01 & parameter == "Length"),
+        data = subset(evaluation.frame, TPR >= 0.9 & FPR < 0.01 & parameter == "Length"),
         color = colorConesa(3)[1],
         size = 2) +
-    geom_text(data = subset(evaluation.frame, TPR > 0.9 & TPR < 0.92 & FPR < 0.01 & parameter == "Length"),
-              aes(label = sprintf("%.2f", RSQ)), color = colorConesa(3)[1], hjust = -0.3, vjust = -0.6)+
-    
-    geom_point(
-        data = subset(evaluation.frame, TPR >= 0.9 & FPR < 0.04 & parameter == "ZI"),
-        color = colorConesa(3)[3],
-        size = 2) +
-    geom_text(data = subset(evaluation.frame, TPR > 0.9 & FPR < 0.04 & parameter == "ZI"),
-              aes(label = sprintf("%.2f", RSQ)), color = colorConesa(3)[3], hjust = -0.3, vjust = -1)+
-    
-    geom_point(
-        data = subset(evaluation.frame, TPR >= 0.9 & FPR < 0.04 & parameter == "Skew"),
-        color = colorConesa(3)[2],
-        size = 2) +
-    geom_text(data = subset(evaluation.frame, TPR > 0.9 & FPR < 0.04 & parameter == "Skew"),
-              aes(label = sprintf("%.2f", RSQ)), color = colorConesa(3)[2], hjust = -0.3, vjust = 1)+
-    
-    
-    geom_text(data = subset(evaluation.frame, RSQ == 0.7 & parameter == "ZI"),
-              aes(label = sprintf("%.2f", RSQ)), color = colorConesa(3)[3], hjust = -0.3, vjust = 0.6)+
-    geom_text(data = subset(evaluation.frame, RSQ == 0.7 & parameter == "Skew"),
-              aes(label = sprintf("%.2f", RSQ)), color = colorConesa(3)[2], hjust = -0.3, vjust = 0.6)+
-    geom_text(data = subset(evaluation.frame, RSQ == 0.7 & parameter == "Length"),
-              aes(label = sprintf("%.2f", RSQ)), color = colorConesa(3)[1], hjust = -0.3, vjust = 0.6)+
+    geom_label_repel(
+        data = subset(evaluation.frame, TPR >= 0.9 & FPR < 0.01 & parameter == "Length"),
+        aes(label = RSQ,
+            color = parameter),
+        nudge_x = 0.01, nudge_y = 0.07, # Adjust these values as needed
+        size = 3,
+        segment.color = colorConesa(3)[1], # Color of the line connecting label and point
+        segment.size = 0.5, # Size of the line connecting label and point
+        show.legend = FALSE # Prevent the creation of a legend for this aesthetic
+    )+
+  
     labs(
-        title = "ROC-Curve Simulated Data",
+        title = "ROC: Performance on Simulated Data",
         subtitle = "Varying R-Square",
         x = "False Positive Rate (1-Specificity)",
-        y = "True Positive Rate (Sensitivity)") +
-    theme_classic(base_size = 15) +
-    theme(
+        y = "True Positive Rate (Sensitivity)",
+        color = "Simulation") +
+    theme_classic(base_size = 10) +
+    theme(legend.box = "vertical",
+          legend.direction = "vertical",
         panel.grid.major = element_line(linewidth = 0.3, color = "lightgrey", linetype = "dotted"),
         panel.grid.minor = element_line(linewidth = 0.1, color = "lightgrey", linetype = "dotted"),
-        legend.position = "bottom"
+        #legend.position = "bottom"
+        legend.position = c(0.5, 0.5), legend.justification = c("left", "top")
     ) +
-    geom_vline(xintercept = 0.01, colour = "grey") +  # Highlighted the x-intercept of 0.01
-    geom_vline(xintercept = 0.05, colour = "grey") +
-    geom_vline(xintercept = 0.1, colour = "darkgrey") +
-    geom_hline(yintercept = 0.8, colour = "darkgrey", linetype = "dotted") +
-    guides(color = guide_legend(key_width = unit(3, "cm"), key_height = unit(4, "cm")))
+    geom_vline(xintercept = 0.01, colour = "lightgrey", linetype = "dotted") +  # Highlighted the x-intercept of 0.01
+    geom_vline(xintercept = 0.05, colour = "lightgrey", linetype = "dotted") +
+    geom_vline(xintercept = 0.1, colour = "lightgrey", linetype = "dotted") +
+    geom_hline(yintercept = 0.8, colour = "lightgrey", linetype = "dotted") +
+    guides(color = guide_legend(key_width = unit(5, "cm"), key_height = unit(4, "cm"))) +
+    geom_label_repel(
+        data =subset(evaluation.frame, TPR >= 0.8 & FPR < 0.01 & parameter == "ZI"),
+        aes(label = RSQ,
+            color = parameter),
+        nudge_x = 0.02, nudge_y = -0.12, # Adjust these values as needed
+        size = 3,
+        segment.color = colorConesa(6)[6], # Color of the line connecting label and point
+        segment.size = 0.5, # Size of the line connecting label and point
+        show.legend = FALSE # Prevent the creation of a legend for this aesthetic
+    )
 
 print(roc)
+
+ggsave(plot = roc,
+       path = "Article_Image",
+       dpi = 1000,  filename = "Figure1_A.png",
+       width = 5, height = 5)
+saveRDS(roc, file = "Article_Image/Figure1_A.RDS")
+
+stop()
 
 # Plot all values against zero inflation
 long_data <- melt(evaluation.frame, id.vars = c("RSQ"), measure.vars = c("Accuracy", "Precision", "FPR", "TPR", "Recall", "F1_Score"))

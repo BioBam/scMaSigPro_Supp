@@ -33,7 +33,7 @@ scmp.obj <- squeeze(
     cluster_count_by = "sum",
     split_bins = F,
     prune_bins = F,
-    drop_trails = T,
+    drop_trails = F,
     fill_gaps = F
 )
 sc.plot.bins.tile(scmp.obj)
@@ -45,10 +45,14 @@ scmp.obj <- sc.make.design.matrix(scmp.obj,
 
 # Run p-vector
 scmp.obj <- sc.p.vector(
-    family = MASS::negative.binomial(0.5),
   scmpObj = scmp.obj, verbose = T, min.obs = 1,
-  parallel = T,MT.adjust = "fdr",
-  offset = T
+  parallel = T,
+  MT.adjust = "fdr",
+  offset = T, useWeights = T,
+  useInverseWeights = F,
+  logOffset = T,
+  globalTheta = T,
+  max_it = 1000
 )
 
 # Run-Step-2
@@ -59,7 +63,7 @@ scmpObj = scmp.obj, verbose = T,
 )
 
 # Get sol
-sol <- showSol(scmpObj = scmp.obj, view = F, return = T)
+sol <- showSol(scmpObj = scmp.obj, view = F, return = T, includeInflu = T)
 
 # Select the column with R2 and P-value
 sol <- sol[, c(1, 2)]

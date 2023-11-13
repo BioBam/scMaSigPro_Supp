@@ -34,7 +34,7 @@ params.groups <- newSplatParams(
     mean.rate = 1, mean.shape = 1, lib.scale = 0.2,
     lib.loc = 11, dropout.type = "experiment",
     group.prob = c(0.4, 0.6), path.from = c(0, 0),
-    de.prob = 0.3, de.facLoc = 1, path.nonlinearProb = 0,
+    de.prob = 0.3, de.facLoc = 1, path.nonlinearProb = 0.2,
     path.sigmaFac = 0,
     path.skew = c(0.4, 0.5),
     path.nSteps = c(1500, 1400),
@@ -134,7 +134,7 @@ plt.table <- plt.table[, !(colnames(plt.table) %in% "cluster.members")]
 cellAssociation <- paste0(imgPath, "cellAssociation/", "TradeSeq_test.png")
 p <- ggplot(plt.table, aes(x = Num)) +
   geom_histogram(
-    binwidth = 0.5, ,
+    binwidth = 0.5, 
     color = "#f68a53", fill = "#f68a53", alpha = 0.5
   ) +
   geom_vline(aes(xintercept = mean(Num)), linetype = "dashed", color = "#139289") +
