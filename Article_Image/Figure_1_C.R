@@ -9,23 +9,79 @@ suppressPackageStartupMessages(library(scMaSigPro))
 suppressPackageStartupMessages(library(RColorConesa))
 suppressPackageStartupMessages(library(reshape2))
 
-# Set Paths relative to project
-dirPath <- "Article_Image/data/output/"
-
 # Load Evaluation
-evaluation.frame <- as.data.frame(read.table(paste0(dirPath, "Performance.Table.tsv"), header = T))
+evaluation.frame.zi <- as.data.frame(read.table("benchmarks/01_Sparsity/data/output/Performance.Table.tsv", header = T))
+evaluation.frame.skew <- as.data.frame(read.table("benchmarks/02_Skewness/data/output/Performance.Table.tsv", header = T))
+evaluation.frame.len <- as.data.frame(read.table("benchmarks/03_Different_Length/data/output/Performance.Table.tsv", header = T))
+
+# Subset
+evaluation.frame.zi.sub <- evaluation.frame.zi[(
+    evaluation.frame.zi$parameter == "ZI" & evaluation.frame.zi$parameter.value == 60
+    ),]
+evaluation.frame.skew.sub <- evaluation.frame.skew[(
+    evaluation.frame.skew$parameter == "Skew" & evaluation.frame.skew$parameter.value == 0.9
+),]
+evaluation.frame.len.sub <- evaluation.frame.len[(
+    evaluation.frame.len$parameter == "Length" & evaluation.frame.len$parameter.value == "400_and_2600"
+),]
+
+# Combine
+evaluation.frame <- rbind(evaluation.frame.zi.sub,
+                          evaluation.frame.skew.sub,
+                          evaluation.frame.len.sub)
 
 # ROC Curve
-roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR)) +
-    geom_point(data = subset(evaluation.frame,RSQ %in% c(0.6, 0.65, 0.7, 0.75)), color = colorConesa(4, reverse = T, palette = "hot")) +
-    geom_text(data = subset(evaluation.frame,RSQ %in% c(0.6, 0.65, 0.7, 0.75)), aes(label = sprintf("%.2f", RSQ)), color = "black", hjust = 1, vjust = -0.6)+
-    geom_path(linewidth = 1, alpha = 1, color = colorConesa(1)) +
+roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = parameter)) +
+    geom_path(linewidth = 1, alpha = 0.7) +
+    scale_color_manual(values = colorConesa(3)) +
     scale_x_continuous(breaks = seq(0, 0.10, 0.05), 
                        limits = c(0, 0.10)
     ) +
-    scale_y_continuous(breaks = seq(0.3, 1, 0.1),
-                       limits = c(0.3, 1)
+    scale_y_continuous(breaks = seq(0, 1, 0.1),
+                       limits = c(0, 1)
     ) +
+    geom_point(
+        data = subset(evaluation.frame, RSQ == 0.7 & parameter == "ZI"),
+        color = colorConesa(3)[3],
+        size = 2) +
+    geom_point(
+        data = subset(evaluation.frame, RSQ == 0.7 & parameter == "Skew"),
+        color = colorConesa(3)[2],
+        size = 2) +
+    geom_point(
+        data = subset(evaluation.frame, RSQ == 0.7 & parameter == "Length"),
+        color = colorConesa(3)[1],
+        size = 2) +
+    
+    
+    geom_point(
+        data = subset(evaluation.frame, TPR > 0.9 & TPR < 0.92 & FPR < 0.01 & parameter == "Length"),
+        color = colorConesa(3)[1],
+        size = 2) +
+    geom_text(data = subset(evaluation.frame, TPR > 0.9 & TPR < 0.92 & FPR < 0.01 & parameter == "Length"),
+              aes(label = sprintf("%.2f", RSQ)), color = colorConesa(3)[1], hjust = -0.3, vjust = -0.6)+
+    
+    geom_point(
+        data = subset(evaluation.frame, TPR >= 0.9 & FPR < 0.04 & parameter == "ZI"),
+        color = colorConesa(3)[3],
+        size = 2) +
+    geom_text(data = subset(evaluation.frame, TPR > 0.9 & FPR < 0.04 & parameter == "ZI"),
+              aes(label = sprintf("%.2f", RSQ)), color = colorConesa(3)[3], hjust = -0.3, vjust = -1)+
+    
+    geom_point(
+        data = subset(evaluation.frame, TPR >= 0.9 & FPR < 0.04 & parameter == "Skew"),
+        color = colorConesa(3)[2],
+        size = 2) +
+    geom_text(data = subset(evaluation.frame, TPR > 0.9 & FPR < 0.04 & parameter == "Skew"),
+              aes(label = sprintf("%.2f", RSQ)), color = colorConesa(3)[2], hjust = -0.3, vjust = 1)+
+    
+    
+    geom_text(data = subset(evaluation.frame, RSQ == 0.7 & parameter == "ZI"),
+              aes(label = sprintf("%.2f", RSQ)), color = colorConesa(3)[3], hjust = -0.3, vjust = 0.6)+
+    geom_text(data = subset(evaluation.frame, RSQ == 0.7 & parameter == "Skew"),
+              aes(label = sprintf("%.2f", RSQ)), color = colorConesa(3)[2], hjust = -0.3, vjust = 0.6)+
+    geom_text(data = subset(evaluation.frame, RSQ == 0.7 & parameter == "Length"),
+              aes(label = sprintf("%.2f", RSQ)), color = colorConesa(3)[1], hjust = -0.3, vjust = 0.6)+
     labs(
         title = "ROC-Curve Simulated Data",
         subtitle = "Varying R-Square",
@@ -40,6 +96,7 @@ roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR)) +
     geom_vline(xintercept = 0.01, colour = "grey") +  # Highlighted the x-intercept of 0.01
     geom_vline(xintercept = 0.05, colour = "grey") +
     geom_vline(xintercept = 0.1, colour = "darkgrey") +
+    geom_hline(yintercept = 0.8, colour = "darkgrey", linetype = "dotted") +
     guides(color = guide_legend(key_width = unit(3, "cm"), key_height = unit(4, "cm")))
 
 print(roc)
