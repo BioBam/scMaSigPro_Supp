@@ -10,6 +10,7 @@ Testing_And_Development/*.RDS
 
 
 benchmarks/*/data/simulated/
+benchmarks/*/data/input/
 benchmarks/*/data/output/*.RData
 Analysis_Public_Data/data/*
 Article_Image/data
