@@ -51,7 +51,7 @@ cobradata_custom <- calculate_adjp(cob_data)
 cobraperf <- calculate_performance(cobradata_custom,
   binary_truth = "status",
   splv = "none",
-  maxsplit = 2
+  maxsplit = 3
 )
 # Calculate for plots
 cobraplot <- prepare_data_for_plot(cobraperf,
@@ -60,7 +60,45 @@ cobraplot <- prepare_data_for_plot(cobraperf,
 )
 
 ROC <- plot_roc(cobraplot, title = "ROC")
-ROC
+ROC <- ROC+ theme_classic(base_size = 10) +
+    scale_color_manual(
+        labels = c("scMaSigPro RSQ at 0.6",
+                   "TradeSeq (TS) diffEnd()", 
+                   "TS earlyDETest()",
+                   "TS pattern()"),
+                   values = c(colorConesa(7)[1],
+                              colorConesa(7)[3],
+                              colorConesa(7)[5],
+                              colorConesa(7)[7])
+                   ,
+    )+
+    labs(
+        title = "ROC: Comparison with TradeSeq",
+        subtitle = "R-Square threshold: 0.6",
+        y = "True Positive Rate (Sensitivity)",
+        x = "False Positive Rate (1-Specificity)",
+        color = "Method"
+    ) +theme(
+        legend.box = "vertical",
+        legend.direction = "vertical",
+        strip.background = element_blank(),
+        strip.text = element_blank(),
+        panel.grid.major = element_line(linewidth = 0.3, color = "lightgrey", linetype = "dotted"),
+        panel.grid.minor = element_line(linewidth = 0.1, color = "lightgrey", linetype = "dotted"),
+        #legend.position = "bottom"
+        legend.position = c(0.5, 0.5), legend.justification = c("left", "top")) +
+    geom_vline(xintercept = 0.01, colour = "lightgrey", linetype = "dotted") +  # Highlighted the x-intercept of 0.01
+    geom_vline(xintercept = 0.05, colour = "lightgrey",linetype = "dotted") +
+    geom_vline(xintercept = 0.1, colour = "lightgrey",linetype = "dotted") 
+
+print(ROC)
+
+ggsave(plot = ROC,
+       path = "Article_Image",
+       dpi = 1000,  filename = "Figure1_B.png",
+       width = 5, height = 5)
+saveRDS(ROC, file = "Article_Image/Figure1_B.RDS")
+
 
 stop()
 TPRvsFDR <- plot_fdrtprcurve(cobraplot, title = "TPR vs FDR")
