@@ -18,68 +18,53 @@ suppressPackageStartupMessages(library(SeuratDisk))
 suppressPackageStartupMessages(library(monocle3))
 
 # Load scMaSigPro
-install.packages("../scMaSigPro_1.0.1.tar.gz")
+#install.packages("../scMaSigPro_1.0.1.tar.gz")
 suppressPackageStartupMessages(library(scMaSigPro))
 
-
-# Prefix
-prefixIn <- "benchmarks/11_RealDataSmall/data/results/"
-prefixOut <- "benchmarks/11_RealDataSmall/data/output/"
-
 # Load CDS object
-load(paste0(prefixIn, "monocle3_inferred_pseudotime.RData"))
+load("Analysis_Public_Data/data/rep3/rep3_processed.RData")
 
 # Monocl3 3 object
 cds
 
 # Convert the ScMaSigPro Object
-scmp.obj <- as_scmp(cds, from = "cell_data_set")
-
-# Plot the Paths
-Before <- plot_cells(scmp.obj@sce, color_cells_by = "predicted.celltype.l2")
-
-# Select Path
-scmp.obj <- selectPath(obj = scmp.obj, sel.path = c("Path1", "Path2"),
-                       balance_paths = T, pathCol = "Path",
-                       pTimeCol = "Pseudotime", plot_paths = T, verbose = F)
-
-# Plot the Paths
-after<- plot_cells(scmp.obj@sce, color_cells_by = "Path", cell_size = 2)
-after.cell<- plot_cells(scmp.obj@sce, color_cells_by = "Path",cell_size = 2) + theme(legend.position = "bottom")
-after+after.cell
+scmp.obj <- as_scmp(cds, from = "cds",
+                    annotation_colname = "predicted.celltype.l2")
 
 # Compress
-scmp.obj <- squeeze(
-    scmp.ob = scmp.obj,
-    time.col = "Pseudotime",
-    path.col = "Path",
-    method = "Sturges",
-    drop.fac = 0.7,
-    verbose = T,
-    cluster.count.by = "sum"
-)
+scmp.obj <- squeeze(scmpObject = scmp.obj,
+                    
+                    split_bins = F,
+                    prune_bins = F,
+                    drop_trails = F)
+
+sc.plot.bins.bar(scmp.obj)
+sc.plot.bins.tile(scmp.obj)
+sc.fraction.bin(scmp.obj)
 
 # Make Design
 scmp.obj <- sc.make.design.matrix(scmp.obj,
-                                  degree = 2,
-                                  time.col = "binnedTime",
-                                  path.col = "path"
+                                  poly_degree = 3,
 )
+
+scmp.obj@distribution <- MASS::negative.binomial(10)
 
 # Run p-vector
 scmp.obj <- sc.p.vector(
-    scmpObj = scmp.obj, verbose = T, min.obs = 10,
-    counts = T, theta = 10,
-    offset = T
-)
+    parallel = T,
+    scmpObj = scmp.obj, verbose = T,
+    max_it = 10000,
+    globalTheta = T,
+    useInverseWeights = F,
+    logWeights = F,
+    offset = T,
+    min.obs = 1)
 
 # Run-Step-2
 scmp.obj <- sc.T.fit(
-    data = scmp.obj, verbose = T,
-    step.method = "backward",
-    family = scmp.obj@scPVector@family,
-    offset = T
+    scmpObj = scmp.obj, verbose = T,
+    step.method = "backward"
 )
 
 # Save the object for further analysis
-save(scmp.obj, file = paste0(prefixOut, "scmp.obj.RData"))
+save(scmp.obj, file = paste0("Analysis_Public_Data/data/rep3/rep3_scMaSigPro_Results.RData"))

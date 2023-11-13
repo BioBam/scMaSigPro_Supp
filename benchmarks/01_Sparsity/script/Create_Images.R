@@ -19,7 +19,7 @@ evaluation.frame <- read.table(paste0(dirPath, "Performance.Table.tsv"), header 
 # ROC Curve
 roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = as.factor(parameter.value))) +
     geom_point() +
-    geom_text(data = subset(evaluation.frame, parameter.value == 60 & RSQ > 0.3 & RSQ <= 0.80), aes(label = sprintf("%.2f", RSQ)), color = "black", hjust = 1, vjust = 1.7) + 
+    #geom_text(data = subset(evaluation.frame, parameter.value == 60 & RSQ > 0.3 & RSQ <= 0.80), aes(label = sprintf("%.2f", RSQ)), color = "black", hjust = 1, vjust = 1.7) + 
     geom_path(linewidth = 1, alpha = 0.7) +
     scale_x_continuous(breaks = seq(0, 0.20, 0.05), 
                        limits = c(0, 0.20)
