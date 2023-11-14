@@ -30,7 +30,7 @@ find_root_pp <- function(object, cell = "HSC", cell_col = "predicted.celltype.l2
     vertex <- merge(cell_meta, vertex, "barcode")
     
     # Filter rows where the cell type matches the specified 'cell' value (default is "HSC")
-    filtered_df <- subset(vertex, predicted.celltype.l2 == cell)
+    filtered_df <- subset(vertex, cell_type == cell)
     
     # Count the occurrences of each unique 'pp' value
     pp_counts <- table(filtered_df$pp)

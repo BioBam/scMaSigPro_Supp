@@ -12,35 +12,34 @@ suppressPackageStartupMessages(library(rhdf5))
 suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(assertthat))
 suppressPackageStartupMessages(library(Matrix))
-suppressPackageStartupMessages(library(Azimuth))
 suppressPackageStartupMessages(library(SeuratData))
 suppressPackageStartupMessages(library(SeuratDisk))
 suppressPackageStartupMessages(library(monocle3))
 
 # Load scMaSigPro
-#install.packages("../scMaSigPro_1.0.1.tar.gz")
 suppressPackageStartupMessages(library(scMaSigPro))
 
 # Load CDS object
 load("Analysis_Public_Data/data/rep3/rep3_processed.RData")
 
 # Monocl3 3 object
-cds
+cds <- readRDS("Analysis_Public_Data/data/SingleCellExperimentAtlas/Monocle3_Processed_Donor2.RDS")
 
 # Convert the ScMaSigPro Object
 scmp.obj <- as_scmp(cds, from = "cds",
-                    annotation_colname = "predicted.celltype.l2")
+                    align_pseudotime = F,
+                    annotation_colname = "cell_type")
 
 # Compress
 scmp.obj <- squeeze(scmpObject = scmp.obj,
-                    
                     split_bins = F,
                     prune_bins = F,
                     drop_trails = F)
 
-sc.plot.bins.bar(scmp.obj)
-sc.plot.bins.tile(scmp.obj)
-sc.fraction.bin(scmp.obj)
+a <- sc.plot.bins.bar(scmp.obj)
+b <- sc.plot.bins.tile(scmp.obj)
+a +b
+
 
 # Make Design
 scmp.obj <- sc.make.design.matrix(scmp.obj,
@@ -55,6 +54,7 @@ scmp.obj <- sc.p.vector(
     scmpObj = scmp.obj, verbose = T,
     max_it = 10000,
     globalTheta = T,
+    logOffset = T,
     useInverseWeights = F,
     logWeights = F,
     offset = T,
@@ -67,4 +67,4 @@ scmp.obj <- sc.T.fit(
 )
 
 # Save the object for further analysis
-save(scmp.obj, file = paste0("Analysis_Public_Data/data/rep3/rep3_scMaSigPro_Results.RData"))
+save(scmp.obj, file = paste0("Analysis_Public_Data/data/SingleCellExperimentAtlas/scMaSigPro_Donor2_Monocle3.RData"))

@@ -1,4 +1,5 @@
 # Data Downloaded from https://www.ebi.ac.uk/gxa/sc/experiments/E-HCAD-6/downloads
+# Date: Nov 14, 2023
 
 # Set paths
 dataInput = "Analysis_Public_Data/data/SingleCellExperimentAtlas/E-HCAD-6-quantification-raw-files/"
@@ -88,37 +89,65 @@ cell_metadata[cell_metadata$annotated_cell_identity.text == "megakaryocyte proge
 cell_metadata[cell_metadata$annotated_cell_identity.text == "common lymphoid progenitor", "cell_type"] <- "CLP" 
 cell_metadata[cell_metadata$annotated_cell_identity.text == "hematopoietic multipotent progenitor", "cell_type"] <- "HMP" 
 
-# Separate per donor
-cellMetaDataD1 <- cell_metadata[cell_metadata$cell_suspension.biomaterial_core.biomaterial_id %in% 
-                                    grep("P1",
-                                        x = cell_metadata$cell_suspension.biomaterial_core.biomaterial_id,
-                                        ignore.case = T, value = T),]
-cellMetaDataD2 <- cell_metadata[cell_metadata$cell_suspension.biomaterial_core.biomaterial_id %in% 
-                                    grep("P2",
-                                         x = cell_metadata$cell_suspension.biomaterial_core.biomaterial_id,
-                                         ignore.case = T, value = T),]
-cellMetaDataD3 <- cell_metadata[cell_metadata$cell_suspension.biomaterial_core.biomaterial_id %in% 
-                                    grep("P3",
-                                         x = cell_metadata$cell_suspension.biomaterial_core.biomaterial_id,
-                                         ignore.case = T, value = T),]
+# Create group-barcode
+cell_metadata$groupBarcode <- paste(cell_metadata$group, cell_metadata$barcode, sep = "-")
+cell_metadata <- cell_metadata[!duplicated(cell_metadata$groupBarcode), ]
+rownames(cell_metadata) <- cell_metadata$groupBarcode
 
-# Separate counts
-rawMatD1 = rawMat[, paste(cellMetaDataD1$group, cellMetaDataD1$barcode, sep = "-")]
-rawMatD2 = rawMat[, paste(cellMetaDataD2$group, cellMetaDataD2$barcode, sep = "-")]
-rawMatD3 = rawMat[, paste(cellMetaDataD3$group, cellMetaDataD3$barcode, sep = "-")]
+# Subset counts and Create seurat object
+rawMat <- rawMat[, colnames(rawMat) %in% rownames(cell_metadata)]
 
-# Save the counts and day
-saveRDS(rawMatD1, file = "Analysis_Public_Data/data/SingleCellExperimentAtlas/Rep1RawCounts.RDS")
-saveRDS(rawMatD2, file = "Analysis_Public_Data/data/SingleCellExperimentAtlas/Rep2RawCounts.RDS")
-saveRDS(rawMatD3, file = "Analysis_Public_Data/data/SingleCellExperimentAtlas/Rep3RawCounts.RDS")
+# Create Seurat Object
+sob <- CreateSeuratObject(counts = rawMat, min.cells = 3, min.features = 200)
+# Add metainfo
+sob@meta.data <- cell_metadata[colnames(sob),]
 
-# Save Metadata
-saveRDS(gene_metadata, file = "Analysis_Public_Data/data/SingleCellExperimentAtlas/Gene_MetaData.RDS")
+# Basic QC
+sob <- NormalizeData(sob)
+sob <- FindVariableFeatures(sob)
+sob <- ScaleData(sob)
+sob <- RunPCA(sob, features = VariableFeatures(object = sob))
+sob <- FindNeighbors(sob, dims = 1:10)
+sob <- FindClusters(sob, resolution = 0.5)
+sob <- RunUMAP(sob, dims = 1:10)
+DimPlot(sob, reduction = "umap", group.by = "annotated_cell_identity.text")
 
-# Save Cell Metadata
-saveRDS(cellMetaDataD1,
-        file = "Analysis_Public_Data/data/SingleCellExperimentAtlas/Cell_MetaData_D1.RDS")
-saveRDS(cellMetaDataD2,
-        file = "Analysis_Public_Data/data/SingleCellExperimentAtlas/Cell_MetaData_D2.RDS")
-saveRDS(cellMetaDataD3,
-        file = "Analysis_Public_Data/data/SingleCellExperimentAtlas/Cell_MetaData_D3.RDS")
+# Seprate Groups
+sob1 <- subset(sob, subset = cell_suspension.biomaterial_core.biomaterial_id %in% grep("P1", x = sob@meta.data$cell_suspension.biomaterial_core.biomaterial_id, value = T))
+sob2 <- subset(sob, subset = cell_suspension.biomaterial_core.biomaterial_id %in% grep("P2", x = sob@meta.data$cell_suspension.biomaterial_core.biomaterial_id, value = T))
+sob3 <- subset(sob, subset = cell_suspension.biomaterial_core.biomaterial_id %in% grep("P3", x = sob@meta.data$cell_suspension.biomaterial_core.biomaterial_id, value = T))
+
+# Sumsample and Recompute 
+sob.list <- parallel::mclapply(list(sob1, sob2, sob3), function(s){
+    s <- subset(s, annotated_cell_identity.text %in% c("hematopoietic multipotent progenitor",
+                                                       "myeloid progenitor",
+                                                       "dendtritic progenitor",
+                                                       "monocyte progenitor"))
+    s <- NormalizeData(s)
+    s <- FindVariableFeatures(s)
+    s <- ScaleData(s)
+    s <- RunPCA(s, features = VariableFeatures(object = s))
+    s <- FindNeighbors(s, dims = 1:10)
+    s <- FindClusters(s, resolution = 0.5)
+    s <- RunUMAP(s, dims = 1:10)
+}, mc.cores = 24)
+
+names(sob.list) <- c("don1", "don2", "don3")
+
+# Extract and Save Data
+lapply(names(sob.list), function(i){
+    
+    j <- sob.list[[i]]
+    print(j)
+    
+    # Extract Cell Metadata
+    cell.meta <- j@meta.data
+    
+    # Counts
+    counts <- j@assays$RNA@counts
+    
+    # SaveR
+    saveRDS(cell.meta, paste0("Analysis_Public_Data/data/SingleCellExperimentAtlas/Monocle3_Input/", i,".meta.RDS"))
+    saveRDS(counts, paste0("Analysis_Public_Data/data/SingleCellExperimentAtlas/Monocle3_Input/", i,".counts.RDS"))
+    return(NULL)
+})
