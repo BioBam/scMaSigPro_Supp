@@ -19,11 +19,8 @@ suppressPackageStartupMessages(library(monocle3))
 # Load scMaSigPro
 suppressPackageStartupMessages(library(scMaSigPro))
 
-# Load CDS object
-load("Analysis_Public_Data/data/rep3/rep3_processed.RData")
-
 # Monocl3 3 object
-cds <- readRDS("Analysis_Public_Data/data/SingleCellExperimentAtlas/Monocle3_Processed_Donor2.RDS")
+cds <- readRDS("Analysis_Public_Data/data/SingleCellExperimentAtlas/Monocle3_Input/Monocle3_Processed_Donor3.RDS")
 
 # Convert the ScMaSigPro Object
 scmp.obj <- as_scmp(cds, from = "cds",
@@ -67,4 +64,4 @@ scmp.obj <- sc.T.fit(
 )
 
 # Save the object for further analysis
-save(scmp.obj, file = paste0("Analysis_Public_Data/data/SingleCellExperimentAtlas/scMaSigPro_Donor2_Monocle3.RData"))
+save(scmp.obj, file = paste0("Analysis_Public_Data/data/SingleCellExperimentAtlas/Monocle3_Input/scMaSigPro_Donor2_Monocle3.RData"))
