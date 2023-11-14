@@ -60,7 +60,7 @@ cobraplot <- prepare_data_for_plot(cobraperf,
 )
 
 ROC <- plot_roc(cobraplot, title = "ROC")
-ROC <- ROC+ theme_classic(base_size = 10) +
+ROC <- ROC+ theme_classic(base_size = 15) +
     scale_color_manual(
         labels = c("scMaSigPro RSQ at 0.6",
                    "TradeSeq (TS) diffEnd()", 
@@ -73,7 +73,7 @@ ROC <- ROC+ theme_classic(base_size = 10) +
                    ,
     )+
     labs(
-        title = "ROC: Comparison with TradeSeq",
+        title = "ROC Curve: Comparison with TradeSeq",
         subtitle = "R-Square threshold: 0.6",
         y = "True Positive Rate (Sensitivity)",
         x = "False Positive Rate (1-Specificity)",
@@ -81,6 +81,8 @@ ROC <- ROC+ theme_classic(base_size = 10) +
     ) +theme(
         legend.box = "vertical",
         legend.direction = "vertical",
+        legend.title=element_text(size=13), 
+        legend.text=element_text(size=9),
         strip.background = element_blank(),
         strip.text = element_blank(),
         panel.grid.major = element_line(linewidth = 0.3, color = "lightgrey", linetype = "dotted"),

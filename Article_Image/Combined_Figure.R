@@ -6,8 +6,8 @@ c <- readRDS("Article_Image/Figure1_C.RDS")
 
 combined_figure <- ggarrange(a,b,c, labels = c("A.", "B.", "C."),
                              ncol = 3, nrow = 1)
-
+combined_figure
 ggsave(plot = combined_figure,
        path = "Article_Image",
        dpi = 1000,  filename = "MainFigure.png",
-       width = 15, height = 5)
+       width = 17, height = 5)

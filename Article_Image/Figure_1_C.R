@@ -68,14 +68,14 @@ roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = parameter)) +
     geom_point(
         data = subset(evaluation.frame, RSQ == 0.7 & parameter == "ZI"),
         color = colorConesa(6)[6],
-        size = 2) +
+        size = 2.5) +
     
     geom_label_repel(
         data = subset(evaluation.frame, RSQ == 0.7 & parameter == "ZI"),
         aes(label = RSQ,
             color = parameter),
         nudge_x = 0.007, nudge_y = -0.12, # Adjust these values as needed
-            size = 3,
+            size = 4,
             segment.color = colorConesa(6)[6], # Color of the line connecting label and point
             segment.size = 0.5, # Size of the line connecting label and point
         show.legend = FALSE # Prevent the creation of a legend for this aesthetic
@@ -91,14 +91,14 @@ roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = parameter)) +
     geom_point(
         data = subset(evaluation.frame, RSQ == 0.7 & parameter == "Skew"),
         color = colorConesa(3)[2],
-        size = 2) +
+        size = 2.5) +
     
     geom_label_repel(
         data = subset(evaluation.frame, RSQ == 0.7 & parameter == "Skew"),
         aes(label = RSQ,
             color = parameter),
         nudge_x = 0.04, nudge_y = -0.1, # Adjust these values as needed
-        size = 3,
+        size = 4,
         segment.color = colorConesa(3)[2], # Color of the line connecting label and point
         segment.size = 0.5, # Size of the line connecting label and point
         show.legend = FALSE # Prevent the creation of a legend for this aesthetic
@@ -107,13 +107,13 @@ roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = parameter)) +
     geom_point(
         data = subset(evaluation.frame, TPR >= 0.8 & FPR <= 0.01 & parameter == "Skew"),
         color = colorConesa(3)[2],
-        size = 2) +
+        size = 2.5) +
     geom_label_repel(
         data = subset(evaluation.frame, TPR >= 0.8 & FPR <= 0.01 & parameter == "Skew"),
         aes(label = RSQ,
             color = parameter),
         nudge_x = 0.04, nudge_y = -0.2, # Adjust these values as needed
-        size = 3,
+        size = 4,
         segment.color = colorConesa(3)[2], # Color of the line connecting label and point
         segment.size = 0.5, # Size of the line connecting label and point
         show.legend = FALSE # Prevent the creation of a legend for this aesthetic
@@ -123,13 +123,13 @@ roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = parameter)) +
     geom_point(
         data = subset(evaluation.frame, RSQ == 0.7 & parameter == "Length"),
         color = colorConesa(3)[1],
-        size = 2) +
+        size = 2.5) +
     geom_label_repel(
         data = subset(evaluation.frame, RSQ == 0.7 & parameter == "Length"),
         aes(label = RSQ,
             color = parameter),
         nudge_x = 0.0, nudge_y = 0.1, # Adjust these values as needed
-        size = 3,
+        size = 4,
         segment.color = colorConesa(3)[1], # Color of the line connecting label and point
         segment.size = 0.5, # Size of the line connecting label and point
         show.legend = FALSE # Prevent the creation of a legend for this aesthetic
@@ -138,27 +138,29 @@ roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = parameter)) +
     geom_point(
         data = subset(evaluation.frame, TPR >= 0.9 & FPR < 0.01 & parameter == "Length"),
         color = colorConesa(3)[1],
-        size = 2) +
+        size = 2.5) +
     geom_label_repel(
         data = subset(evaluation.frame, TPR >= 0.9 & FPR < 0.01 & parameter == "Length"),
         aes(label = RSQ,
             color = parameter),
         nudge_x = 0.01, nudge_y = 0.07, # Adjust these values as needed
-        size = 3,
+        size = 4,
         segment.color = colorConesa(3)[1], # Color of the line connecting label and point
         segment.size = 0.5, # Size of the line connecting label and point
         show.legend = FALSE # Prevent the creation of a legend for this aesthetic
     )+
   
     labs(
-        title = "ROC: Performance on Simulated Data",
+        title = "ROC Curve: Performance on Simulated Data",
         subtitle = "Varying R-Square",
         x = "False Positive Rate (1-Specificity)",
         y = "True Positive Rate (Sensitivity)",
         color = "Simulation") +
-    theme_classic(base_size = 10) +
+    theme_classic(base_size = 15) +
     theme(legend.box = "vertical",
           legend.direction = "vertical",
+          legend.title=element_text(size=13), 
+          legend.text=element_text(size=9),
         panel.grid.major = element_line(linewidth = 0.3, color = "lightgrey", linetype = "dotted"),
         panel.grid.minor = element_line(linewidth = 0.1, color = "lightgrey", linetype = "dotted"),
         #legend.position = "bottom"

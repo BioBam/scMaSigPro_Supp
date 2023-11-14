@@ -74,6 +74,29 @@ don3.plots$LMO2 # Expression goes down during lineage commitment
 
 
 
-sc.PlotGroups(scmpObj = object.list$don1,feature_id = "MPO",
+mpo <- sc.PlotGroups(scmpObj = object.list$don1,feature_id = "MPO",
               logs = T,smoothness = 0.001,
               logType = "log")
+
+
+mpo <- mpo + ggtitle("Myeloperoxidase (MPO) Expression",
+              subtitle = "R-Square: 0.926") + 
+    theme_classic(base_size = 15) +
+    theme(legend.box = "vertical",
+          legend.direction = "vertical",
+          legend.title=element_text(size=13), 
+          legend.text=element_text(size=9),
+          panel.grid.major = element_line(linewidth = 0.3, color = "lightgrey", linetype = "dotted"),
+          panel.grid.minor = element_line(linewidth = 0.1, color = "lightgrey", linetype = "dotted"),
+          #legend.position = "bottom"
+          legend.position = c(0.8, 0.5), legend.justification = c("left", "top")
+    )
+    
+
+ggsave(plot = mpo,
+       filename = "Figure1_C.png",
+       path = "Article_Image/",
+       dpi = 1200, width = 5, height = 5)
+saveRDS(
+    mpo, "Article_Image/Figure1_C.RDS"
+)
