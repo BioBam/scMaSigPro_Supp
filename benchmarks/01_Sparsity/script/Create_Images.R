@@ -18,7 +18,8 @@ evaluation.frame <- read.table(paste0(dirPath, "Performance.Table.tsv"), header 
 
 # ROC Curve
 roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = as.factor(parameter.value))) +
-    geom_point() +
+    geom_point(data = subset(evaluation.frame, RSQ == 0.7), color = "black") +
+    geom_point(data = subset(evaluation.frame, RSQ == 0.6), color = "blue") +
     #geom_text(data = subset(evaluation.frame, parameter.value == 60 & RSQ > 0.3 & RSQ <= 0.80), aes(label = sprintf("%.2f", RSQ)), color = "black", hjust = 1, vjust = 1.7) + 
     geom_path(linewidth = 1, alpha = 0.7) +
     scale_x_continuous(breaks = seq(0, 0.20, 0.05), 
@@ -35,7 +36,7 @@ roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = as.factor(paramete
         y = "True Positive Rate (Sensitivity)",
         color = "Amount of Zero-Inflation"
     ) +
-    theme_classic(base_size = 15) +
+    theme_classic(base_size = 20) +
     theme(
         panel.grid.major = element_line(linewidth = 0.3, color = "lightgrey", linetype = "dotted"),
         panel.grid.minor = element_line(linewidth = 0.1, color = "lightgrey", linetype = "dotted"),
@@ -72,11 +73,11 @@ saveRDS(performance, file = paste(dirPath, "Performance_plot.RDS"))
 saveRDS(roc, file = paste(dirPath, "ROC_plot.RDS"))
 
 ggsave(roc,
-       filename = paste0(dirPath, "ROC.png"),
+       filename = paste0("Images/Supp_Fig_2_B_Vary_Zero_Inflation_ROC.png"),
        dpi = 600, height = 8, width = 10
 )
 
 ggsave(performance,
-       filename = paste0(dirPath, "Performance.png"),
+       filename = paste0("Images/Supp_Fig_2_B_Vary_Zero_Inflation_Performance.png"),
        dpi = 600, height = 8, width = 10
 )
