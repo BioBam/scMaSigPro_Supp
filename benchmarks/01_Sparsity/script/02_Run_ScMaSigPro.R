@@ -20,7 +20,7 @@ names(dataSets) <- str_remove(
   ".RData"
 )
 
-dataSets <- dataSets[names(dataSets) %in% c("70", "80", "90")]
+dataSets <- dataSets[names(dataSets) %in% c("90")]
 
 # Set-up a for loop
 for (i in names(dataSets)) {
@@ -55,6 +55,8 @@ for (i in names(dataSets)) {
       
       # Additinal Compression
       drop_fac = 0.3
+      poly.degree <- 1
+      split.bins = T
   }
   # 
   # if (i %in% c("70")) {

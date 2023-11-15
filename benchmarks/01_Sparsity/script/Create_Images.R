@@ -48,22 +48,21 @@ roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = as.factor(paramete
 
 print(roc)
 
-stop()
 # Plot all values against zero inflation
-long_data <- melt(evaluation.frame, id.vars = c("VARIABLE", "Zi"), measure.vars = c("ACCURACY", "PRECISION", "FPR", "TPR", "FNR"))
+long_data <- melt(evaluation.frame, id.vars = c("RSQ", "parameter.value"), measure.vars = c("TPR", "FPR", "Accuracy", "Precision", "Recall", "Specificity", "F1_Score"))
 
 # Plot performance
-performance <- ggplot(long_data, aes(x = VARIABLE, y = value, group = interaction(Zi, variable), color = variable)) +
+performance <- ggplot(long_data, aes(x = RSQ, y = value, group = interaction(parameter.value, variable), color = variable)) +
     geom_line(linewidth = 0.6) + 
     geom_point(size = 0.8) +
-    scale_color_manual(values = colorConesa(5)) +
-    facet_wrap(~Zi, scales = "free_y", nrow = 2, ncol = 4, 
-               labeller = labeller(Zi = function(x) paste("Zero-inflation level", x))) +
+    scale_color_manual(values = colorConesa(7)) +
+    facet_wrap(~parameter.value, scales = "free_y", nrow = 3, ncol = 3, 
+               labeller = labeller(parameter.value = function(x) paste("Zero-inflation level", x))) +
     labs(x = "Varying R-Square", y = "Performance Metric",
          title = "Performance Metric for different levels of zero-inflation",
          color = "Measure") +
     scale_x_continuous(breaks = seq(0.1, 0.95, 0.2), limits = c(0, 0.95)) +
-    theme_minimal(base_size = 10) + 
+    theme_minimal(base_size = 20) + 
     theme(legend.position = "bottom")
 
 print(performance)
@@ -74,10 +73,10 @@ saveRDS(roc, file = paste(dirPath, "ROC_plot.RDS"))
 
 ggsave(roc,
        filename = paste0(dirPath, "ROC.png"),
-       dpi = 600, height = 6, width = 6
+       dpi = 600, height = 8, width = 10
 )
 
 ggsave(performance,
        filename = paste0(dirPath, "Performance.png"),
-       dpi = 600, height = 6, width = 6
+       dpi = 600, height = 8, width = 10
 )
