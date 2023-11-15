@@ -10,4 +10,4 @@ combined_figure
 ggsave(plot = combined_figure,
        path = "Article_Image",
        dpi = 1000,  filename = "MainFigure.png",
-       width = 17, height = 5)
+       width = 18, height = 5)

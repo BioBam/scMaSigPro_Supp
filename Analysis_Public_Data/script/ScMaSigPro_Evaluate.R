@@ -29,11 +29,11 @@ names(object.list) <- c("don1", "don2", "don3")
 # Run scMaSigPro
 scMaSigPro.list.gene <- lapply(object.list, function(don){
     scmp.obj <- sc.get.siggenes(scmpObj = don, rsq = 0.7, vars = "groups")
-    sols <- showSol(scmp.obj, view = F, return = T, includeInflu = F)
-    sols[is.na(sols$`p-value`), "p-value"] <- 0
-    sols <- sols[sols$`p-value` <= 0.05, ]
-    sols <- sols[sols$`R-squared` >= 0.7,]
-    return(rownames(sols))
+    #sols <- showSol(scmp.obj, view = F, return = T, includeInflu = F)
+    #sols[is.na(sols$`p-value`), "p-value"] <- 0
+    #sols <- sols[sols$`p-value` <= 0.05, ]
+    #sols <- sols[sols$`R-squared` >= 0.7,]
+    return(scmp.obj)
 })
 
 don1.plots <- list()
@@ -84,8 +84,8 @@ mpo <- mpo + ggtitle("Myeloperoxidase (MPO) Expression",
     theme_classic(base_size = 15) +
     theme(legend.box = "vertical",
           legend.direction = "vertical",
-          legend.title=element_text(size=13), 
-          legend.text=element_text(size=9),
+          legend.title=element_text(size=16), 
+          legend.text=element_text(size=14),
           panel.grid.major = element_line(linewidth = 0.3, color = "lightgrey", linetype = "dotted"),
           panel.grid.minor = element_line(linewidth = 0.1, color = "lightgrey", linetype = "dotted"),
           #legend.position = "bottom"
@@ -100,3 +100,27 @@ ggsave(plot = mpo,
 saveRDS(
     mpo, "Article_Image/Figure1_C.RDS"
 )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#
+
+
+sc.fraction.bin(object.list$don1)
+
