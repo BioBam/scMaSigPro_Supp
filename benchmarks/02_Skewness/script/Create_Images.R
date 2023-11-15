@@ -78,6 +78,6 @@ ggsave(roc,
 )
 
 ggsave(performance,
-       filename = paste0(dirPath, "Images/Supp_Fig_3_B_Vary_Capture_Bias_Performance.png"),
+       filename = paste0("Images/Supp_Fig_3_B_Vary_Capture_Bias_Performance.png"),
        dpi = 600, height = 6, width = 6
 )
