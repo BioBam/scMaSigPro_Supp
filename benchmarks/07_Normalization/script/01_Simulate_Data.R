@@ -55,8 +55,15 @@ gene.info <- gene.info[mixedsort(gene.info$gene_short_name), ]
 
 # Norm Method
 norm_methods <- c(
-  "true", "raw", "offset", "cpm", "clr",
-  "logN", "rc", "fquant", "sct"
+  "true", 
+  "raw", 
+  "offset", 
+  "cpm", 
+  "clr",
+  "logN", 
+  "rc",
+  "fquant",
+  "sct"
 )
 names(norm_methods) <- norm_methods
 

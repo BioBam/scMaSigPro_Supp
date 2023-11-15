@@ -48,36 +48,6 @@ roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = as.factor(NormMeth
 print(roc)
 
 
-# Accuracy
-acc <- ggplot(evaluation.frame, aes(
-    x = VARIABLE, y = ACCURACY,
-    color = as.factor(Zi)
-)) +
-    geom_point() +
-    scale_x_continuous(breaks = seq(0.1, 0.95, 0.1), 
-                       limits = c(0, 0.95)
-    ) +
-    scale_y_continuous(breaks = seq(0.5, 1, 0.1),
-                       limits = c(0.5, 1)
-    ) +
-    geom_path(linewidth = 1, alpha = 0.6) +
-    scale_color_manual(values = colorConesa(8))+
-    labs(
-        title = "Accuracy Against R Square",
-        x = "Increasing Value for R-Square",
-        y = "Accuracy",
-        color = "Amount of Zero-Inflation"
-    ) +
-    theme_classic(base_size = 15) +
-    theme(
-        panel.grid.major = element_line(linewidth = 0.3, color = "lightgrey", linetype = "dotted"),
-        panel.grid.minor = element_line(linewidth = 0.1, color = "lightgrey", linetype = "dotted"),
-        legend.position = "bottom",
-    )
-
-print(acc)
-
-
 # Plot all values against zero inflation
 long_data <- melt(evaluation.frame, id.vars = c("VARIABLE", "Zi"), measure.vars = c("ACCURACY", "PRECISION", "FPR", "TPR", "FNR"))
 
