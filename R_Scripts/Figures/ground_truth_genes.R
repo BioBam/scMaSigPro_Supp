@@ -59,7 +59,7 @@ ggsave(
     plot = gt.true, filename = paste0(
         "Figures/SuppData/supp_fig_5_Gene_Ground _truth.png"
     ),
-    dpi = 600, width = 9
+    dpi = 600, width = 7, height = 5
 )
 
 # 

@@ -52,7 +52,7 @@ plot_loess_fit <- function(sce_obj, gene_name, log = F,
     
     # Base Plot
     loess_plot <- ggplot() +
-        theme_classic() +
+        theme_classic(base_size = 10) +
         ggtitle(
             label = paste0("Gene Trend Plot: ", gene_name),
             subtitle = paste0("df: ", dfreedom, " | ", "Span : ", span, " | ", plt_subtitle)
@@ -61,10 +61,10 @@ plot_loess_fit <- function(sce_obj, gene_name, log = F,
         ylab(assay_name) +
         theme(
             legend.position = "bottom",
-            legend.text = element_text(size = 10),
-            legend.key.size = unit(1, "cm"),
-            axis.text = element_text(size = rel(1.2)),
-            axis.title = element_text(size = rel(1.2)),
+            #legend.text = element_text(size = 10),
+            #legend.key.size = unit(1, "cm"),
+            #axis.text = element_text(size = rel(1.2)),
+            #axis.title = element_text(size = rel(1.2)),
             axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 0.3)
         )
     if (log == T) {
@@ -81,7 +81,7 @@ plot_loess_fit <- function(sce_obj, gene_name, log = F,
             geom_point(
                 data = plt.tab.path,
                 aes(x = .data[[time_col]], y = .data[["counts_value"]], color = .data[[path_col]]),
-                alpha = 0.2, fill = "#fdc659", size = rel(0.6)
+                alpha = 0.1, fill = "#fdc659", size = rel(0.6)
             )
         
         # Add Smoother
