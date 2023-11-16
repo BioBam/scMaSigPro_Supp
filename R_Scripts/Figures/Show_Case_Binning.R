@@ -51,36 +51,86 @@ ggsave(
     dpi = 600, width = 9
 )
 
+# Annotate Genes
+rowData(sim.sce) <- DataFrame(add_gene_anno(sim.sce = sim.sce))
 
-# Plot Individual Genes
-library(scMaSigPro)
-gene.info <- add_gene_anno(sim.sce = sim.sce)
-
-similar.change.de <- plot_loess_fit(
-    sce_obj = sim.sce, "Gene14", dfreedom = 1, log = T,
-    plt_subtitle = "Differentially Expressed"
-)
+# Plot standard gene
 opposite.change.de <- plot_loess_fit(
     sce_obj = sim.sce, "Gene691", dfreedom = 1, log = T,
     plt_subtitle = "Differentially Expressed"
 )
-one.change.de <- plot_loess_fit(
-    sce_obj = sim.sce, "Gene67", dfreedom = 1, log = T,
-    plt_subtitle = "Differentially Expressed"
-)
-no.change <- plot_loess_fit(
-    sce_obj = sim.sce, "Gene1", dfreedom = 1, log = T,
-    plt_subtitle = "Not-Differentially Expressed"
+
+# Load ScMaSigPro
+library(scMaSigPro)
+
+# Create ScMaSigPro Object
+scmp.obj <- as_scmp(sim.sce, from = "sce",
+                    additional_params = list(
+                        labels_exist = TRUE,
+                        existing_pseudotime_colname = "Step",
+                        existing_path_colname = "Group"), verbose = F)
+
+# Compress
+scmp.obj <- squeeze(
+    scmpObject = scmp.obj,
+    bin_method = "Sturges",
+    drop.fac = 1,
+    verbose = F,
+    cluster_count_by = "sum",
+    split_bins = F,
+    prune_bins = F,
+    drop_trails = T,
+    fill_gaps = T
 )
 
-gt.true <- ggarrange(similar.change.de, opposite.change.de, one.change.de, no.change,
-                     labels = c("A.", "B.", "C.", "D.")
+# Plot standard gene
+compressed.opposite.change.de <- plot_loess_fit(
+    sce_obj = scmp.obj@compress.sce, "Gene691", dfreedom = 1, log = T,
+    plt_subtitle = "Differentially Expressed", 
+    assay_name = "bulk.counts",
+    time_col = scmp.obj@addParams@bin_pseudotime_colname,
+    path_col = scmp.obj@addParams@path_colname
 )
+
+trend_bulk_compare <- ggarrange(opposite.change.de,
+          compressed.opposite.change.de,
+          labels = c("A.", "B."))
+
+rowData(sim.sce) <- DataFrame(add_gene_anno(sim.sce = sim.sce))
 
 ggsave(
-    plot = gt.true, filename = paste0(
-        imgDir,
-        "Fig2_What_is_differentially_Expressed.png"
+    plot = trend_bulk_compare, filename = paste0(
+        "Figures/SuppData/supp_fig_3_trend_compression.png"
     ),
-    dpi = 600, height = 8, width = 9
+    dpi = 600, width = 9
 )
+
+# 
+# similar.change.de <- plot_loess_fit(
+#     sce_obj = sim.sce, "Gene14", dfreedom = 1, log = T,
+#     plt_subtitle = "Differentially Expressed"
+# )
+# opposite.change.de <- plot_loess_fit(
+#     sce_obj = sim.sce, "Gene691", dfreedom = 1, log = T,
+#     plt_subtitle = "Differentially Expressed"
+# )
+# one.change.de <- plot_loess_fit(
+#     sce_obj = sim.sce, "Gene67", dfreedom = 1, log = T,
+#     plt_subtitle = "Differentially Expressed"
+# )
+# no.change <- plot_loess_fit(
+#     sce_obj = sim.sce, "Gene1", dfreedom = 1, log = T,
+#     plt_subtitle = "Not-Differentially Expressed"
+# )
+# 
+# gt.true <- ggarrange(similar.change.de, opposite.change.de, one.change.de, no.change,
+#                      labels = c("A.", "B.", "C.", "D.")
+# )
+# 
+# ggsave(
+#     plot = gt.true, filename = paste0(
+#         imgDir,
+#         "Fig2_What_is_differentially_Expressed.png"
+#     ),
+#     dpi = 600, height = 8, width = 9
+# )
