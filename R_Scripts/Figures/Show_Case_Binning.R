@@ -75,6 +75,7 @@ scmp.obj <- squeeze(
     scmpObject = scmp.obj,
     bin_method = "Sturges",
     drop.fac = 1,
+    assay_name = "counts",
     verbose = F,
     cluster_count_by = "sum",
     split_bins = F,
