@@ -81,7 +81,7 @@ plot_loess_fit <- function(sce_obj, gene_name, log = F,
             geom_point(
                 data = plt.tab.path,
                 aes(x = .data[[time_col]], y = .data[["counts_value"]], color = .data[[path_col]]),
-                alpha = 0.75, fill = "#fdc659", size = rel(0.6)
+                alpha = 0.2, fill = "#fdc659", size = rel(0.6)
             )
         
         # Add Smoother

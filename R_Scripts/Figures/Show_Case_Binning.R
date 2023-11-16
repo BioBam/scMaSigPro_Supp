@@ -6,6 +6,7 @@ suppressPackageStartupMessages(library(ggpubr))
 # Load Custom Function
 source("R_Scripts/helper_function/plot_simulations().R")
 source("R_Scripts/helper_function/add_gene_anno().R")
+source("R_Scripts/helper_function/plot_loess.R")
 
 # Simulate a general splatter dataset
 params.groups <- newSplatParams(
