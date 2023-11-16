@@ -134,7 +134,7 @@ plt.table <- plt.table[, !(colnames(plt.table) %in% "cluster.members")]
 cellAssociation <- paste0(imgPath, "cellAssociation/", "TradeSeq_test.png")
 p <- ggplot(plt.table, aes(x = Num)) +
     geom_histogram(
-        binwidth = 0.5, ,
+        binwidth = 0.5,
         color = "#f68a53", fill = "#f68a53", alpha = 0.5
     ) +
     geom_vline(aes(xintercept = mean(Num)), linetype = "dashed", color = "#139289") +
