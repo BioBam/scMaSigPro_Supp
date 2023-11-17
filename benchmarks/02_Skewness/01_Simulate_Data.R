@@ -192,4 +192,4 @@ combined_pplot <- ggarrange(img.list[["0.1"]],
                             ncol = 3, nrow = 3,
                             labels = c("A.","B.","C.","D.","E.","F.","G.", "H.", "I."))
 
-ggsave(filename = "Figures/SuppData/01_Sim_0.1_to_0.9_Skew.png", plot = combined_pplot, dpi = 600, height = 8, width = 14)
+ggsave(filename = "Figures/SuppData/02_Sim_0.1_to_0.9_Skew.png", plot = combined_pplot, dpi = 600, height = 8, width = 14)
