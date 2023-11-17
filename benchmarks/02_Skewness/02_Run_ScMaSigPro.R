@@ -8,15 +8,18 @@ suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(scMaSigPro))
 
 # Set Paths relative to project
-dirPath <- "benchmarks/02_Skewness/data/simulated/sce/"
-dir.create("benchmarks/02_Skewness/data/output/", showWarnings = F)
+inPath <- "/supp_data/benchmarks/02_Skewness/simulated/sce/"
+outPath <- "/supp_data/benchmarks/02_Skewness/output/"
 helpScriptsDir <- "R_Scripts/helper_function/"
 
+# Create Missing Directory
+dir.create(outPath, showWarnings = F, recursive = T)
+
 # Load names of files
-dataSets <- list.files(paste0(dirPath))
+dataSets <- list.files(paste0(inPath))
 names(dataSets) <- str_remove(
-  str_split_i(dataSets, pattern = "_", i = 2),
-  ".RData"
+    str_split_i(dataSets, pattern = "_", i = 2),
+    ".RData"
 )
 
 # Set-up a for loop
@@ -36,7 +39,7 @@ for (i in names(dataSets)) {
   # stop("Expected Stop")
 
   # Load Data
-  load(file = paste0(dirPath, dataSets[i]))
+  load(file = paste0(inPath, dataSets[i]))
 
   tryCatch(
     expr = {
@@ -81,7 +84,7 @@ for (i in names(dataSets)) {
         )
 
       # Save Object
-      save(scmp.obj, file = paste0("benchmarks/02_Skewness/data/output/scmp.obj.skew.", i, ".RData"))
+      save(scmp.obj, file = paste0(outPath, "scmp.obj.skew.", i, ".RData"))
 
       # Validate
       cat(paste("\nCompleted for", i))
