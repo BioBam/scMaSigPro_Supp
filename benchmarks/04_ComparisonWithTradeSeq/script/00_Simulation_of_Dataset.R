@@ -11,12 +11,13 @@ suppressPackageStartupMessages(library(gtools))
 suppressPackageStartupMessages(library(tidyverse))
 
 # Set Paths relative to project
-dirPath <- "benchmarks/04_ComparisonWithTradeSeq/data/input/"
+outDir <- "/supp_data/benchmarks/04_ComparisonWithTradeSeq/simulated/"
 helpScriptsDir <- "R_Scripts/helper_function/"
+imgPath <- paste0(outDir, "png/")
+sce_path <- paste0(outDir, "sce/")
 
-# Create Path
-imgPath <- paste0(dirPath, "png/")
-sce_path <- paste0(dirPath, "sce/")
+# Create Directories
+dir.create(outDir, showWarnings = F, recursive = T)
 dir.create(imgPath, recursive = T, showWarnings = F)
 dir.create(sce_path, recursive = T, showWarnings = F)
 
@@ -52,9 +53,10 @@ sim.sce <- splatSimulate(params.groups,
 trueSparsity <- round(sparsity(as.matrix(sim.sce@assays@data@listData$TrueCounts)) * 100)
 simulatedSparsity <- round(sparsity(as.matrix(sim.sce@assays@data@listData$counts)) * 100) - trueSparsity
 totSparsity <- round(sparsity(as.matrix(sim.sce@assays@data@listData$counts)) * 100)
-totSparsity
-simulatedSparsity
-trueSparsity
+
+cat(paste("\nTotal:",totSparsity))
+cat(paste("\nsimulatedSparsity:", simulatedSparsity))
+cat(paste("\ntrueSparsity:", trueSparsity))
 
 # Add gene Info
 gene.info <- add_gene_anno(sim.sce = sim.sce)
