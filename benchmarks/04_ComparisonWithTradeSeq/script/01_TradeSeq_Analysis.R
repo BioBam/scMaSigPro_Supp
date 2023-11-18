@@ -9,7 +9,7 @@ suppressPackageStartupMessages(library(gtools))
 
 # Set paths
 inPath <- "/supp_data/benchmarks/04_ComparisonWithTradeSeq/simulated/sce/"
-resPath <- "/supp_data/benchmarks/04_ComparisonWithTradeSeq/data/output/"
+resPath <- "/supp_data/benchmarks/04_ComparisonWithTradeSeq/output/"
 dir.create(resPath, showWarnings = F)
 helpScriptsDir <- "R_Scripts/helper_function/"
 

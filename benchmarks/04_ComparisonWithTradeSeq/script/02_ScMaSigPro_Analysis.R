@@ -9,8 +9,8 @@ suppressPackageStartupMessages(library(scMaSigPro))
 suppressPackageStartupMessages(library(gtools))
 
 # Set paths
-dirPath <- "benchmarks/04_ComparisonWithTradeSeq/data/input/sce/"
-resPath <- "benchmarks/04_ComparisonWithTradeSeq/data/output/"
+dirPath <- "/supp_data/benchmarks/04_ComparisonWithTradeSeq/simulated/sce/"
+resPath <- "/supp_data/benchmarks/04_ComparisonWithTradeSeq/output/"
 helpScriptsDir <- "R_Scripts/helper_function/"
 
 # Load result of 60% inflation
