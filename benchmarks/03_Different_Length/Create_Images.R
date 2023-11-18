@@ -10,10 +10,10 @@ suppressPackageStartupMessages(library(RColorConesa))
 suppressPackageStartupMessages(library(reshape2))
 
 # Set Paths relative to project
-dirPath <- "benchmarks/03_Different_Length/data/output/"
+outPath <- "Figures/SuppData/"
 
 # Load Evaluation
-evaluation.frame <- read.table(paste0(dirPath, "Performance.Table.tsv"), header = T)
+evaluation.frame <- read.table("Tables/03_Length_Performance.Table.tsv", header = T)
 
 # ROC Curve
 roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = as.factor(parameter.value))) +
@@ -33,7 +33,7 @@ roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = as.factor(paramete
         subtitle = "Varying R2",
         x = "False Positive Rate (1-Specificity)",
         y = "True Positive Rate (Sensitivity)",
-        color = "Amount of Zero-Inflation"
+        color = "Relative length of the trajectory"
     ) +
     theme_classic(base_size = 15) +
     theme(
@@ -66,16 +66,12 @@ performance <- ggplot(long_data, aes(x = RSQ, y = value, group = interaction(par
 
 print(performance)
 
-# Save All RDS
-saveRDS(performance, file = paste(dirPath, "Performance_plot.RDS"))
-saveRDS(roc, file = paste(dirPath, "ROC_plot.RDS"))
-
 ggsave(roc,
-       filename = paste0("Images/Supp_Fig_4_Vary_Branch_Length_ROC.png"),
-       dpi = 600, height = 6, width = 6
+       filename = paste0("Figures/SuppData/03_Sim_400_1400_Length_ROC.png"),
+       dpi = 600, height = 8, width = 10
 )
 
 ggsave(performance,
-       filename = paste0("Images/Supp_Fig_4_Vary_Branch_Length_ROC_performance.png"),
-       dpi = 600, height = 6, width = 6
+       filename = paste0("Figures/SuppData/03_Sim_400_1400_Length_Performance.png"),
+       dpi = 600, height = 8, width = 10
 )

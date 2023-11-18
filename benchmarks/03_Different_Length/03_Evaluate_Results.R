@@ -8,7 +8,8 @@ suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(scMaSigPro))
 
 # Set Paths relative to project
-dirPath <- "benchmarks/03_Different_Length/data/output/"
+inPath <- "/supp_data/benchmarks/03_Different_Length/output/"
+outPath <- "Tables/"
 helpScriptsDir <- "R_Scripts/helper_function/"
 
 # Load helper functions
@@ -17,8 +18,7 @@ source(paste0(helpScriptsDir, "get_performance_ROCR_.R"))
 source(paste0(helpScriptsDir, "calculate_metrics_binary.R"))
 
 # Load names of files
-dataSets <- list.files(paste0(dirPath))
-dataSets <- dataSets[!(dataSets %in% c("Accuracy.png", "ROC.png", "Performance.Table.tsv"))]
+dataSets <- list.files(paste0(inPath))
 names(dataSets) <- str_remove(
     str_remove(dataSets, pattern = "scmp.obj.Arm."),
     ".RData"
@@ -33,7 +33,7 @@ for (i in names(dataSets)) {
     cat(paste("\nRunning for Length:", i))
     
     # Load
-    load(file = paste0(dirPath, dataSets[i]))
+    load(file = paste0(inPath, dataSets[i]))
     
     # Extract the Row Data
     row_data <- as.data.frame(
@@ -68,7 +68,7 @@ for (i in names(dataSets)) {
 evaluation.frame <- do.call(rbind, eval.list)
 
 # Write
-write.table(evaluation.frame, paste0(dirPath, "Performance.Table.tsv"),
+write.table(evaluation.frame, paste0(outPath, "03_Length_Performance.Table.tsv"),
             sep = "\t",
             row.names = F, quote = F
 )

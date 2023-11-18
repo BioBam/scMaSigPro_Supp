@@ -8,16 +8,19 @@ suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(scMaSigPro))
 
 # Set Paths relative to project
-dirPath <- "benchmarks/03_Different_Length/data/simulated/sce/"
-dir.create("benchmarks/03_Different_Length/data/output/", showWarnings = F)
+inPath <- "/supp_data/benchmarks/03_Different_Length/simulated/sce/"
+outPath <- "/supp_data/benchmarks/03_Different_Length/output/"
 helpScriptsDir <- "R_Scripts/helper_function/"
 
 # Load names of files
-dataSets <- list.files(paste0(dirPath))
+dataSets <- list.files(paste0(inPath))
 names(dataSets) <- str_remove(
   str_remove(dataSets, pattern = "Arm_"),
   ".RData"
 )
+
+# Create Missing Directory
+dir.create(outPath, showWarnings = F, recursive = T)
 
 # Set-up a for loop
 for (i in names(dataSets)) {
@@ -32,7 +35,7 @@ for (i in names(dataSets)) {
     #stop("Expected Stop")
     
     # Load Data
-    load(file = paste0(dirPath, dataSets[i]))
+    load(file = paste0(inPath, dataSets[i]))
     
     tryCatch(
         expr = {
@@ -81,7 +84,7 @@ for (i in names(dataSets)) {
             )
             
             # Save Object
-            save(scmp.obj, file = paste0("benchmarks/03_Different_Length/data/output/scmp.obj.Arm.", i, ".RData"))
+            save(scmp.obj, file = paste0(outPath, "scmp.obj.Arm.", i, ".RData"))
             
             # Validate
             cat(paste("\nCompleted for", i))

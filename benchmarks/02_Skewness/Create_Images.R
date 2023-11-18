@@ -67,10 +67,6 @@ performance <- ggplot(long_data, aes(x = RSQ, y = value, group = interaction(par
 
 print(performance)
 
-# Save All RDS
-saveRDS(performance, file = paste(dirPath, "Performance_plot.RDS"))
-saveRDS(roc, file = paste(dirPath, "ROC_plot.RDS"))
-
 ggsave(roc,
        filename = paste0("Figures/SuppData/02_Sim_0.1_to_0.9_Skew_ROC.png"),
        dpi = 600, height = 8, width = 10
