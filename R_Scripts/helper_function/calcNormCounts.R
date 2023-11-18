@@ -39,7 +39,6 @@ calcNormCounts <- function(rawCounts, cat, size_fac = 10000) {
       normalization.method = "RC",
       scale.factor = size_fac
     )
-    return(seuratNormObject)
     # Extract Counts
     seuratNormCounts <- seuratNormObject@assays$RNA@data
     # Return dgCMatrix
