@@ -2,10 +2,11 @@
 suppressPackageStartupMessages(library(iCOBRA))
 suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(SingleCellExperiment))
+suppressPackageStartupMessages(library(RColorConesa))
 
 # Set Path
-dirPath <- "benchmarks/04_ComparisonWithTradeSeq/data/input/sce/"
-resPath <- "benchmarks/04_ComparisonWithTradeSeq/data/output/"
+dirPath <- "/supp_data/benchmarks/04_ComparisonWithTradeSeq/simulated/sce/"
+resPath <- "/supp_data/benchmarks/04_ComparisonWithTradeSeq/output/"
 helpScriptsDir <- "R_Scripts/helper_function/"
 
 # Read TradeSeq Data
@@ -96,18 +97,16 @@ ROC <- ROC+ theme_classic(base_size = 15) +
 print(ROC)
 
 ggsave(plot = ROC,
-       path = "Article_Image",
+       path = "Figures/MainArticle",
        dpi = 1000,  filename = "Figure1_B.png",
-       width = 5, height = 5)
-saveRDS(ROC, file = "Article_Image/Figure1_B.RDS")
+       width = 6, height = 5)
+saveRDS(ROC, file = "Figures/MainArticle/Figure1_B.RDS")
 
-
-stop()
-TPRvsFDR <- plot_fdrtprcurve(cobraplot, title = "TPR vs FDR")
-TPR <- plot_tpr(cobraplot, title = "TPR")
-FPR <- plot_fpr(cobraplot, title = "FPR")
-
-ggsave(filename = paste0(resPath, "ROC.png"), plot = ROC, dpi = 600, width = 7, height = 5)
-ggsave(filename = paste0(resPath, "TPRvsFDR.png"), plot = TPRvsFDR, dpi = 600, width = 7, height = 5)
-ggsave(filename = paste0(resPath, "TPR.png"), plot = TPR, dpi = 600, width = 7, height = 5)
-ggsave(filename = paste0(resPath, "FPR.png"), plot = FPR, dpi = 600, width = 7, height = 5)
+# TPRvsFDR <- plot_fdrtprcurve(cobraplot, title = "TPR vs FDR")
+# TPR <- plot_tpr(cobraplot, title = "TPR")
+# FPR <- plot_fpr(cobraplot, title = "FPR")
+# 
+# ggsave(filename = paste0(resPath, "ROC.png"), plot = ROC, dpi = 600, width = 7, height = 5)
+# ggsave(filename = paste0(resPath, "TPRvsFDR.png"), plot = TPRvsFDR, dpi = 600, width = 7, height = 5)
+# ggsave(filename = paste0(resPath, "TPR.png"), plot = TPR, dpi = 600, width = 7, height = 5)
+# ggsave(filename = paste0(resPath, "FPR.png"), plot = FPR, dpi = 600, width = 7, height = 5)
