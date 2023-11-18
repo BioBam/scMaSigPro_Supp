@@ -59,7 +59,7 @@ sce.tradeseq <- fitGAM(
   pseudotime = pseudotime_table,
   cellWeights = lineage_table,
   parallel = T,
-  nknots = 3, verbose = FALSE
+  nknots = 6, verbose = FALSE
 )
 
 # Save Fitted GAM
