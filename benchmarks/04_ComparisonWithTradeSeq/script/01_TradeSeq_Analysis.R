@@ -8,22 +8,22 @@ suppressPackageStartupMessages(library(tradeSeq))
 suppressPackageStartupMessages(library(gtools))
 
 # Set paths
-dirPath <- "benchmarks/04_ComparisonWithTradeSeq/data/input/sce/"
-resPath <- "benchmarks/04_ComparisonWithTradeSeq/data/output/"
+inPath <- "/supp_data/benchmarks/04_ComparisonWithTradeSeq/simulated/sce/"
+resPath <- "/supp_data/benchmarks/04_ComparisonWithTradeSeq/data/output/"
 dir.create(resPath, showWarnings = F)
 helpScriptsDir <- "R_Scripts/helper_function/"
 
 # Load custom function
-source(paste0(helpScriptsDir, "calcNormCounts.R"))
+source(paste0(helpScriptsDir, "FQnorm.R"))
 
 # ReadData
-load(paste0(dirPath, "Test_TradeSeq.RData"))
+load(paste0(inPath, "Test_TradeSeq.RData"))
 
 # Extract raw counts
 counts <- as.matrix(sim.sce@assays@data@listData$counts)
 
 # Perform Quantile Normalization as per-tradeSeq paper
-normCounts <- calcNormCounts(counts, cat = "FQNorm")
+normCounts <- FQnorm(counts)
 
 # Extract Cell_metadata
 cell_metadata <- as.data.frame(colData(sim.sce))
