@@ -10,13 +10,13 @@ suppressPackageStartupMessages(library(coop))
 suppressPackageStartupMessages(library(gtools))
 suppressPackageStartupMessages(library(tidyverse))
 
-# Set Paths relative to project
-dirPath <- "benchmarks/07_Normalization/data/simulated/"
+outDir <- "/supp_data/benchmarks/06_Normalization/simulated/"
 helpScriptsDir <- "R_Scripts/helper_function/"
+imgPath <- paste0(outDir, "png/")
+sce_path <- paste0(outDir, "sce/")
 
-# Create Path
-imgPath <- paste0(dirPath, "png/")
-sce_path <- paste0(dirPath, "sce/")
+# Create Directories
+dir.create(outDir, showWarnings = F, recursive = T)
 dir.create(imgPath, recursive = T, showWarnings = F)
 dir.create(sce_path, recursive = T, showWarnings = F)
 
@@ -69,8 +69,9 @@ names(norm_methods) <- norm_methods
 
 # Run
 for (i in names(norm_methods)) {
+    
   cat(paste("\nRunning for:", i))
-
+    
   tryCatch(
     expr = {
       if (i == "true") {
@@ -81,8 +82,7 @@ for (i in names(norm_methods)) {
         sce.obj <- SingleCellExperiment(list(counts = sim.sce@assays@data@listData$counts))
       } else if (i == "cpm") {
         tmpCounts <- calcNormCounts(
-          rawCounts =
-            as.matrix(sim.sce@assays@data@listData$counts),
+          rawCounts = sim.sce@assays@data@listData$counts,
           cat = "libSize", size_fac = 1000000
         )
         sce.obj <- SingleCellExperiment(list(counts = tmpCounts))
