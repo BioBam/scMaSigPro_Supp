@@ -13,15 +13,15 @@ suppressPackageStartupMessages(library(viridis))
 suppressPackageStartupMessages(library(pryr))
 
 # Set paths
-dirPath <- "benchmarks/05_SpeedTimeComparisonWithTradeSeq/data/input/"
-resPath <- "benchmarks/05_SpeedTimeComparisonWithTradeSeq/data/output/"
+dirPath <- "/supp_data/benchmarks/04_ComparisonWithTradeSeq/simulated/sce/"
+resPath <- "/supp_data/benchmarks/05_SpeedTimeComparisonWithTradeSeq/output/"
 helpScriptsDir <- "R_Scripts/helper_function/"
 
 # Load custom function
-source(paste0(helpScriptsDir, "calcNormCounts.R"))
+source(paste0(helpScriptsDir, "FQnorm.R"))
 
 # ReadData
-load(paste0(dirPath, "sparsity_60.RData"))
+load(paste0(dirPath, "Test_TradeSeq.RData"))
 
 # Readuce Dataset
 keepGenes <- sample(rownames(rowData(sim.sce)), size = 2500, replace = F)
@@ -45,7 +45,7 @@ rowData(sim.sce) <- DataFrame(gene.metadata.reduced)
 counts <- as.matrix(sim.sce@assays@data@listData$counts)
 
 # Perform Quantile Normalization as per-tradeSeq paper
-normCounts <- calcNormCounts(counts, cat = "FQNorm")
+normCounts <- FQnorm(counts)
 
 # Extract Cell_metadata
 cell_metadata <- as.data.frame(colData(sim.sce))
@@ -68,18 +68,24 @@ lineage_table$Lineage2 <- ifelse(lineage_table$Group == "Path2", 1, 0)
 lineage_table <- lineage_table[, c("Lineage1", "Lineage2")]
 
 # Running scMaSigPro
-scmp.obj <-as_scmp(sim.sce, from = "sce",
-                   additional_params = list(
-                       existing_pseudotime_colname = "Step",
-                       existing_path_colname = "Group",
-                       overwrite_labels = T), verbose = F)
+scmp.obj <- as_scmp(sim.sce, from = "sce",
+                    align_pseudotime = T,
+                    additional_params = list(
+                        labels_exist = TRUE,
+                        existing_pseudotime_colname = "Step",
+                        existing_path_colname = "Group"), verbose = F)
+
 # Squeeze
 scmp.obj <- squeeze(
     scmpObject = scmp.obj,
     bin_method = "Sturges",
-    drop.fac = 0.6,
+    drop.fac = 0.5,
     verbose = F,
-    cluster_count_by = "sum"
+    cluster_count_by = "sum",
+    split_bins = F,
+    prune_bins = F,
+    drop_trails = F,
+    fill_gaps = F
 )
 
 # Make Design
@@ -121,37 +127,45 @@ mbm <- microbenchmark(
   },
   "ScMaSigPro_1_CPU" = {
     # Run p-vector
-    scmp.obj <- sc.p.vector(
-        scmpObj = scmp.obj, verbose = F, min.obs = 5,
-        counts = T, theta = 10,parallel = F,
-        offset = T
-    )
+      scmp.obj <- sc.p.vector(
+          scmpObj = scmp.obj, verbose = T, min.obs = 1,
+          parallel = F,
+          MT.adjust = "fdr",
+          offset = T, useWeights = T,
+          useInverseWeights = F,
+          logOffset = T,
+          globalTheta = T,
+          max_it = 1000
+      )
     gc()
 
     # Run-Step-2
     scmp.obj <- sc.T.fit(
-      data = scmp.obj, verbose = F,
-      step.method = "backward",
-      family = scmp.obj@scPVector@family,
-      offset = T,parallel = F
+        scmpObj = scmp.obj, verbose = T,
+        step.method = "backward",parallel = F,
+        offset = T
     )
     gc()
   },
   "ScMaSigPro_8_CPU" = {
       # Run p-vector
       scmp.obj <- sc.p.vector(
-          scmpObj = scmp.obj, verbose = T, min.obs = 5,
-          counts = T, theta = 10,parallel = T,
-          offset = T
+          scmpObj = scmp.obj, verbose = T, min.obs = 1,
+          parallel = T,
+          MT.adjust = "fdr",
+          offset = T, useWeights = T,
+          useInverseWeights = F,
+          logOffset = T,
+          globalTheta = T,
+          max_it = 1000
       )
       gc()
       
       # Run-Step-2
       scmp.obj <- sc.T.fit(
-          data = scmp.obj, verbose = F,
-          step.method = "backward",
-          family = scmp.obj@scPVector@family,
-          offset = T, parallel = T
+          scmpObj = scmp.obj, verbose = T,
+          step.method = "backward",parallel = T,
+          offset = T
       )
       gc()
   },
@@ -179,6 +193,6 @@ compareBar_Time <- ggplot(data, aes(x = expr, y = mean, fill = expr)) +
 # Save
 ggsave(
   plot = compareBar_Time,
-  filename = paste0(resPath, "CompareBarTime.png"),
+  filename = paste0("Figures/SuppData/04_CompareBarTime.png"),
   dpi = 1200, width = 10
 )
