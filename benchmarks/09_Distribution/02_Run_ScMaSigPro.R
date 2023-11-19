@@ -28,9 +28,10 @@ dist.list <- list("Gaussian" = gaussian(),
                          "Negative_Binomial_1"= MASS::negative.binomial(1),
                          "Negative_Binomial_10"= MASS::negative.binomial(10),
                          "Poisson"= poisson(),
-                         "Gamma" = Gamma(),
+                         #"Gamma" = Gamma(),
                          "Inverse_Gaussian" = inverse.gaussian(),
-                  "Quasipoisson" = quasipoisson()
+                  "Quasipoisson" = quasipoisson(),
+                  "Quasi" = quasi(link = "identity", variance = "constant")
                          )
 #meth.list <- meth.list[names(meth.list) %in% c("Freedman.Diaconis", "Scott.Normal")]
 
