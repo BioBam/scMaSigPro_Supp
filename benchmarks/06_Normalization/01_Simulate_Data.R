@@ -8,7 +8,9 @@ suppressPackageStartupMessages(library(splatter))
 suppressPackageStartupMessages(library(SingleCellExperiment))
 suppressPackageStartupMessages(library(coop))
 suppressPackageStartupMessages(library(gtools))
+suppressPackageStartupMessages(library(scater))
 suppressPackageStartupMessages(library(tidyverse))
+suppressPackageStartupMessages(library(ggpubr))
 
 outDir <- "/supp_data/benchmarks/06_Normalization/simulated/"
 helpScriptsDir <- "R_Scripts/helper_function/"
@@ -66,6 +68,7 @@ norm_methods <- c(
   "sct"
 )
 names(norm_methods) <- norm_methods
+img.list <- list()
 
 # Run
 for (i in names(norm_methods)) {
@@ -76,16 +79,33 @@ for (i in names(norm_methods)) {
     expr = {
       if (i == "true") {
         sce.obj <- SingleCellExperiment(list(counts = sim.sce@assays@data@listData$TrueCounts))
+        sce.obj <- runPCA(sce.obj, exprs_values = "counts")
+        sce.obj@colData <- sim.sce@colData
+        pca <- plotPCA(sce.obj, colour_by = "Step") + ggtitle(paste("Transformation on count", i))
+        img.list[[i]] <- pca
+        
       } else if (i == "raw") {
         sce.obj <- SingleCellExperiment(list(counts = sim.sce@assays@data@listData$counts))
+        sce.obj <- runPCA(sce.obj, exprs_values = "counts")
+        sce.obj@colData <- sim.sce@colData
+        pca <- plotPCA(sce.obj, colour_by = "Step") + ggtitle(paste("Transformation on count", i))
+        img.list[[i]] <- pca
       } else if (i == "offset") {
         sce.obj <- SingleCellExperiment(list(counts = sim.sce@assays@data@listData$counts))
+        sce.obj <- runPCA(sce.obj, exprs_values = "counts")
+        sce.obj@colData <- sim.sce@colData
+        pca <- plotPCA(sce.obj, colour_by = "Step") + ggtitle(paste("Transformation on count", i))
+        img.list[[i]] <- pca
       } else if (i == "cpm") {
         tmpCounts <- calcNormCounts(
           rawCounts = sim.sce@assays@data@listData$counts,
           cat = "libSize", size_fac = 1000000
         )
         sce.obj <- SingleCellExperiment(list(counts = tmpCounts))
+        sce.obj <- runPCA(sce.obj, exprs_values = "counts")
+        sce.obj@colData <- sim.sce@colData
+        pca <- plotPCA(sce.obj, colour_by = "Step") + ggtitle(paste("Transformation on count", i))
+        img.list[[i]] <- pca
       } else if (i == "clr") {
         tmpCounts <- calcNormCounts(
           rawCounts =
@@ -93,6 +113,10 @@ for (i in names(norm_methods)) {
           cat = "CLR", size_fac = 10000
         )
         sce.obj <- SingleCellExperiment(list(counts = tmpCounts))
+        sce.obj <- runPCA(sce.obj, exprs_values = "counts")
+        sce.obj@colData <- sim.sce@colData
+        pca <- plotPCA(sce.obj, colour_by = "Step") + ggtitle(paste("Transformation on count", i))
+        img.list[[i]] <- pca
       } else if (i == "logN") {
         tmpCounts <- calcNormCounts(
           rawCounts =
@@ -100,6 +124,10 @@ for (i in names(norm_methods)) {
           cat = "logLibSize", size_fac = 10000
         )
         sce.obj <- SingleCellExperiment(list(counts = tmpCounts))
+        sce.obj <- runPCA(sce.obj, exprs_values = "counts")
+        sce.obj@colData <- sim.sce@colData
+        pca <- plotPCA(sce.obj, colour_by = "Step") + ggtitle(paste("Transformation on count", i))
+        img.list[[i]] <- pca
       } else if (i == "rc") {
         tmpCounts <- calcNormCounts(
           rawCounts =
@@ -107,6 +135,10 @@ for (i in names(norm_methods)) {
           cat = "libSize", size_fac = 10000
         )
         sce.obj <- SingleCellExperiment(list(counts = tmpCounts))
+        sce.obj <- runPCA(sce.obj, exprs_values = "counts")
+        sce.obj@colData <- sim.sce@colData
+        pca <- plotPCA(sce.obj, colour_by = "Step") + ggtitle(paste("Transformation on count", i))
+        img.list[[i]] <- pca
       } else if (i == "fquant") {
         tmpCounts <- calcNormCounts(
           rawCounts =
@@ -114,6 +146,10 @@ for (i in names(norm_methods)) {
           cat = "FQNorm", size_fac = 10000
         )
         sce.obj <- SingleCellExperiment(list(counts = tmpCounts))
+        sce.obj <- runPCA(sce.obj, exprs_values = "counts")
+        sce.obj@colData <- sim.sce@colData
+        pca <- plotPCA(sce.obj, colour_by = "Step") + ggtitle(paste("Transformation on count", i))
+        img.list[[i]] <- pca
       } else if (i == "sct") {
         tmpCounts <- calcNormCounts(
           rawCounts =
@@ -121,6 +157,10 @@ for (i in names(norm_methods)) {
           cat = "sctransform", size_fac = 10000
         )
         sce.obj <- SingleCellExperiment(list(counts = tmpCounts))
+        sce.obj <- runPCA(sce.obj, exprs_values = "counts")
+        sce.obj@colData <- sim.sce@colData
+        pca <- plotPCA(sce.obj, colour_by = "Step") + ggtitle(paste("Transformation on count", i))
+        img.list[[i]] <- pca
       }
 
       # Add Row and Col Data
@@ -145,3 +185,21 @@ for (i in names(norm_methods)) {
     }
   )
 }
+
+# 
+# # Plot for supplemnetary Material
+combined_pplot <- ggarrange(
+    img.list[["true"]],
+    img.list[["raw"]],
+    img.list[["offset"]],
+    img.list[["cpm"]],
+    img.list[["clr"]],
+    img.list[["logN"]],
+    img.list[["rc"]],
+    img.list[["fquant"]],
+    img.list[["sct"]],
+    ncol = 3, nrow = 3,
+    labels = c("A.","B.","C.","D.","E.","F.","G.", "H.", "I."))
+# 
+ggsave(filename = "Figures/SuppData/06_Sim_Norm.png",
+       plot = combined_pplot, dpi = 600, height = 8, width = 14)

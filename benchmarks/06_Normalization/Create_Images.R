@@ -10,21 +10,22 @@ suppressPackageStartupMessages(library(RColorConesa))
 suppressPackageStartupMessages(library(reshape2))
 
 # Set Paths relative to project
-dirPath <- "benchmarks/07_Normalization/data/output/"
+outPath <- "Figures/SuppData/"
 
 # Load Evaluation
-evaluation.frame <- read.table(paste0(dirPath, "Performance.Table.tsv"), header = T)
+evaluation.frame <- read.table("Tables/06_Norm_Performance.Table.tsv", sep = "\t", header = T)
 
 # ROC Curve
-roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = as.factor(NormMethod))) +
-    geom_point() +
-    #geom_text(data = subset(evaluation.frame, Zi == 60 & VARIABLE > 0.3 & VARIABLE <= 0.90), aes(label = sprintf("%.2f", VARIABLE)), color = "black", hjust = 1, vjust = 1.7) + 
+roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = as.factor(parameter.value))) +
+    #geom_text(data = subset(evaluation.frame, parameter.value == 60 & RSQ > 0.3 & RSQ <= 0.80), aes(label = sprintf("%.2f", RSQ)), color = "black", hjust = 1, vjust = 1.7) + 
     geom_path(linewidth = 1, alpha = 0.7) +
-    scale_x_continuous(breaks = seq(0, 0.20, 0.05), 
-                       limits = c(0, 0.20)
+    geom_point(data = subset(evaluation.frame, RSQ == 0.7), color = "black", shape = 2) +
+    geom_point(data = subset(evaluation.frame, RSQ == 0.6), color = "blue", shape = 3) +
+    scale_x_continuous(breaks = seq(0, 0.10, 0.05), 
+                       limits = c(0, 0.10)
     ) +
-    scale_y_continuous(breaks = seq(0, 1, 0.1),
-                       limits = c(0.0, 1)
+    scale_y_continuous(breaks = seq(0.5, 1, 0.1),
+                       limits = c(0.5, 1)
     ) +
     scale_color_manual(values = colorConesa(9))+
     labs(
@@ -47,42 +48,31 @@ roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = as.factor(NormMeth
 
 print(roc)
 
-
 # Plot all values against zero inflation
-long_data <- melt(evaluation.frame, id.vars = c("VARIABLE", "Zi"), measure.vars = c("ACCURACY", "PRECISION", "FPR", "TPR", "FNR"))
+long_data <- melt(evaluation.frame, id.vars = c("RSQ", "parameter.value"), measure.vars = c("TPR", "FPR", "Accuracy", "Recall", "Specificity", "F1_Score"))
 
 # Plot performance
-performance <- ggplot(long_data, aes(x = VARIABLE, y = value, group = interaction(Zi, variable), color = variable)) +
+performance <- ggplot(long_data, aes(x = RSQ, y = value, group = interaction(parameter.value, variable), color = variable)) +
     geom_line(linewidth = 0.6) + 
     geom_point(size = 0.8) +
-    scale_color_manual(values = colorConesa(5)) +
-    facet_wrap(~Zi, scales = "free_y", nrow = 2, ncol = 4, 
-               labeller = labeller(Zi = function(x) paste("Zero-inflation level", x))) +
+    scale_color_manual(values = colorConesa(7)) +
+    facet_wrap(~parameter.value, scales = "free_y", nrow = 3, ncol = 3, 
+               labeller = labeller(parameter.value = function(x) paste("Normalization Method", x))) +
     labs(x = "Varying R-Square", y = "Performance Metric",
          title = "Performance Metric for different levels of zero-inflation",
          color = "Measure") +
     scale_x_continuous(breaks = seq(0.1, 0.95, 0.2), limits = c(0, 0.95)) +
-    theme_minimal(base_size = 10) + 
+    theme_minimal(base_size = 15) + 
     theme(legend.position = "bottom")
 
 print(performance)
 
-# Save All RDS
-saveRDS(performance, file = paste(dirPath, "Performance_plot.RDS"))
-saveRDS(acc, file = paste(dirPath, "Accuracy_Plot.RDS"))
-saveRDS(roc, file = paste(dirPath, "ROC_plot.RDS"))
-
-# Save Images
-ggsave(acc,
-       filename = paste0(dirPath, "Accuracy.png"),
-       dpi = 600, height = 6, width = 6
-)
 ggsave(roc,
-       filename = paste0(dirPath, "ROC.png"),
-       dpi = 600, height = 6, width = 6
+       filename = paste0("Figures/SuppData/06_Sim_Norm_ROC.png"),
+       dpi = 600, height = 8, width = 10
 )
 
 ggsave(performance,
-       filename = paste0(dirPath, "Performance.png"),
-       dpi = 600, height = 6, width = 6
+       filename = paste0("Figures/SuppData/06_Sim_Norm_PerformanceROC.png"),
+       dpi = 600, height = 8, width = 10
 )
