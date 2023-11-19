@@ -24,7 +24,7 @@ names(dataSets) <- str_remove(
 # Load Data
 load(file = paste0(inPath, dataSets["50"]))
 
-compress.list <- as.list(seq(0.3, 2, 0.1))
+compress.list <- as.list(seq(0.7, 2, 0.1))
 names(compress.list) <- compress.list
 
 #meth.list <- meth.list[names(meth.list) %in% c("Freedman.Diaconis", "Scott.Normal")]

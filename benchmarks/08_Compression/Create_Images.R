@@ -13,7 +13,7 @@ suppressPackageStartupMessages(library(reshape2))
 outPath <- "Figures/SuppData/"
 
 # Load Evaluation
-evaluation.frame <- read.table("Tables/07_Method_Performance.Table.tsv", sep = "\t", header = T)
+evaluation.frame <- read.table("Tables/08_Compression_Performance.Table.tsv", sep = "\t", header = T)
 
 # ROC Curve
 roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = as.factor(parameter.value))) +
@@ -24,10 +24,10 @@ roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = as.factor(paramete
     scale_x_continuous(breaks = seq(0, 0.20, 0.05), 
                        limits = c(0, 0.20)
     ) +
-    scale_y_continuous(breaks = seq(0, 1, 0.1),
-                       limits = c(0.0, 1)
+    scale_y_continuous(breaks = seq(0.7, 1, 0.1),
+                       limits = c(0.7, 1)
     ) +
-    scale_color_manual(values = colorConesa(9))+
+    scale_color_manual(values = colorConesa(12))+
     labs(
         title = "ROC-curve for Zero-Inflation",
         subtitle = "Varying R2",
@@ -56,8 +56,8 @@ performance <- ggplot(long_data, aes(x = RSQ, y = value, group = interaction(par
     geom_line(linewidth = 0.6) + 
     geom_point(size = 0.8) +
     scale_color_manual(values = colorConesa(7)) +
-    facet_wrap(~parameter.value, scales = "free_y", nrow = 3, ncol = 3, 
-               labeller = labeller(parameter.value = function(x) paste("Binning Method", x))) +
+    facet_wrap(~parameter.value, scales = "free_y", nrow = 4, ncol = 3, 
+               labeller = labeller(parameter.value = function(x) paste("Compression", x))) +
     labs(x = "Varying R-Square", y = "Performance Metric",
          title = "Performance Metric for different levels of zero-inflation",
          color = "Measure") +
