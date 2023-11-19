@@ -28,6 +28,12 @@ for (i in names(dataSets)) {
   min.gene <- 6
   theta.val <- 10
   ep <- 0.00001
+  
+  if(i %in% c("clr", "logN", "rc", "sct")){
+      fam = gaussian()
+  }else{
+      fam = MASS::negative.binomial(10)
+  }
 
   cat(paste("\nRunning for Type:", i))
 
@@ -47,7 +53,7 @@ for (i in names(dataSets)) {
         scmp.obj <- squeeze(
             scmpObject = scmp.obj,
             bin_method = "Sturges",
-            drop.fac = 0.7,
+            drop.fac = 1,
             verbose = F,
             cluster_count_by = "sum",
             split_bins = F,
@@ -64,7 +70,8 @@ for (i in names(dataSets)) {
           # Run p-vector
           scmp.obj <- sc.p.vector(
               scmpObj = scmp.obj, verbose = F, min.obs = 1,
-              offset = F, parallel = T
+              offset = F, parallel = T,
+              family = fam
           )
           
           # Run-Step-2
@@ -78,6 +85,7 @@ for (i in names(dataSets)) {
         # Run p-vector
           scmp.obj <- sc.p.vector(
               scmpObj = scmp.obj, verbose = F, min.obs = 1,
+              family = fam,
               offset = T, parallel = T
           )
 
