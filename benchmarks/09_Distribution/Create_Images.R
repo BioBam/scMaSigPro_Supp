@@ -13,7 +13,7 @@ suppressPackageStartupMessages(library(reshape2))
 outPath <- "Figures/SuppData/"
 
 # Load Evaluation
-evaluation.frame <- read.table("Tables/08_Compression_Performance.Table.tsv", sep = "\t", header = T)
+evaluation.frame <- read.table("Tables/09_Family_Performance.Table.tsv", sep = "\t", header = T)
 
 # ROC Curve
 roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = as.factor(parameter.value))) +
@@ -24,12 +24,12 @@ roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = as.factor(paramete
     scale_x_continuous(breaks = seq(0, 0.20, 0.05), 
                        limits = c(0, 0.20)
     ) +
-    scale_y_continuous(breaks = seq(0.7, 1, 0.1),
-                       limits = c(0.7, 1)
+    scale_y_continuous(breaks = seq(0, 1, 0.1),
+                       limits = c(0, 1)
     ) +
     scale_color_manual(values = colorConesa(12))+
     labs(
-        title = "ROC-curve for Zero-Inflation",
+        title = "ROC-curve for Family",
         subtitle = "Varying R2",
         x = "False Positive Rate (1-Specificity)",
         y = "True Positive Rate (Sensitivity)",
@@ -57,7 +57,7 @@ performance <- ggplot(long_data, aes(x = RSQ, y = value, group = interaction(par
     geom_point(size = 0.8) +
     scale_color_manual(values = colorConesa(7)) +
     facet_wrap(~parameter.value, scales = "free_y", nrow = 4, ncol = 3, 
-               labeller = labeller(parameter.value = function(x) paste("Compression", x))) +
+               labeller = labeller(parameter.value = function(x) paste("Family", x))) +
     labs(x = "Varying R-Square", y = "Performance Metric",
          title = "Performance Metric for different levels of zero-inflation",
          color = "Measure") +
@@ -68,12 +68,11 @@ performance <- ggplot(long_data, aes(x = RSQ, y = value, group = interaction(par
 print(performance)
 
 ggsave(roc,
-       filename = paste0("Figures/SuppData/07_Sim_BinMethod_ROC.png"),
+       filename = paste0("Figures/SuppData/09_Sim_Family_ROC.png"),
        dpi = 600, height = 8, width = 10
 )
 
 ggsave(performance,
-       filename = paste0("Figures/SuppData/07_Sim_BinMethod_Performance.png"),
+       filename = paste0("Figures/SuppData/09_Sim_Family_Performance.png"),
        dpi = 600, height = 8, width = 10
 )
-

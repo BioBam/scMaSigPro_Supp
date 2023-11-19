@@ -8,7 +8,7 @@ suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(scMaSigPro))
 
 # Set Paths relative to project
-inPath <- "/supp_data/benchmarks/08_Compression/output/"
+inPath <- "/supp_data/benchmarks/09_Distribution/output/"
 outPath <- "Tables/"
 helpScriptsDir <- "R_Scripts/helper_function/"
 
@@ -19,7 +19,7 @@ source(paste0(helpScriptsDir, "calculate_metrics_binary.R"))
 # Load names of files
 dataSets <- list.files(paste0(inPath))
 names(dataSets) <- str_remove(
-    str_remove(dataSets, pattern = "scmp.obj.compress."),
+    str_remove(dataSets, pattern = "scmp.objfamily."),
     ".RData"
 )
 
@@ -58,7 +58,7 @@ for (i in names(dataSets)) {
     ))
     
     # Add to list
-    performance.measure[["parameter"]] <- "Compression"
+    performance.measure[["parameter"]] <- "Family"
     performance.measure[["parameter.value"]] <- i
     eval.list[[i]] <- performance.measure
 }
@@ -67,7 +67,7 @@ for (i in names(dataSets)) {
 evaluation.frame <- do.call(rbind, eval.list)
 
 # Write
-write.table(evaluation.frame, paste0(outPath, "08_Compression_Performance.Table.tsv"),
+write.table(evaluation.frame, paste0(outPath, "09_Family_Performance.Table.tsv"),
             sep = "\t",
             row.names = F, quote = F
 )
