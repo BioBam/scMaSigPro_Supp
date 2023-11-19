@@ -8,15 +8,18 @@ suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(scMaSigPro))
 
 # Set Paths relative to project
-dirPath <- "benchmarks/07_Normalization/data/simulated/sce/"
+inPath <- "/supp_data/benchmarks/06_Normalization/simulated/sce/"
+outPath <- "/supp_data/benchmarks/06_Normalization/output/"
 helpScriptsDir <- "R_Scripts/helper_function/"
-dir.create("benchmarks/07_Normalization/data/output/", showWarnings = F)
+
+# Create Missing Directory
+dir.create(outPath, showWarnings = F, recursive = T)
 
 # Load names of files
-dataSets <- list.files(paste0(dirPath))
+dataSets <- list.files(paste0(inPath))
 names(dataSets) <- str_remove(
-  str_remove(dataSets, pattern = "type_"),
-  ".RData"
+    str_remove(dataSets, pattern = "type_"),
+    ".RData"
 )
 
 # Set-up a for loop
@@ -28,10 +31,8 @@ for (i in names(dataSets)) {
 
   cat(paste("\nRunning for Type:", i))
 
-  #stop("Expected Stop")
-
   # Load Data
-  load(file = paste0(dirPath, dataSets[i]))
+  load(file = paste0(inPath, dataSets[i]))
 
   tryCatch(
     expr = {
@@ -90,7 +91,7 @@ for (i in names(dataSets)) {
       }
 
       # Save Object
-      save(scmp.obj, file = paste0("benchmarks/07_Normalization/data/output/scmp.obj.type.", i, ".RData"))
+      save(scmp.obj, file = paste0(outPath, "scmp.obj.norm.", i, ".RData"))
 
       # Validate
       cat(paste("\nCompleted for", i))
