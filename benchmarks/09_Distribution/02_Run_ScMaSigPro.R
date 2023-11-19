@@ -29,7 +29,7 @@ dist.list <- list("Gaussian" = gaussian(),
                          "Negative_Binomial_10"= MASS::negative.binomial(10),
                          "Poisson"= poisson(),
                          #"Gamma" = Gamma(),
-                         "Inverse_Gaussian" = inverse.gaussian(),
+                         #"Inverse_Gaussian" = inverse.gaussian(),
                   "Quasipoisson" = quasipoisson(),
                   "Quasi" = quasi(link = "identity", variance = "constant")
                          )
