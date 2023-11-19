@@ -73,6 +73,6 @@ ggsave(roc,
 )
 
 ggsave(performance,
-       filename = paste0("Figures/SuppData/06_Sim_Norm_PerformanceROC.png"),
+       filename = paste0("Figures/SuppData/06_Sim_Norm_Performance.png"),
        dpi = 600, height = 8, width = 10
 )
