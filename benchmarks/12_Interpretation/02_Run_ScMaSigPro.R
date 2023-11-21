@@ -69,7 +69,7 @@ scmp.obj <- sc.T.fit(
 
 # Extract gene sets
 scmp.obj <- sc.get.siggenes(scmp.obj,
-                significant.intercept = "dummy",
+                significant.intercept = "none",
                 includeInflu = T,
                 vars = "groups")
 
@@ -116,26 +116,163 @@ for (i in pathB_vs_pathA_and_pathA){
                                              logs = T, logType = "log")
 }
 
-# Pvalue beta estimates
-beta0 <- showSol(scmp.obj, view = F, return = T)
-beta0 <- beta0[beta0$`p-value` <= 0.5, ,drop  = FALSE]
-beta0 <- beta0[beta0$`R-squared` >= 0.7, ,drop  = FALSE]
-beta0 <- beta0[beta0$p.valor_beta0 <= 0.05, ,FALSE]
+sol <- showSol(scmp.obj, view = F, return = T)
+sol[is.na(sol)] <- 1
+sol <- sol[sol$`p-value` <= 0.5, ,drop  = FALSE]
+sol <- sol[sol$`R-squared` >= 0.7, ,drop  = FALSE]
+nrow(sol)
+
+
+# Group_patterns
+g1 <- sol[(sol$p.valor_Path2vsPath1 > 0.05 &
+               sol$p.valor_scmp_binned_pseudotimexPath2 > 0.05 &
+               sol$p.valor_scmp_binned_pseudotime2xPath2 > 0.05 &
+               sol$p.valor_scmp_binned_pseudotime2 <= 0.05 &
+               sol$p.valor_scmp_binned_pseudotime <= 0.05), , drop =FALSE]
+g1_list <- list()
+for (i in rownames(g1)){
+    g1_list[[i]]<- sc.PlotGroups(scmpObj = scmp.obj,
+                                 feature_id = i,
+                                 logs = T, logType = "log")
+}
+g1_list[[sample(names(g1_list), 1)]]
+length(g1_list)
+
+# Group_patterns
+g2 <- sol[(sol$p.valor_Path2vsPath1 > 0.05 &
+               sol$p.valor_scmp_binned_pseudotimexPath2 <= 0.05 &
+               sol$p.valor_scmp_binned_pseudotime2xPath2 <= 0.05 &
+               sol$p.valor_scmp_binned_pseudotime2 > 0.05 &
+               sol$p.valor_scmp_binned_pseudotime > 0.05), , drop =FALSE]
+g2_list <- list()
+for (i in rownames(g2)){
+    g2_list[[i]]<- sc.PlotGroups(scmpObj = scmp.obj,
+                                 feature_id = i,
+                                 logs = T, logType = "log")
+}
+g2_list[[sample(names(g2_list), 1)]]
+length(g2_list)
+
+
+# Group_patterns
+g3 <- sol[(sol$p.valor_Path2vsPath1 <= 0.05 &
+               sol$p.valor_scmp_binned_pseudotimexPath2 <= 0.05 &
+               sol$p.valor_scmp_binned_pseudotime2xPath2 <= 0.05 &
+               sol$p.valor_scmp_binned_pseudotime2 > 0.05 &
+               sol$p.valor_scmp_binned_pseudotime > 0.05), , drop =FALSE]
+g3_list <- list()
+for (i in rownames(g3)){
+    g3_list[[i]]<- sc.PlotGroups(scmpObj = scmp.obj,
+                                 feature_id = i,
+                                 logs = T, logType = "log")
+}
+g3_list[[sample(names(g3_list), 1)]]
+length(g3_list)
+
+# Group_patterns
+g4 <- sol[(sol$p.valor_Path2vsPath1 <= 0.05 &
+               sol$p.valor_scmp_binned_pseudotimexPath2 > 0.05 &
+               sol$p.valor_scmp_binned_pseudotime2xPath2 > 0.05 &
+               sol$p.valor_scmp_binned_pseudotime2 <= 0.05 &
+               sol$p.valor_scmp_binned_pseudotime <= 0.05), , drop =FALSE]
+g4_list <- list()
+
+for (i in rownames(g4)){
+    g4_list[[i]]<- sc.PlotGroups(scmpObj = scmp.obj,
+                                 feature_id = i,
+                                 logs = T, logType = "log")
+}
+g4_list[[sample(names(g4_list), 1)]]
+length(g4_list)
+
+# Group_patterns
+g5 <- sol[(sol$p.valor_Path2vsPath1 <= 0.05 &
+               sol$p.valor_scmp_binned_pseudotimexPath2 <= 0.05 &
+               sol$p.valor_scmp_binned_pseudotime2xPath2 <= 0.05 &
+               sol$p.valor_scmp_binned_pseudotime2 <= 0.05 &
+               sol$p.valor_scmp_binned_pseudotime <= 0.05), , drop =FALSE]
+g5_list <- list()
+
+for (i in rownames(g5)){
+    g5_list[[i]]<- sc.PlotGroups(scmpObj = scmp.obj,
+                                 feature_id = i,
+                                 logs = T, logType = "log")
+}
+g5_list[[sample(names(g5_list), 1)]]
+length(g5_list)
+
+# remaining
+sol_rem <- sol[!(rownames(sol) %in% c(rownames(g1), rownames(g2),
+               rownames(g3), rownames(g4),
+               rownames(g5))),]
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Pvalue beta estimates
-Path2vsPath1 <- showSol(scmp.obj, view = F, return = T)
-Path2vsPath1 <- Path2vsPath1[beta0$`p-value` <= 0.5, ,drop  = FALSE]
-Path2vsPath1 <- Path2vsPath1[beta0$`R-squared` >= 0.7, ,drop  = FALSE]
-Path2vsPath1[is.na(Path2vsPath1$p.valor_Path2vsPath1), "p.valor_Path2vsPath1"] <- as.integer(1)
-Path2vsPath1[is.na(Path2vsPath1$p.valor_scmp_binned_pseudotime), "p.valor_scmp_binned_pseudotime"] <-as.integer(1)
-Path2vsPath1[is.na(Path2vsPath1$p.valor_scmp_binned_pseudotimexPath2), "p.valor_scmp_binned_pseudotimexPath2"] <-as.integer(1)
-Path2vsPath1[is.na(Path2vsPath1$p.valor_scmp_binned_pseudotime2), "p.valor_scmp_binned_pseudotime2"] <-as.integer(1)
-Path2vsPath1[is.na(Path2vsPath1$p.valor_scmp_binned_pseudotime2xPath2), "p.valor_scmp_binned_pseudotime2xPath2"] <-as.integer(1)
-Path2vsPath1 <- Path2vsPath1[(Path2vsPath1$p.valor_Path2vsPath1 <= 0.05 &
-                                  Path2vsPath1$p.valor_Path2vsPath1 > 0.05), ,FALSE]
-Path2vsPath1_list <- list()
-for (i in rownames(Path2vsPath1)){
-    Path2vsPath1_list[[i]]<- sc.PlotGroups(scmpObj = scmp.obj, 
+beta0 <- sol[sol$p.valor_beta0 <= 0.05, ,FALSE]
+nrow(beta0)
+
+# Pvalue beta estimates
+same_but_change_in_time <- sol[(sol$p.valor_scmp_binned_pseudotime <= 0.05 &
+                     sol$p.valor_scmp_binned_pseudotime2 <= 0.05 &
+                         sol$p.valor_Path2vsPath1 > 0.05 &
+                         sol$p.valor_scmp_binned_pseudotimexPath2 > 0.05 &
+                         sol$p.valor_scmp_binned_pseudotime2xPath2 > 0.05), , drop =FALSE]
+
+same_but_change_in_time_list <- list()
+for (i in rownames(same_but_change_in_time)){
+    same_but_change_in_time_list[[i]]<- sc.PlotGroups(scmpObj = scmp.obj, 
                                                        feature_id = i,
                                                        logs = T, logType = "log")
 }
+same_but_change_in_time_list[[sample(names(same_but_change_in_time_list), 1)]]
+nrow(same_but_change_in_time)
+
+
+# Pvalue beta estimates
+path1_stable_path2_change <- sol[(sol$p.valor_scmp_binned_pseudotime > 0.05 &
+                         sol$p.valor_scmp_binned_pseudotime2 > 0.05 &
+                         sol$p.valor_Path2vsPath1 > 0.05 &
+                         sol$p.valor_scmp_binned_pseudotimexPath2 <= 0.05 &
+                         sol$p.valor_scmp_binned_pseudotime2xPath2 <= 0.05), , drop =FALSE]
+
+path1_stable_path2_change_list <- list()
+for (i in rownames(path1_stable_path2_change)){
+    path1_stable_path2_change_list[[i]]<- sc.PlotGroups(scmpObj = scmp.obj, 
+                                                      feature_id = i,
+                                                      logs = T, logType = "log")
+}
+path1_stable_path2_change_list[[sample(names(path1_stable_path2_change_list), 1)]]
+
+
+# Opposite change
+test <- sol[(sol$p.valor_scmp_binned_pseudotime > 0.05 &
+                                      sol$p.valor_scmp_binned_pseudotime2 > 0.05 &
+                                      sol$p.valor_Path2vsPath1 > 0.05 &
+                                      sol$p.valor_scmp_binned_pseudotimexPath2 <= 0.05 &
+                                      sol$p.valor_scmp_binned_pseudotime2xPath2 <= 0.05), , drop =FALSE]
+
+test_list <- list()
+for (i in rownames(test)){
+    test_list[[i]]<- sc.PlotGroups(scmpObj = scmp.obj, 
+                                                        feature_id = i,
+                                                        logs = T, logType = "log")
+}
+pathA_list[[sample(names(pathA_list), 1)]]
+
+sol_temp <- sol[setdiff(rownames(sol), c(rownames(test), rownames(path1_stable_path2_change), rownames(same_but_change_in_time))),]
+
+sc.PlotGroups(scmpObj = scmp.obj, 
+              feature_id = "Gene293",
+              logs = T, logType = "log")
