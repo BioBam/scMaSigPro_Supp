@@ -21,8 +21,8 @@ roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = as.factor(paramete
     geom_path(linewidth = 1, alpha = 0.7) +
     geom_point(data = subset(evaluation.frame, RSQ == 0.7), color = "black", shape = 2) +
     geom_point(data = subset(evaluation.frame, RSQ == 0.6), color = "blue", shape = 3) +
-    scale_x_continuous(breaks = seq(0, 0.20, 0.05), 
-                       limits = c(0, 0.20)
+    scale_x_continuous(breaks = seq(0, 0.10, 0.05), 
+                       limits = c(0, 0.10)
     ) +
     scale_y_continuous(breaks = seq(0, 1, 0.1),
                       limits = c(0.0, 1)
@@ -49,14 +49,14 @@ roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = as.factor(paramete
 print(roc)
 
 # Plot all values against zero inflation
-long_data <- melt(evaluation.frame, id.vars = c("RSQ", "parameter.value"), measure.vars = c("TPR", "FPR", "Accuracy", "Recall", "Specificity", "F1_Score"))
+long_data <- melt(evaluation.frame, id.vars = c("RSQ", "parameter.value"), measure.vars = c("TPR", "FPR", "Accuracy", "F1_Score"))
 
 # Plot performance
 performance <- ggplot(long_data, aes(x = RSQ, y = value, group = interaction(parameter.value, variable), color = variable)) +
     geom_line(linewidth = 0.6) + 
     geom_point(size = 0.8) +
-    scale_color_manual(values = colorConesa(7)) +
-    facet_wrap(~parameter.value, scales = "free_y", nrow = 3, ncol = 3, 
+    scale_color_manual(values = colorConesa(6)) +
+    facet_wrap(~parameter.value, scales = "free_y", nrow = 2, ncol = 2, 
                labeller = labeller(parameter.value = function(x) paste("Zero-inflation level", x))) +
     labs(x = "Varying R-Square", y = "Performance Metric",
          title = "Performance Metric for different levels of zero-inflation",

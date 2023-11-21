@@ -19,7 +19,7 @@ source(paste0(helpScriptsDir, "calculate_metrics_binary.R"))
 # Load names of files
 dataSets <- list.files(paste0(inPath))
 names(dataSets) <- str_remove(
-  str_remove(dataSets, pattern = "scmp.obj.sparsity."),
+  str_remove(dataSets, pattern = "scmp.obj.zi."),
   ".RData"
 )
 
@@ -59,7 +59,7 @@ for (i in names(dataSets)) {
   
   # Add to list
   performance.measure[["parameter"]] <- "ZI"
-  performance.measure[["parameter.value"]] <- as.numeric(i)
+  performance.measure[["parameter.value"]] <- i
   eval.list[[i]] <- performance.measure
 }
 

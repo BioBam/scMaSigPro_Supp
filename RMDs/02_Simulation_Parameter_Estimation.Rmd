@@ -1,7 +1,0 @@
----
-title: "02_Simulation_Parameter_Estimation.R"
-author: "Priyansh Srivastava"
-output: html_document
-date: "2023-11-21"
----
-

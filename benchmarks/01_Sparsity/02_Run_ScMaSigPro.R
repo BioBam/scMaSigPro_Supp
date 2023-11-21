@@ -26,11 +26,10 @@ names(dataSets) <- str_remove(
 
 # Set-up a for loop
 for (i in names(dataSets)) {
-  poly.degree <- 2
+  poly.degree <- 1
   drop_fac <- 1
-  gTheta<- FALSE
   maxit<- 100
-  fam <- MASS::negative.binomial(10)
+  fam <- MASS::negative.binomial(20)
   split.bins = F
   
   cat(paste("\nRunning for sparsity:", i))
@@ -38,39 +37,11 @@ for (i in names(dataSets)) {
   # Load Data
   load(file = paste0(inPath, dataSets[i]))
   
-  if (i %in% c("70", "80", "90")) {
-      
-      # Extract the counts
-      raw.counts <- as.matrix(sim.sce@assays@data@listData$counts) 
-      # Count the number of zeros for each gene
-      zero_counts_per_gene <- apply(raw.counts, 1, function(x) sum(x == 0))
-      gene_names <- rownames(raw.counts)
-      zero_count_table <- data.frame(Gene = gene_names, ZeroCounts = zero_counts_per_gene)
-      keep_genes <- rownames(zero_count_table[zero_count_table$ZeroCounts< 2800,])
-      sim.sce <- sim.sce[keep_genes,]
-  }
-  if (i %in% c("90", "80")){
-      
-      # Additinal Compression
-      drop_fac = 0.3
-      poly.degree <- 1
-      split.bins = T
-      fam =  poisson()
-  }
-  # 
-  # if (i %in% c("70")) {
-  #     
-  #     # More Compression
-  #     drop_fac <- 0.5
-  #     
-  #     # Increase number of iteration
-  #     maxit <- 10000
-  # }
-
   tryCatch(
     expr = {
       # Convert
       scmp.obj <- as_scmp(sim.sce, from = "sce",
+                          align_pseudotime = F,
                           additional_params = list(
                               labels_exist = TRUE,
                               existing_pseudotime_colname = "Step",
@@ -80,30 +51,28 @@ for (i in names(dataSets)) {
       scmp.obj <- squeeze(
         scmpObject = scmp.obj,
         bin_method = "Sturges",
-        drop.fac = drop_fac,
+        drop_fac = drop_fac,
         verbose = F,
         cluster_count_by = "sum",
-        split_bins = split.bins,
+        split_bins = F,
         prune_bins = F,
         drop_trails = F,
         fill_gaps = F
       )
       
       # Make Design
-      scmp.obj <- sc.make.design.matrix(scmp.obj,
-        poly_degree = poly.degree)
+      scmp.obj <- sc.make.design.matrix(scmp.obj, poly_degree = poly.degree)
 
       # Run p-vector
       scmp.obj <- sc.p.vector(
-          scmpObj = scmp.obj, verbose = F, min.obs = 1, parallel = T,
+          scmpObj = scmp.obj, verbose = F, min.obs = 1, parallel = F,
           offset = T, 
           logOffset = F,
           useWeights = T, 
           logWeights = F, 
-          useInverseWeights = F,
+          useInverseWeights = T,
           max_it = maxit, 
-          family = fam
-      )
+          family = fam)
 
       # Run-Step-2
       scmp.obj <- sc.T.fit(
@@ -113,7 +82,7 @@ for (i in names(dataSets)) {
           )
 
       # Save Object
-      save(scmp.obj, file = paste0(outPath, "scmp.obj.sparsity.", i, ".RData"))
+      save(scmp.obj, file = paste0(outPath, "scmp.obj.zi.", i, ".RData"))
 
       # Validate
       cat(paste("\nCompleted for", i))
