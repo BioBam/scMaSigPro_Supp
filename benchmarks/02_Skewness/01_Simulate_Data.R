@@ -1,4 +1,4 @@
-# Title: Simulate Datasets with skewness
+# Title: Simulate 4 Datasets with Different levels of sparsity
 # Author: Priyansh Srivastava
 # Email: spriyansh29@gmail.com
 # Year: 2023
@@ -10,8 +10,19 @@ suppressPackageStartupMessages(library(coop))
 suppressPackageStartupMessages(library(gtools))
 suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(ggpubr))
+suppressPackageStartupMessages(library(parallel))
+suppressPackageStartupMessages(library(scuttle))
+suppressPackageStartupMessages(library(scater))
+suppressPackageStartupMessages(library(phateR))
+suppressPackageStartupMessages(library(viridis))
 
-# Set Paths relative to project
+# Set path for retivulate
+Sys.setenv(RETICULATE_PYTHON = "/usr/bin/python3")
+suppressPackageStartupMessages(library(reticulate))
+use_python("/usr/bin/python3", required = TRUE)
+
+# Set paths
+paramEstimates <- readRDS("/supp_data/benchmarks/00_Parameter_Estimation/output/setty_et_al_d1_splatEstimates.RDS")
 outDir <- "/supp_data/benchmarks/02_Skewness/simulated/"
 helpScriptsDir <- "R_Scripts/helper_function/"
 imgPath <- paste0(outDir, "png/")
@@ -27,169 +38,142 @@ source(paste0(helpScriptsDir, "plot_simulations().R"))
 source(paste0(helpScriptsDir, "add_gene_anno().R"))
 source(paste0(helpScriptsDir, "calc_bin_size.R"))
 
-# Zero-Inflation
-skew <- seq(0.1, 0.9, 0.1) # 0.5
-names(skew) <- as.character(skew)
+# Skewness
+skew <- list(
+     "skew_0" = 0,
+     "skew_0.1" = 0.1,
+     "skew_0.9" = 0.9,
+     "skew_1" = 1
+)
 
-# List of Images
-img.list <- list()
-
-## Create a list of parameters
-for (i in names(skew)) {
-  # Get Sparsity Level
-  SkewValue <- str_remove(pattern = "SkewValue_", i)
-
-  # Name of the List
-  cat(paste("\nSimulating for Skew Value:", SkewValue))
-
-  # Create Base parameters/ Same for All groups
-  params.groups <- newSplatParams(
+# Create Base parameters/ Same for All groups
+params.groups <- newSplatParams(
     batch.rmEffect = TRUE, # No Batch affect
     batchCells = 3000, # Number of Cells
-    nGenes = 5000, # Number of Genes
+    nGenes = 2000, # Number of Genes
     seed = 2022, # Set seed
-    mean.rate = 0.3, mean.shape = 5, lib.scale = 0.2,
-    lib.loc = 12, dropout.type = "experiment",
-    group.prob = c(0.5, 0.5), path.from = c(0, 0),
-    de.prob = 0.3, de.facLoc = 1, path.nonlinearProb = 0,
-    path.sigmaFac = 0,
-    path.nSteps = c(1500, 1500),
-    dropout.mid = 0,
-    dropout.shape = 0.03
-  )
+    mean.rate = paramEstimates@mean.rate,
+    mean.shape = paramEstimates@mean.shape,
+    lib.scale = paramEstimates@lib.scale,
+    lib.loc = paramEstimates@lib.loc,
+    bcv.common = paramEstimates@bcv.common,
+    bcv.df = paramEstimates@bcv.df,
+    dropout.type = "experiment",
+    group.prob = c(0.5, 0.5),
+    path.from = c(0, 0),
+    de.prob = 0.3,
+    de.facLoc = 1,
+    out.facLoc = paramEstimates@out.facLoc,
+    dropout.mid = paramEstimates@dropout.mid,
+    out.facScale = paramEstimates@out.facScale,
+    out.prob = paramEstimates@out.prob,
+    dropout.shape = -0.5, # 60 % #
+    path.nSteps = c(1500, 1500)
+)
 
-  # Simulate Object
-  sim.sce <- splatSimulate(params.groups,
-    method = "paths",
-    verbose = F,
-    path.skew = c(skew[i], skew[i])
-  )
+# Generate Datasets
+parameter.list <- mclapply(names(skew), function(path_skew, params_groups = params.groups,
+                                               sce.path = sce_path) {
+    
+    # Get Variables
+    total_sparsity <- str_remove(pattern = "Skewness_", path_skew)
+    path_skew_value <- skew[[path_skew]]
+    
+    # Simulate Object
+    sim.sce <- splatSimulate(
+        params = params_groups,
+        method = "paths",
+        verbose = F,
+        path.skew = c(path_skew_value, path_skew_value)
+    )
+    
+    # Sparsity values
+    trueSparsity <- round(sparsity(as.matrix(sim.sce@assays@data@listData$TrueCounts)) * 100)
+    simulatedSparsity <- round(sparsity(as.matrix(sim.sce@assays@data@listData$counts)) * 100) - trueSparsity
+    totSparsity <- round(sparsity(as.matrix(sim.sce@assays@data@listData$counts)) * 100)
+    
+    # Add gene Info
+    gene.info <- add_gene_anno(sim.sce = sim.sce)
+    gene.info <- gene.info[mixedsort(gene.info$gene_short_name), ]
+    
+    # Update the SCE Simulated Object
+    rowData(sim.sce) <- DataFrame(gene.info)
+    
+    # SaveRDS
+    obj.path <- paste0(sce.path, paste0("skew_", path_skew_value, ".RData"))
+    save(sim.sce, file = obj.path)
+    
+    # Names
+    label_vector <- c(
+        "Total_Sparsity" = totSparsity,
+        "True_Sparsity" = trueSparsity,
+        "Simulated_Sparsity" = simulatedSparsity,
+        "Filename" = paste0("skew_", path_skew_value, ".RData")
+    )
+    
+    # Compute PHATE Dimensions
+    phateIn <- t(as.matrix(sim.sce@assays@data@listData$counts))
+    keep_cols <- colSums(phateIn > 0) > 10
+    phateIn <- phateIn[, keep_cols]
+    phate_dim <- phate(phateIn,
+                       ndim = 2, verbose = F,
+                       knn = 100,
+                       decay = 100,
+                       t = 50
+    )
+    
+    # Create Plotting frame for PHATE
+    plt.data <- data.frame(
+        PHATE_1 = phate_dim$embedding[, 1],
+        PHATE_2 = phate_dim$embedding[, 2],
+        Simulated_Steps = sim.sce@colData$Step,
+        Path = sim.sce@colData$Group
+    )
+    
+    # Plot PHATE dimensions
+    plt <- ggplot(plt.data) +
+        geom_point(
+            aes(
+                x = PHATE_1,
+                y = PHATE_2,
+                color = Simulated_Steps,
+                shape = Path
+            ),
+            size = 1.5
+        ) +
+        theme_minimal(base_size = 12) +
+        scale_color_viridis(option = "C") +
+        ggtitle(
+            paste("Skew:", path_skew_value)
+        )
+    
+    # Return
+    return(list(
+        parameters = label_vector,
+        plots = plt
+    ))
+}, mc.cores = 1)
+# Set names
+names(parameter.list) <- names(skew)
 
-  # Proportion of true Sparsity
-  trueSparsity <- round(sparsity(as.matrix(sim.sce@assays@data@listData$TrueCounts)) * 100)
-  simulatedSparsity <- round(sparsity(as.matrix(sim.sce@assays@data@listData$counts)) * 100) - trueSparsity
-  totSparsity <- round(sparsity(as.matrix(sim.sce@assays@data@listData$counts)) * 100)
-  
-  cat(paste("\nTotal:",totSparsity))
-  cat(paste("\nsimulatedSparsity:", simulatedSparsity))
-  cat(paste("\ntrueSparsity:", trueSparsity))
-  
-  # Add gene Info
-  gene.info <- add_gene_anno(sim.sce = sim.sce)
-  gene.info <- gene.info[mixedsort(gene.info$gene_short_name), ]
+# Extract Parameters
+parameters <- lapply(parameter.list, function(i) {
+    return(i[["parameters"]])
+})
 
-  # Update the SCE Simulated Object
-  rowData(sim.sce) <- DataFrame(gene.info)
+# Convert to dataframe
+parameter.frame <- do.call("rbind", parameters)
 
-  # Plot Base Gene Mean Histogram
-  histImgName <- paste0(imgPath, "base_expression_gene_hist/", "skew_", SkewValue, ".png")
+# Save in text files
+write.table(parameter.frame,
+            file = "Tables/01_skew_Parameter.Table.tsv",
+            sep = "\t", quote = F, row.names = F
+)
 
-  # Create Histogram
-  base.exp.hist <- ggplot(gene.info, aes(x = BaseGeneMean)) +
-    geom_histogram(fill = "blue", color = "black", alpha = 0.6) +
-    labs(
-      title = paste0("Path Length: ", SkewValue),
-      subtitle = paste("Total Sparsity of Dataset:", totSparsity, "Paths: Equal"),
-      x = "Base Gene Mean",
-      y = "Count"
-    ) +
-    theme_minimal()
+# Extract Plots
+plots <- lapply(parameter.list, function(i) {
+    return(i[["plots"]])
+})
 
-  ggsave(filename = histImgName, plot = base.exp.hist, dpi = 600)
-
-  # Plotting True Trajectory Topology
-  truTopImgName <- paste0(imgPath, "true_topology_pca_step/", "skew_", SkewValue, ".png")
-  truTopImg.plot <- plot_simulations(sim.sce,
-    assay_type = "TrueCounts",
-    plot3d = F, plot2d = T, frame = 2,
-    title.2d = paste("SkewValue:", SkewValue,totSparsity, "Simulated:", simulatedSparsity)
-  )
-  ggsave(filename = truTopImgName, plot = truTopImg.plot, dpi = 600)
-  
-  img.list[[SkewValue]] <- truTopImg.plot
-
-  # Plot Simulated Topology
-  simTopImgName <- paste0(imgPath, "sim_topology_pca_step/", "skew_", SkewValue, ".png")
-  simTopImg.plot <- plot_simulations(sim.sce,
-    assay_type = "counts",
-    plot3d = F, plot2d = T, frame = 2,
-    title.2d = paste("SkewValue:", totSparsity, "Simulated:", simulatedSparsity)
-  )
-  ggsave(filename = simTopImgName, plot = simTopImg.plot, dpi = 600)
-  
-  # Plotting True Trajectory Topology Group
-  truTopImgNameGroup <- paste0(imgPath, "true_topology_pca_group/", "skew_", SkewValue, ".png")
-  truTopImgGroup.plot <- plot_simulations(sim.sce,
-    assay_type = "TrueCounts",
-    plot3d = F, plot2d = T, frame = 1,
-    title.2d = paste("SkewValue:", totSparsity, "Simulated:", simulatedSparsity)
-  )
-  ggsave(filename = truTopImgNameGroup, plot = truTopImgGroup.plot, dpi = 600)
-
-  # Plot Simulated Topology
-  simTopImgNameGroup <- paste0(imgPath, "sim_topology_pca_group/", "skew_", SkewValue, ".png")
-  simTopImgGroup.plot <- plot_simulations(sim.sce,
-    assay_type = "counts",
-    plot3d = F, plot2d = T, frame = 1,
-    title.2d = paste("SkewValue:", totSparsity, "Simulated:", simulatedSparsity)
-  )
-  ggsave(filename = simTopImgNameGroup, plot = simTopImgGroup.plot, dpi = 600)
-
-  # Extract Cell Metadata Information
-  cell.meta <- as.data.frame(colData(sim.sce))
-
-  # Select Columns
-  plt.table <- cell.meta[, c("Cell", "Step", "Group")]
-
-  # Group by
-  plt.table <- plt.table %>%
-    group_by(Step, Group) %>%
-    summarise(cluster.members = paste0(Cell, collapse = "|"))
-  plt.table$Num <- apply(plt.table, 1, calc_bin_size)
-
-  # Select Columns
-  plt.table <- plt.table[, !(colnames(plt.table) %in% "cluster.members")]
-
-  # Plot Cell Association
-  cellAssociation <- paste0(imgPath, "cellAssociation/", "skew_", SkewValue, ".png")
-  p <- ggplot(plt.table, aes(x = Num)) +
-    geom_histogram(
-      binwidth = 0.5,
-      color = "#f68a53", fill = "#f68a53", alpha = 0.5
-    ) +
-    geom_vline(aes(xintercept = mean(Num)), linetype = "dashed", color = "#139289") +
-    theme_classic() +
-    theme(
-      legend.position = "none", strip.text = element_text(size = rel(2)),
-      axis.text = element_text(size = rel(1)),
-      panel.grid.major = element_line(linewidth = 0.7, linetype = "dotted"),
-      panel.grid.minor = element_line(linewidth = 0.2)
-    ) +
-    ggtitle("Distribution of cells per Time-point",
-      subtitle = paste("SkewValue:", totSparsity, "Simulated:", simulatedSparsity)
-    ) +
-    facet_wrap(~Group) +
-    scale_x_continuous(breaks = seq(0, 30, by = 2)) +
-    ylab("Number of cells") +
-    xlab("Number of cells associations")
-
-  ggsave(filename = cellAssociation, plot = p, dpi = 600, height = 5, width = 6)
-
-  # SaveRDS
-  obj.path <- paste0(sce_path, paste0("SkewValue_", SkewValue, ".RData"))
-  save(sim.sce, file = obj.path)
-}
-
-combined_pplot <- ggarrange(img.list[["0.1"]],
-                            img.list[["0.2"]],
-                            img.list[["0.3"]],
-                            img.list[["0.4"]],
-                            img.list[["0.5"]],
-                            img.list[["0.6"]],
-                            img.list[["0.7"]],
-                            img.list[["0.8"]],
-                            img.list[["0.9"]],
-                            ncol = 3, nrow = 3,
-                            labels = c("A.","B.","C.","D.","E.","F.","G.", "H.", "I."))
-
-ggsave(filename = "Figures/SuppData/02_Sim_0.1_to_0.9_Skew.png", plot = combined_pplot, dpi = 600, height = 8, width = 14)
+# Save
+saveRDS(plots, paste0(imgPath, "01_skew_0_1.RDS"))
