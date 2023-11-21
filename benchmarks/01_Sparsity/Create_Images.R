@@ -5,7 +5,6 @@
 
 suppressPackageStartupMessages(library(SingleCellExperiment))
 suppressPackageStartupMessages(library(tidyverse))
-suppressPackageStartupMessages(library(scMaSigPro))
 suppressPackageStartupMessages(library(RColorConesa))
 suppressPackageStartupMessages(library(reshape2))
 

@@ -160,6 +160,8 @@ plots <- lapply(parameter.list, function(i){
     return(i[["plots"]])
 })
 
+saveRDS(plots, paste0(imgPath, "01_Zi_60_90.RDS"))
+
 # Plot for supplemnetary Material
 combined_pplot <- ggarrange(plots[[1]],plots[[2]], plots[[3]], plots[[4]],
     ncol = 2, nrow = 2,common.legend = TRUE,legend = "bottom",
