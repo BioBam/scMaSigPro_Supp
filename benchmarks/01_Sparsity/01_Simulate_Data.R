@@ -13,6 +13,13 @@ suppressPackageStartupMessages(library(ggpubr))
 suppressPackageStartupMessages(library(parallel))
 suppressPackageStartupMessages(library(scuttle))
 suppressPackageStartupMessages(library(scater))
+suppressPackageStartupMessages(library(phateR))
+suppressPackageStartupMessages(library(viridis))
+
+# Set path for retivulate
+Sys.setenv(RETICULATE_PYTHON = "/usr/bin/python3")
+suppressPackageStartupMessages(library(reticulate))
+use_python("/usr/bin/python3", required = TRUE)
 
 # Set paths
 paramEstimates <- readRDS("/supp_data/benchmarks/00_Parameter_Estimation/output/setty_et_al_d1_splatEstimates.RDS")
@@ -33,15 +40,15 @@ source(paste0(helpScriptsDir, "calc_bin_size.R"))
 
 #Zero-Inflation
 zi <- list(
-#  "sparsity_50" = -2, # 50 % #
-#  "sparsity_55" = -1, # 55 % #
-  "sparsity_60" = -0.5, # 60 % #
-#  "sparsity_65" = -0.2, # 65 % #
-  "sparsity_70" = 0.02,  # 70 % #
-#  "sparsity_75" = 0.3, # 75 % #
-  "sparsity_80" = 0.7, # 80 %#
-#  "sparsity_85" = 1.2, # 85 % #
-   "sparsity_90" =2.5 # 90 % #
+    #  "sparsity_50" = -2, # 50 % #
+    #  "sparsity_55" = -1, # 55 % #
+    "sparsity_60" = -0.5, # 60 % #
+    #  "sparsity_65" = -0.2, # 65 % #
+    "sparsity_70" = 0.02,  # 70 % #
+    #  "sparsity_75" = 0.3, # 75 % #
+    "sparsity_80" = 0.7, # 80 %#
+    #  "sparsity_85" = 1.2, # 85 % #
+    "sparsity_90" =2.5 # 90 % #
 )
 
 # Create Base parameters/ Same for All groups
@@ -71,18 +78,18 @@ params.groups <- newSplatParams(
 
 # Generate Datasets
 parameter.list <- mclapply(names(zi), function(dropout_shape, params_groups = params.groups,
-                           sce.path = sce_path){
+                                               sce.path = sce_path){
     
     # Get Variables
     total_sparsity <- str_remove(pattern = "sparsity_", dropout_shape)
     dropout_shape_value <- zi[[dropout_shape]]
     
     # Simulate Object
-    sim.sce <- splatSimulate(params.groups,
+    sim.sce <- splatSimulate(params = params_groups,
                              method = "paths",
                              verbose = F,
                              dropout.shape = dropout_shape_value
-                             )
+    )
     
     # Sparsity values
     trueSparsity <- round(sparsity(as.matrix(sim.sce@assays@data@listData$TrueCounts)) * 100)
@@ -107,147 +114,56 @@ parameter.list <- mclapply(names(zi), function(dropout_shape, params_groups = pa
                       "Filename" = paste0("zi_", totSparsity, ".RData")
     )
     
-    # Normalize
-    sim.sce <- logNormCounts(sim.sce, assay.type = "counts") 
+    phateIn <- t(as.matrix(sim.sce@assays@data@listData$counts))
+    keep_cols <- colSums(phateIn > 0) > 10
+    phateIn <- phateIn[,keep_cols]
+    phate_dim <- phate(phateIn, ndim = 2, verbose = F,
+                       knn = 100, 
+                       decay = 100,
+                       t = 50)
+    plt.data <- data.frame(PHATE_1 = phate_dim$embedding[,1],
+                           PHATE_2 = phate_dim$embedding[,2],
+                           Simulated_Steps = sim.sce@colData$Step,
+                           Path = sim.sce@colData$Group)
     
-    # Compute TSNE
-    sim.sce <- runTSNE(sim.sce)
+    plt <- ggplot(plt.data) +
+        geom_point(aes(x = PHATE_1,
+                       y = PHATE_2,
+                       color = Simulated_Steps,
+                       shape = Path),
+                   size = 1.5) + theme_minimal(base_size = 12) +
+        scale_color_viridis(option="C") + ggtitle(
+            paste("Total ZI:", totSparsity)
+        )
     
-    # Plot TSNE
-    plt <- plotTSNE(sim.sce,colour_by = "Step")
-    # plot_simulations(sim.sce,
-    #                         assay_type = "counts",
-    #                         plot3d = F, plot2d = T, frame = 1,
-    #                         title.2d = paste("Simulated Steps", "Total ZI:", totSparsity)
-    #                         )
-    # 
-    # return
+
     return(list(parameters = label_vector,
                 plots = plt))
-}, mc.cores = parallelly::availableCores())
+}, mc.cores = 1)
 names(parameter.list) <- names(zi)
-    
+
+# Extract Parameters
+parameters <- lapply(parameter.list, function(i){
+    return(i[["parameters"]])
+})
+
 # Convert to dataframe
-parameter.frame <- do.call("rbind", parameter.list)
+parameter.frame <- do.call("rbind", parameters)
 
 # Save in text files
 write.table(parameter.frame,
             file = "Tables/01_ZI_Parameter.Table.tsv",
             sep = "\t", quote = F, row.names = F)
 
-#   # Plot Base Gene Mean Histogram
-#   histImgName <- paste0(imgPath, "base_expression_gene_hist/", "zi_", sparsityLevel, ".png")
-# 
-#   # Create Histogram
-#   base.exp.hist <- ggplot(gene.info, aes(x = BaseGeneMean)) +
-#     geom_histogram(fill = "blue", color = "black", alpha = 0.6) +
-#     labs(
-#       title = paste0("Sparsity: ", sparsityLevel),
-#       subtitle = paste("Sparsity:", totSparsity, "Simulated:", simulatedSparsity),
-#       x = "Base Gene Mean",
-#       y = "Count"
-#     ) +
-#     theme_minimal()
-# 
-#   ggsave(filename = histImgName, plot = base.exp.hist, dpi = 600)
-# 
-#   # Plotting True Trajectory Topology
-#   truTopImgName <- paste0(imgPath, "true_topology_pca_step/", "zi_", sparsityLevel, ".png")
-#   truTopImg.plot <- plot_simulations(sim.sce,
-#     assay_type = "TrueCounts",
-#     plot3d = F, plot2d = T, frame = 2,
-#     title.2d = paste("Sparsity:", totSparsity, "Simulated:", simulatedSparsity)
-#   )
-#   ggsave(filename = truTopImgName, plot = truTopImg.plot, dpi = 600)
-# 
-#   # Plot Simulated Topology
-#   simTopImgName <- paste0(imgPath, "sim_topology_pca_step/", "zi_", sparsityLevel, ".png")
-#   simTopImg.plot <- plot_simulations(sim.sce,
-#     assay_type = "counts",
-#     plot3d = F, plot2d = T, frame = 2,
-#     title.2d = paste("Sparsity:", totSparsity, "Simulated:", simulatedSparsity)
-#   )
-#   ggsave(filename = simTopImgName, plot = simTopImg.plot, dpi = 600)
-#   
-#   img.list[[sparsityLevel]] <- simTopImg.plot
-# 
-#   # Plotting True Trajectory Topology Group
-#   truTopImgNameGroup <- paste0(imgPath, "true_topology_pca_group/", "zi_", sparsityLevel, ".png")
-#   truTopImgGroup.plot <- plot_simulations(sim.sce,
-#     assay_type = "TrueCounts",
-#     plot3d = F, plot2d = T, frame = 1,
-#     title.2d = paste("Sparsity:", totSparsity, "Simulated:", simulatedSparsity)
-#   )
-#   ggsave(filename = truTopImgNameGroup, plot = truTopImgGroup.plot, dpi = 600)
-# 
-#   # Plot Simulated Topology
-#   simTopImgNameGroup <- paste0(imgPath, "sim_topology_pca_group/", "zi_", sparsityLevel, ".png")
-#   simTopImgGroup.plot <- plot_simulations(sim.sce,
-#     assay_type = "counts",
-#     plot3d = F, plot2d = T, frame = 1,
-#     title.2d = paste("Sparsity:", totSparsity, "Simulated:", simulatedSparsity)
-#   )
-#   ggsave(filename = simTopImgNameGroup, plot = simTopImgGroup.plot, dpi = 600)
-# 
-#   # Extract Cell Metadata Information
-#   cell.meta <- as.data.frame(colData(sim.sce))
-# 
-#   # Select Columns
-#   plt.table <- cell.meta[, c("Cell", "Step", "Group")]
-# 
-#   # Group by
-#   plt.table <- plt.table %>%
-#     group_by(Step, Group) %>%
-#     summarise(cluster.members = paste0(Cell, collapse = "|"))
-#   plt.table$Num <- apply(plt.table, 1, calc_bin_size)
-# 
-#   # Select Columns
-#   plt.table <- plt.table[, !(colnames(plt.table) %in% "cluster.members")]
-# 
-#   # Plot Cell Association
-# 
-#   cellAssociation <- paste0(imgPath, "cellAssociation/", "zi_", sparsityLevel, ".png")
-#   p <- ggplot(plt.table, aes(x = Num)) +
-#     geom_histogram(
-#       binwidth = 0.5,
-#       color = "#f68a53", fill = "#f68a53", alpha = 0.5
-#     ) +
-#     geom_vline(aes(xintercept = mean(Num)), linetype = "dashed", color = "#139289") +
-#     theme_classic() +
-#     theme(
-#       legend.position = "none", strip.text = element_text(size = rel(2)),
-#       axis.text = element_text(size = rel(1)),
-#       panel.grid.major = element_line(linewidth = 0.7, linetype = "dotted"),
-#       panel.grid.minor = element_line(linewidth = 0.2)
-#     ) +
-#     ggtitle("Distribution of cells per Time-point",
-#       subtitle = paste("Sparsity:", totSparsity, "Simulated:", simulatedSparsity)
-#     ) +
-#     facet_wrap(~Group) +
-#     scale_x_continuous(breaks = seq(0, 30, by = 2)) +
-#     ylab("Number of cells") +
-#     xlab("Number of cells associations")
-# 
-#   ggsave(filename = cellAssociation, plot = p, dpi = 600, height = 5, width = 6)
-# 
-#   # SaveRDS
-#   obj.path <- paste0(sce_path, paste0("sparsity_", sparsityLevel, ".RData"))
-#   save(sim.sce, file = obj.path)
+# Extract Plots
+plots <- lapply(parameter.list, function(i){
+    return(i[["plots"]])
+})
 
-# 
-# # Plot for supplemnetary Material
-# combined_pplot <- ggarrange(
-#     img.list[["10"]],
-#     img.list[["20"]],
-#     img.list[["30"]],
-#     img.list[["40"]],
-#     img.list[["50"]],
-#     img.list[["60"]],
-#     img.list[["70"]],
-#     img.list[["80"]],
-#     img.list[["90"]],
-#     ncol = 3, nrow = 3,
-#     labels = c("A.","B.","C.","D.","E.","F.","G.", "H.", "I."))
-# 
-# ggsave(filename = "Figures/SuppData/01_Sim_10_to_90_ZI.png",
-#        plot = combined_pplot, dpi = 600, height = 8, width = 14)
+# Plot for supplemnetary Material
+combined_pplot <- ggarrange(plots[[1]],plots[[2]], plots[[3]], plots[[4]],
+    ncol = 2, nrow = 2,common.legend = TRUE,legend = "bottom",
+    labels = c("A.","B.","C.","D."))
+
+ggsave(filename = "Figures/SuppData/01_Sim_10_to_90_ZI.png",
+       plot = combined_pplot, dpi = 600, height = 8, width = 14)
