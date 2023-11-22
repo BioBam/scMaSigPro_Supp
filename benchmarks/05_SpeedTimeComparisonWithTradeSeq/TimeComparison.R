@@ -13,18 +13,18 @@ suppressPackageStartupMessages(library(viridis))
 suppressPackageStartupMessages(library(pryr))
 
 # Set paths
-dirPath <- "/supp_data/benchmarks/04_ComparisonWithTradeSeq/simulated/sce/"
-resPath <- "/supp_data/benchmarks/05_SpeedTimeComparisonWithTradeSeq/output/"
+dirPath <- "../scMaSigPro_supp_data/benchmarks/04_ComparisonWithTradeSeq/simulated/sce/"
+resPath <- "../scMaSigPro_supp_data/benchmarks/05_SpeedTimeComparisonWithTradeSeq/output/"
 helpScriptsDir <- "R_Scripts/helper_function/"
 
 # Load custom function
 source(paste0(helpScriptsDir, "FQnorm.R"))
 
 # ReadData
-load(paste0(dirPath, "Test_TradeSeq.RData"))
+load(paste0(dirPath, "testTradeSeq.RData"))
 
 # Readuce Dataset
-keepGenes <- sample(rownames(rowData(sim.sce)), size = 2500, replace = F)
+keepGenes <- sample(rownames(rowData(sim.sce)), size = 1000, replace = F)
 keepCells <- sample(rownames(colData(sim.sce)), size = 1500, replace = F)
 
 # Extract raw counts
@@ -79,7 +79,7 @@ scmp.obj <- as_scmp(sim.sce, from = "sce",
 scmp.obj <- squeeze(
     scmpObject = scmp.obj,
     bin_method = "Sturges",
-    drop.fac = 0.5,
+    drop_fac = 0.5,
     verbose = F,
     cluster_count_by = "sum",
     split_bins = F,
@@ -141,7 +141,7 @@ mbm <- microbenchmark(
 
     # Run-Step-2
     scmp.obj <- sc.T.fit(
-        scmpObj = scmp.obj, verbose = T,
+        scmpObj = scmp.obj, verbose = F,
         step.method = "backward",parallel = F,
         offset = T
     )
@@ -150,7 +150,7 @@ mbm <- microbenchmark(
   "ScMaSigPro_8_CPU" = {
       # Run p-vector
       scmp.obj <- sc.p.vector(
-          scmpObj = scmp.obj, verbose = T, min.obs = 1,
+          scmpObj = scmp.obj, verbose = F, min.obs = 1,
           parallel = T,
           MT.adjust = "fdr",
           offset = T, useWeights = T,
@@ -163,7 +163,7 @@ mbm <- microbenchmark(
       
       # Run-Step-2
       scmp.obj <- sc.T.fit(
-          scmpObj = scmp.obj, verbose = T,
+          scmpObj = scmp.obj, verbose = F,
           step.method = "backward",parallel = T,
           offset = T
       )
@@ -179,7 +179,7 @@ compareBar_Time <- ggplot(data, aes(x = expr, y = mean, fill = expr)) +
     geom_bar(stat = "identity") +
     labs(
         title = "Execution Times for a bifurcating trajectory",
-        subtitle = "Number of Cells: 1500; Number of Genes: 2500",
+        subtitle = "Number of Cells: 1500; Number of Genes: 1000",
         x = "Method",
         y = "Time (seconds)"
     ) + 
