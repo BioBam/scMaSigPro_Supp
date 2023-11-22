@@ -112,7 +112,7 @@ parameter.list <- mclapply(names(skew), function(path_skew, params_groups = para
     )
     
     # Compute PHATE Dimensions
-    phateIn <- t(as.matrix(sim.sce@assays@data@listData$counts))
+    phateIn <- t(as.matrix(sim.sce@assays@data@listData$TrueCounts))
     keep_cols <- colSums(phateIn > 0) > 10
     phateIn <- phateIn[, keep_cols]
     phate_dim <- phate(phateIn,
