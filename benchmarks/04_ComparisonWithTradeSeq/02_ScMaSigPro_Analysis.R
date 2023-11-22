@@ -14,11 +14,11 @@ resPath <- "/supp_data/benchmarks/04_ComparisonWithTradeSeq/output/"
 helpScriptsDir <- "R_Scripts/helper_function/"
 
 # Load result of 60% inflation
-load(paste0(dirPath, "Test_TradeSeq.RData"))
+load(paste0(dirPath, "testTradeSeq.RData"))
 
 # Convert
 scmp.obj <- as_scmp(sim.sce, from = "sce",
-                    align_pseudotime = T,
+                    align_pseudotime = F,
                     additional_params = list(
                         labels_exist = TRUE,
                         existing_pseudotime_colname = "Step",
@@ -28,7 +28,7 @@ scmp.obj <- as_scmp(sim.sce, from = "sce",
 scmp.obj <- squeeze(
     scmpObject = scmp.obj,
     bin_method = "Sturges",
-    drop.fac = 0.5,
+    drop_fac = 0.6,
     verbose = F,
     cluster_count_by = "sum",
     split_bins = F,
@@ -40,18 +40,18 @@ sc.plot.bins.tile(scmp.obj)
 
 # Make Design
 scmp.obj <- sc.make.design.matrix(scmp.obj,
-  poly_degree = 2
+  poly_degree = 1
 )
 
 # Run p-vector
 scmp.obj <- sc.p.vector(
-  scmpObj = scmp.obj, verbose = T, min.obs = 1,
+  scmpObj = scmp.obj, verbose = F, min.obs = 1,
   parallel = T,
-  MT.adjust = "fdr",
+  #MT.adjust = "fdr",
   offset = T, useWeights = T,
-  useInverseWeights = F,
+  useInverseWeights = T,
   logOffset = T,
-  globalTheta = T,
+  logWeights = F,
   max_it = 1000
 )
 
@@ -59,7 +59,7 @@ scmp.obj <- sc.p.vector(
 scmp.obj <- sc.T.fit(
 scmpObj = scmp.obj, verbose = T,
   step.method = "backward",parallel = T,
-  offset = T
+nvar.correction = F
 )
 
 # Get sol
@@ -73,6 +73,9 @@ colnames(sol) <- c("p_value", "rsq")
 
 # Set NA p-value to 1
 sol$p_value[is.na(sol$p_value)] <- 1
+
+# Select by pvalue
+sol <- sol[sol$p_value <= 0.05, ]
 
 # Get genes with r2 > 0.6
 sol.sel <- sol[sol$rsq >= 0.6, c(1, 2), drop = F]
@@ -106,3 +109,4 @@ cobra.dataset <- cbind(TradeSeq_Clean, sol[, 1, drop = F])
 save(cobra.dataset,
   file = paste0(resPath, "CobraInputObject.RData")
 )
+

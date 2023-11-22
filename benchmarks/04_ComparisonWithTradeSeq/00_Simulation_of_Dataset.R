@@ -1,4 +1,4 @@
-# Title: Simulate Datasets with different levels of sparsity
+# Title: Simulate dataset to test with tradeSeq
 # Author: Priyansh Srivastava
 # Email: spriyansh29@gmail.com
 # Year: 2023
@@ -9,8 +9,20 @@ suppressPackageStartupMessages(library(SingleCellExperiment))
 suppressPackageStartupMessages(library(coop))
 suppressPackageStartupMessages(library(gtools))
 suppressPackageStartupMessages(library(tidyverse))
+suppressPackageStartupMessages(library(ggpubr))
+suppressPackageStartupMessages(library(parallel))
+suppressPackageStartupMessages(library(scuttle))
+suppressPackageStartupMessages(library(scater))
+suppressPackageStartupMessages(library(phateR))
+suppressPackageStartupMessages(library(viridis))
 
-# Set Paths relative to project
+# Set path for retivulate
+Sys.setenv(RETICULATE_PYTHON = "/usr/bin/python3")
+suppressPackageStartupMessages(library(reticulate))
+use_python("/usr/bin/python3", required = TRUE)
+
+# Set paths
+paramEstimates <- readRDS("/supp_data/benchmarks/00_Parameter_Estimation/output/setty_et_al_d1_splatEstimates.RDS")
 outDir <- "/supp_data/benchmarks/04_ComparisonWithTradeSeq/simulated/"
 helpScriptsDir <- "R_Scripts/helper_function/"
 imgPath <- paste0(outDir, "png/")
@@ -30,25 +42,37 @@ source(paste0(helpScriptsDir, "calc_bin_size.R"))
 params.groups <- newSplatParams(
     batch.rmEffect = TRUE, # No Batch affect
     batchCells = 3000, # Number of Cells
-    nGenes = 5000, # Number of Genes
+    nGenes = 2000, # Number of Genes
     seed = 2022, # Set seed
-    mean.rate = 1, mean.shape = 1, lib.scale = 0.2,
-    lib.loc = 11, dropout.type = "experiment",
-    group.prob = c(0.4, 0.6), path.from = c(0, 0),
-    de.prob = 0.3, de.facLoc = 1, path.nonlinearProb = 0.2,
-    path.sigmaFac = 0,
-    path.skew = c(0.4, 0.5),
-    path.nSteps = c(1500, 1400),
-    dropout.mid = 0,
-    dropout.shape = -1
+    mean.rate = paramEstimates@mean.rate,
+    mean.shape = paramEstimates@mean.shape,
+    lib.scale = paramEstimates@lib.scale,
+    lib.loc = paramEstimates@lib.loc,
+    bcv.common = paramEstimates@bcv.common,
+    bcv.df = paramEstimates@bcv.df,
+    dropout.type = "experiment",
+    group.prob = c(0.6, 0.4),
+    path.from = c(0, 0),
+    de.prob = 0.3,
+    de.facLoc = 1,
+    path.nonlinearProb = 0.3,
+    path.sigmaFac = 0.5,
+    out.facLoc = paramEstimates@out.facLoc,
+    dropout.mid = paramEstimates@dropout.mid,
+    out.facScale = paramEstimates@out.facScale,
+    out.prob = paramEstimates@out.prob,
+    path.skew = c(0.4,0.6),
+    dropout.shape= -0.5,
+    path.nSteps = c(1700, 1300)
 )
 
 # Simulate Object
-sim.sce <- splatSimulate(params.groups,
-  method = "paths",
-  verbose = F
-)
-
+sim.sce <- splatSimulate(
+        params = params.groups,
+        method = "paths",
+        verbose = F
+        )
+    
 # Proportion of true Sparsity
 trueSparsity <- round(sparsity(as.matrix(sim.sce@assays@data@listData$TrueCounts)) * 100)
 simulatedSparsity <- round(sparsity(as.matrix(sim.sce@assays@data@listData$counts)) * 100) - trueSparsity
@@ -65,98 +89,43 @@ gene.info <- gene.info[mixedsort(gene.info$gene_short_name), ]
 # Update the SCE Simulated Object
 rowData(sim.sce) <- DataFrame(gene.info)
 
-# Plot Base Gene Mean Histogram
-histImgName <- paste0(imgPath, "base_expression_gene_hist/", "Test_TradeSeq.png")
-
-# Create Histogram
-base.exp.hist <- ggplot(gene.info, aes(x = BaseGeneMean)) +
-  geom_histogram(fill = "blue", color = "black", alpha = 0.6) +
-  labs(
-    title = paste("Sparsity:", totSparsity, "Simulated:", simulatedSparsity),
-    x = "Base Gene Mean",
-    y = "Count"
-  ) +
-  theme_minimal()
-
-ggsave(filename = histImgName, plot = base.exp.hist, dpi = 600)
-
-# Plotting True Trajectory Topology
-truTopImgName <- paste0(imgPath, "true_topology_pca_step/", "Test_TradeSeq.png")
-truTopImg.plot <- plot_simulations(sim.sce,
-  assay_type = "TrueCounts",
-  plot3d = F, plot2d = T, frame = 2,
-  title.2d = paste("Sparsity:", totSparsity, "Simulated:", simulatedSparsity)
-)
-ggsave(filename = truTopImgName, plot = truTopImg.plot, dpi = 600)
-
-# Plot Simulated Topology
-simTopImgName <- paste0(imgPath, "sim_topology_pca_step/", "Test_TradeSeq.png")
-simTopImg.plot <- plot_simulations(sim.sce,
-  assay_type = "counts",
-  plot3d = F, plot2d = T, frame = 2,
-  title.2d = paste("Sparsity:", totSparsity, "Simulated:", simulatedSparsity)
-)
-ggsave(filename = simTopImgName, plot = simTopImg.plot, dpi = 600)
-
-# Plotting True Trajectory Topology Group
-truTopImgNameGroup <- paste0(imgPath, "true_topology_pca_group/", "Test_TradeSeq.png")
-truTopImgGroup.plot <- plot_simulations(sim.sce,
-  assay_type = "TrueCounts",
-  plot3d = F, plot2d = T, frame = 1,
-  title.2d = paste("Sparsity:", totSparsity, "Simulated:", simulatedSparsity)
-)
-ggsave(filename = truTopImgNameGroup, plot = truTopImgGroup.plot, dpi = 600)
-
-# Plot Simulated Topology
-simTopImgNameGroup <- paste0(imgPath, "sim_topology_pca_group/", "Test_TradeSeq.png")
-simTopImgGroup.plot <- plot_simulations(sim.sce,
-  assay_type = "counts",
-  plot3d = F, plot2d = T, frame = 1,
-  title.2d = paste("Sparsity:", totSparsity, "Simulated:", simulatedSparsity)
-)
-ggsave(filename = simTopImgNameGroup, plot = simTopImgGroup.plot, dpi = 600)
-
-# Extract Cell Metadata Information
-cell.meta <- as.data.frame(colData(sim.sce))
-
-# Select Columns
-plt.table <- cell.meta[, c("Cell", "Step", "Group")]
-
-# Group by
-plt.table <- plt.table %>%
-  group_by(Step, Group) %>%
-  summarise(cluster.members = paste0(Cell, collapse = "|"))
-plt.table$Num <- apply(plt.table, 1, calc_bin_size)
-
-# Select Columns
-plt.table <- plt.table[, !(colnames(plt.table) %in% "cluster.members")]
-
-# Plot Cell Association
-
-cellAssociation <- paste0(imgPath, "cellAssociation/", "TradeSeq_test.png")
-p <- ggplot(plt.table, aes(x = Num)) +
-  geom_histogram(
-    binwidth = 0.5, 
-    color = "#f68a53", fill = "#f68a53", alpha = 0.5
-  ) +
-  geom_vline(aes(xintercept = mean(Num)), linetype = "dashed", color = "#139289") +
-  theme_classic() +
-  theme(
-    legend.position = "none", strip.text = element_text(size = rel(2)),
-    axis.text = element_text(size = rel(1)),
-    panel.grid.major = element_line(linewidth = 0.7, linetype = "dotted"),
-    panel.grid.minor = element_line(linewidth = 0.2)
-  ) +
-  ggtitle("Distribution of cells per Time-point",
-    subtitle = paste("Sparsity:", totSparsity, "Simulated:", simulatedSparsity)
-  ) +
-  facet_wrap(~Group) +
-  scale_x_continuous(breaks = seq(0, 30, by = 2)) +
-  ylab("Number of cells") +
-  xlab("Number of cells associations")
-
-ggsave(filename = cellAssociation, plot = p, dpi = 600, height = 5, width = 6)
-
 # SaveRDS
-obj.path <- paste0(sce_path, paste0("Test_TradeSeq.RData"))
+obj.path <- paste0(sce_path, paste0("testTradeSeq.RData"))
 save(sim.sce, file = obj.path)
+
+# Plot
+# Compute PHATE Dimensions
+phateIn <- t(as.matrix(sim.sce@assays@data@listData$counts))
+keep_cols <- colSums(phateIn > 0) > 10
+phateIn <- phateIn[, keep_cols]
+phate_dim <- phate(phateIn,
+                   ndim = 2, verbose = F,
+                   knn = 100,
+                   decay = 100,
+                   t = 15
+)
+
+# Create Plotting frame for PHATE
+plt.data <- data.frame(
+    PHATE_1 = phate_dim$embedding[, 1],
+    PHATE_2 = phate_dim$embedding[, 2],
+    Simulated_Steps = sim.sce@colData$Step,
+    Path = sim.sce@colData$Group
+)
+
+# Plot PHATE dimensions
+ggplot(plt.data) +
+    geom_point(
+        aes(
+            x = PHATE_1,
+            y = PHATE_2,
+            color = Simulated_Steps,
+            shape = Path
+        ),
+        size = 1.5
+    ) +
+    theme_minimal(base_size = 12) +
+    scale_color_viridis(option = "C") +
+    ggtitle(
+        paste("Total Sparsity:", totSparsity)
+    )
