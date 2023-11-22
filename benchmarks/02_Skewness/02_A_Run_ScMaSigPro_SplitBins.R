@@ -63,7 +63,7 @@ for (i in names(dataSets)) {
             scmp.obj <- squeeze(
                 scmpObject = scmp.obj,
                 bin_method = "Sturges",
-                drop_fac = 0.5,
+                drop_fac = 0.3,
                 verbose = F,
                 cluster_count_by = "sum",
                 split_bins = T,
