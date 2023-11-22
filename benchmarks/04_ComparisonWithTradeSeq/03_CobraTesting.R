@@ -98,11 +98,11 @@ scale_x_continuous(breaks = unique(c(c(0.05, 0.01), seq(0.1, 1, 0.1))))
 
 print(ROC)
 
-# ggsave(plot = ROC,
-#        path = "Figures/MainArticle",
-#        dpi = 1000,  filename = "Figure1_B.png",
-#        width = 6, height = 5)
-# saveRDS(ROC, file = "Figures/MainArticle/Figure1_B.RDS")
+ggsave(plot = ROC,
+       path = "Figures/MainArticle",
+       dpi = 1000,  filename = "Figure1_B.png",
+       width = 6, height = 5)
+saveRDS(ROC, file = "Figures/MainArticle/Figure1_B.RDS")
 
 # TPRvsFDR <- plot_fdrtprcurve(cobraplot, title = "TPR vs FDR")
 # TPR <- plot_tpr(cobraplot, title = "TPR")
