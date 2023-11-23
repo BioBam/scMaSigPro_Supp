@@ -27,25 +27,25 @@ source(paste0(helpScriptsDir, "calc_bin_size.R"))
 
 # Create Base parameters/ Same for All groups
 params.groups <- newSplatParams(
-    batch.rmEffect = TRUE, # No Batch affect
-    batchCells = 3000, # Number of Cells
-    nGenes = 5000, # Number of Genes
-    seed = 2022, # Set seed
-    mean.rate = 1, mean.shape = 1, lib.scale = 0.2,
-    lib.loc = 11, dropout.type = "experiment",
-    group.prob = c(0.4, 0.6), path.from = c(0, 0),
-    de.prob = 0.3, de.facLoc = 1, path.nonlinearProb = 0,
-    path.sigmaFac = 0,
-    path.skew = c(0.4, 0.5),
-    path.nSteps = c(1500, 1400),
-    dropout.mid = 0,
-    dropout.shape = -1
+  batch.rmEffect = TRUE, # No Batch affect
+  batchCells = 3000, # Number of Cells
+  nGenes = 5000, # Number of Genes
+  seed = 2022, # Set seed
+  mean.rate = 1, mean.shape = 1, lib.scale = 0.2,
+  lib.loc = 11, dropout.type = "experiment",
+  group.prob = c(0.4, 0.6), path.from = c(0, 0),
+  de.prob = 0.3, de.facLoc = 1, path.nonlinearProb = 0,
+  path.sigmaFac = 0,
+  path.skew = c(0.4, 0.5),
+  path.nSteps = c(1500, 1400),
+  dropout.mid = 0,
+  dropout.shape = -1
 )
 
 # Simulate Object
 sim.sce <- splatSimulate(params.groups,
-                         method = "paths",
-                         verbose = F
+  method = "paths",
+  verbose = F
 )
 
 # Proportion of true Sparsity
@@ -68,49 +68,49 @@ histImgName <- paste0(imgPath, "base_expression_gene_hist/", "Test_TradeSeq.png"
 
 # Create Histogram
 base.exp.hist <- ggplot(gene.info, aes(x = BaseGeneMean)) +
-    geom_histogram(fill = "blue", color = "black", alpha = 0.6) +
-    labs(
-        title = paste("Sparsity:", totSparsity, "Simulated:", simulatedSparsity),
-        x = "Base Gene Mean",
-        y = "Count"
-    ) +
-    theme_minimal()
+  geom_histogram(fill = "blue", color = "black", alpha = 0.6) +
+  labs(
+    title = paste("Sparsity:", totSparsity, "Simulated:", simulatedSparsity),
+    x = "Base Gene Mean",
+    y = "Count"
+  ) +
+  theme_minimal()
 
 ggsave(filename = histImgName, plot = base.exp.hist, dpi = 600)
 
 # Plotting True Trajectory Topology
 truTopImgName <- paste0(imgPath, "true_topology_pca_step/", "Test_TradeSeq.png")
 truTopImg.plot <- plot_simulations(sim.sce,
-                                   assay_type = "TrueCounts",
-                                   plot3d = F, plot2d = T, frame = 2,
-                                   title.2d = paste("Sparsity:", totSparsity, "Simulated:", simulatedSparsity)
+  assay_type = "TrueCounts",
+  plot3d = F, plot2d = T, frame = 2,
+  title.2d = paste("Sparsity:", totSparsity, "Simulated:", simulatedSparsity)
 )
 ggsave(filename = truTopImgName, plot = truTopImg.plot, dpi = 600)
 
 # Plot Simulated Topology
 simTopImgName <- paste0(imgPath, "sim_topology_pca_step/", "Test_TradeSeq.png")
 simTopImg.plot <- plot_simulations(sim.sce,
-                                   assay_type = "counts",
-                                   plot3d = F, plot2d = T, frame = 2,
-                                   title.2d = paste("Sparsity:", totSparsity, "Simulated:", simulatedSparsity)
+  assay_type = "counts",
+  plot3d = F, plot2d = T, frame = 2,
+  title.2d = paste("Sparsity:", totSparsity, "Simulated:", simulatedSparsity)
 )
 ggsave(filename = simTopImgName, plot = simTopImg.plot, dpi = 600)
 
 # Plotting True Trajectory Topology Group
 truTopImgNameGroup <- paste0(imgPath, "true_topology_pca_group/", "Test_TradeSeq.png")
 truTopImgGroup.plot <- plot_simulations(sim.sce,
-                                        assay_type = "TrueCounts",
-                                        plot3d = F, plot2d = T, frame = 1,
-                                        title.2d = paste("Sparsity:", totSparsity, "Simulated:", simulatedSparsity)
+  assay_type = "TrueCounts",
+  plot3d = F, plot2d = T, frame = 1,
+  title.2d = paste("Sparsity:", totSparsity, "Simulated:", simulatedSparsity)
 )
 ggsave(filename = truTopImgNameGroup, plot = truTopImgGroup.plot, dpi = 600)
 
 # Plot Simulated Topology
 simTopImgNameGroup <- paste0(imgPath, "sim_topology_pca_group/", "Test_TradeSeq.png")
 simTopImgGroup.plot <- plot_simulations(sim.sce,
-                                        assay_type = "counts",
-                                        plot3d = F, plot2d = T, frame = 1,
-                                        title.2d = paste("Sparsity:", totSparsity, "Simulated:", simulatedSparsity)
+  assay_type = "counts",
+  plot3d = F, plot2d = T, frame = 1,
+  title.2d = paste("Sparsity:", totSparsity, "Simulated:", simulatedSparsity)
 )
 ggsave(filename = simTopImgNameGroup, plot = simTopImgGroup.plot, dpi = 600)
 
@@ -122,8 +122,8 @@ plt.table <- cell.meta[, c("Cell", "Step", "Group")]
 
 # Group by
 plt.table <- plt.table %>%
-    group_by(Step, Group) %>%
-    summarise(cluster.members = paste0(Cell, collapse = "|"))
+  group_by(Step, Group) %>%
+  summarise(cluster.members = paste0(Cell, collapse = "|"))
 plt.table$Num <- apply(plt.table, 1, calc_bin_size)
 
 # Select Columns
@@ -133,25 +133,25 @@ plt.table <- plt.table[, !(colnames(plt.table) %in% "cluster.members")]
 
 cellAssociation <- paste0(imgPath, "cellAssociation/", "TradeSeq_test.png")
 p <- ggplot(plt.table, aes(x = Num)) +
-    geom_histogram(
-        binwidth = 0.5,
-        color = "#f68a53", fill = "#f68a53", alpha = 0.5
-    ) +
-    geom_vline(aes(xintercept = mean(Num)), linetype = "dashed", color = "#139289") +
-    theme_classic() +
-    theme(
-        legend.position = "none", strip.text = element_text(size = rel(2)),
-        axis.text = element_text(size = rel(1)),
-        panel.grid.major = element_line(linewidth = 0.7, linetype = "dotted"),
-        panel.grid.minor = element_line(linewidth = 0.2)
-    ) +
-    ggtitle("Distribution of cells per Time-point",
-            subtitle = paste("Sparsity:", totSparsity, "Simulated:", simulatedSparsity)
-    ) +
-    facet_wrap(~Group) +
-    scale_x_continuous(breaks = seq(0, 30, by = 2)) +
-    ylab("Number of cells") +
-    xlab("Number of cells associations")
+  geom_histogram(
+    binwidth = 0.5,
+    color = "#f68a53", fill = "#f68a53", alpha = 0.5
+  ) +
+  geom_vline(aes(xintercept = mean(Num)), linetype = "dashed", color = "#139289") +
+  theme_classic() +
+  theme(
+    legend.position = "none", strip.text = element_text(size = rel(2)),
+    axis.text = element_text(size = rel(1)),
+    panel.grid.major = element_line(linewidth = 0.7, linetype = "dotted"),
+    panel.grid.minor = element_line(linewidth = 0.2)
+  ) +
+  ggtitle("Distribution of cells per Time-point",
+    subtitle = paste("Sparsity:", totSparsity, "Simulated:", simulatedSparsity)
+  ) +
+  facet_wrap(~Group) +
+  scale_x_continuous(breaks = seq(0, 30, by = 2)) +
+  ylab("Number of cells") +
+  xlab("Number of cells associations")
 
 ggsave(filename = cellAssociation, plot = p, dpi = 600, height = 5, width = 6)
 

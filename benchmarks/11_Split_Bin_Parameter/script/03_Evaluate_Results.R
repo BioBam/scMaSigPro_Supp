@@ -18,9 +18,13 @@ source(paste0(helpScriptsDir, "get_performance.R"))
 dataSets <- list.files(paste0(dirPath))
 dataSets <- dataSets[!(dataSets %in% c("Accuracy.png", "ROC.png", "Performance.Table.tsv"))]
 names(dataSets) <- str_remove(paste(
-    paste(str_split_i(dataSets, pattern = "\\.", i = 5),
-          str_split_i(dataSets, pattern = "\\.", i = 6), sep = "."),
-    str_split_i(dataSets, pattern = "\\.", i = 4), sep = "_"), pattern = ".RData")
+  paste(str_split_i(dataSets, pattern = "\\.", i = 5),
+    str_split_i(dataSets, pattern = "\\.", i = 6),
+    sep = "."
+  ),
+  str_split_i(dataSets, pattern = "\\.", i = 4),
+  sep = "_"
+), pattern = ".RData")
 
 # Skewness Evaluation
 eval.list <- list()
@@ -29,13 +33,13 @@ eval.list <- list()
 for (i in names(dataSets)) {
   # Validation
   cat(paste("\nRunning for skew:", i))
-    
+
   # Load
   loadedName <- load(file = paste0(dirPath, dataSets[i]))
-  if(loadedName[1] == "scmp.obj.split.bin.false"){
-      scmp.obj <- scmp.obj.split.bin.false
-  }else{
-      scmp.obj <- scmp.obj.split.bin.true
+  if (loadedName[1] == "scmp.obj.split.bin.false") {
+    scmp.obj <- scmp.obj.split.bin.false
+  } else {
+    scmp.obj <- scmp.obj.split.bin.true
   }
 
   # Extract the Row Data

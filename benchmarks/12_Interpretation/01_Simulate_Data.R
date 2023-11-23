@@ -29,43 +29,43 @@ source(paste0(helpScriptsDir, "calc_bin_size.R"))
 
 # Create Base parameters/ Same for All groups
 params.groups <- newSplatParams(
-    batch.rmEffect = TRUE, # No Batch affect
-    batchCells = 3000, # Number of Cells
-        nGenes = 5000, # Number of Genes
-        seed = 2022, # Set seed
-        mean.rate = 0.3, mean.shape = 5, lib.scale = 0.2,
-        lib.loc = 12, dropout.type = "experiment",
-        group.prob = c(0.5, 0.5), path.from = c(0, 0),
-        de.prob = 0.3, de.facLoc = 1, path.nonlinearProb = 0,
-        path.sigmaFac = 0,
-        path.nSteps = c(1500, 1500),
-        dropout.mid = 0,
-        dropout.shape = 0.03
-    )
-    
-    # Simulate Object
-    sim.sce <- splatSimulate(params.groups,
-                             method = "paths",
-                             verbose = F,
-                             path.skew = c(0.5, 0.5)
-    )
-    
-    # Proportion of true Sparsity
-    trueSparsity <- round(sparsity(as.matrix(sim.sce@assays@data@listData$TrueCounts)) * 100)
-    simulatedSparsity <- round(sparsity(as.matrix(sim.sce@assays@data@listData$counts)) * 100) - trueSparsity
-    totSparsity <- round(sparsity(as.matrix(sim.sce@assays@data@listData$counts)) * 100)
-    
-    cat(paste("\nTotal:",totSparsity))
-    cat(paste("\nsimulatedSparsity:", simulatedSparsity))
-    cat(paste("\ntrueSparsity:", trueSparsity))
-    
-    # Add gene Info
-    gene.info <- add_gene_anno(sim.sce = sim.sce)
-    gene.info <- gene.info[mixedsort(gene.info$gene_short_name), ]
-    
-    # Update the SCE Simulated Object
-    rowData(sim.sce) <- DataFrame(gene.info)
+  batch.rmEffect = TRUE, # No Batch affect
+  batchCells = 3000, # Number of Cells
+  nGenes = 5000, # Number of Genes
+  seed = 2022, # Set seed
+  mean.rate = 0.3, mean.shape = 5, lib.scale = 0.2,
+  lib.loc = 12, dropout.type = "experiment",
+  group.prob = c(0.5, 0.5), path.from = c(0, 0),
+  de.prob = 0.3, de.facLoc = 1, path.nonlinearProb = 0,
+  path.sigmaFac = 0,
+  path.nSteps = c(1500, 1500),
+  dropout.mid = 0,
+  dropout.shape = 0.03
+)
 
-    # SaveRDS
-    obj.path <- paste0(sce_path, paste0("Sparsity.50.RData"))
-    save(sim.sce, file = obj.path)
+# Simulate Object
+sim.sce <- splatSimulate(params.groups,
+  method = "paths",
+  verbose = F,
+  path.skew = c(0.5, 0.5)
+)
+
+# Proportion of true Sparsity
+trueSparsity <- round(sparsity(as.matrix(sim.sce@assays@data@listData$TrueCounts)) * 100)
+simulatedSparsity <- round(sparsity(as.matrix(sim.sce@assays@data@listData$counts)) * 100) - trueSparsity
+totSparsity <- round(sparsity(as.matrix(sim.sce@assays@data@listData$counts)) * 100)
+
+cat(paste("\nTotal:", totSparsity))
+cat(paste("\nsimulatedSparsity:", simulatedSparsity))
+cat(paste("\ntrueSparsity:", trueSparsity))
+
+# Add gene Info
+gene.info <- add_gene_anno(sim.sce = sim.sce)
+gene.info <- gene.info[mixedsort(gene.info$gene_short_name), ]
+
+# Update the SCE Simulated Object
+rowData(sim.sce) <- DataFrame(gene.info)
+
+# SaveRDS
+obj.path <- paste0(sce_path, paste0("Sparsity.50.RData"))
+save(sim.sce, file = obj.path)

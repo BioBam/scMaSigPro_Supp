@@ -14,17 +14,19 @@ get_performance <- function(r2_sequence, gene_no_change,
   for (j in r2_sequence) {
     # Get Sig genes
     capture.output(
-        scmp_obj <- scMaSigPro::sc.get.siggenes(
+      scmp_obj <- scMaSigPro::sc.get.siggenes(
         scmpObj = scmp_obj,
         rsq = j,
         vars = "groups"
       )
     )
-      
-      sigs <- list(sig.genes = scmp_obj@sig.genes@sig.genes,
-                   summary = scmp_obj@sig.genes@summary)
-     
-      
+
+    sigs <- list(
+      sig.genes = scmp_obj@sig.genes@sig.genes,
+      summary = scmp_obj@sig.genes@summary
+    )
+
+
     if (is.null(sigs$sig.genes)) {
       classifications <- list(
         detected.genes = "No Significant Genes found",
@@ -85,7 +87,7 @@ get_performance <- function(r2_sequence, gene_no_change,
 
     # Accuracy
     accuracy <- (length(tp) + length(tn)) / (length(tp) + length(tn) + length(fp) + length(fn))
-    
+
     # Calculate Precison
     precision <- length(tp) / (length(tp) + length(fp))
 

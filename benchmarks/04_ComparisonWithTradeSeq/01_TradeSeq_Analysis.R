@@ -46,7 +46,7 @@ lineage_table$Lineage2 <- ifelse(lineage_table$Group == "Path2", 1, 0)
 lineage_table <- lineage_table[, c("Lineage1", "Lineage2")]
 
 # Evaluate K
-#Choosing lowest AIC i.e. 5
+# Choosing lowest AIC i.e. 5
 # icMat <- evaluateK(counts = normCounts,
 #                    pseudotime = pseudotime_table,
 #                    cellWeights = lineage_table,
@@ -68,13 +68,13 @@ save(sce.tradeseq, file = paste0(resPath, "fitGam_TS_Results.RData"))
 
 # Run Different Test
 patternRes <- patternTest(sce.tradeseq)
-#earlyRes <- earlyDETest(sce.tradeseq)
+# earlyRes <- earlyDETest(sce.tradeseq)
 diffEndRes <- diffEndTest(sce.tradeseq)
 
 # Save All Objects as list
 additionalTest <- list(
   patternRes = patternRes,
-  #earlyRes = earlyRes,
+  # earlyRes = earlyRes,
   diffEndRes = diffEndRes
 )
 save(additionalTest,
@@ -83,26 +83,28 @@ save(additionalTest,
 
 # Extract Data
 patternResCobra <- patternRes[, "pvalue", drop = F]
-#earlyResCobra <- earlyRes[, "pvalue", drop = F]
+# earlyResCobra <- earlyRes[, "pvalue", drop = F]
 diffEndResCobra <- diffEndRes[, "pvalue", drop = F]
 patternResCobra$pvalue <- as.numeric(patternResCobra$pvalue)
-#earlyResCobra$pvalue <- as.numeric(earlyResCobra$pvalue)
+# earlyResCobra$pvalue <- as.numeric(earlyResCobra$pvalue)
 diffEndResCobra$pvalue <- as.numeric(diffEndResCobra$pvalue)
 
 # Set Column Names
 colnames(patternResCobra) <- c("TS_pattern")
-#colnames(earlyResCobra) <- c("TS_early")
+# colnames(earlyResCobra) <- c("TS_early")
 colnames(diffEndResCobra) <- c("TS_diffEnd")
 
 # Order Data
 patternResCobra <- patternResCobra[mixedorder(rownames(patternResCobra)), , drop = F]
-#earlyResCobra <- earlyResCobra[mixedorder(rownames(earlyResCobra)), , drop = F]
+# earlyResCobra <- earlyResCobra[mixedorder(rownames(earlyResCobra)), , drop = F]
 diffEndResCobra <- diffEndResCobra[mixedorder(rownames(diffEndResCobra)), , drop = F]
 
 # Create DF
-TradeSeq_Clean <- cbind(patternResCobra,
-                        #earlyResCobra, 
-                        diffEndResCobra)
+TradeSeq_Clean <- cbind(
+  patternResCobra,
+  # earlyResCobra,
+  diffEndResCobra
+)
 
 # Save Dataframe
 save(TradeSeq_Clean,

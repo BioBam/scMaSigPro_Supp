@@ -17,24 +17,27 @@ helpScriptsDir <- "R_Scripts/helper_function/"
 load(paste0(dirPath, "testTradeSeq.RData"))
 
 # Convert
-scmp.obj <- as_scmp(sim.sce, from = "sce",
-                    align_pseudotime = F,
-                    additional_params = list(
-                        labels_exist = TRUE,
-                        existing_pseudotime_colname = "Step",
-                        existing_path_colname = "Group"), verbose = F)
+scmp.obj <- as_scmp(sim.sce,
+  from = "sce",
+  align_pseudotime = F,
+  additional_params = list(
+    labels_exist = TRUE,
+    existing_pseudotime_colname = "Step",
+    existing_path_colname = "Group"
+  ), verbose = F
+)
 
 # Compress
 scmp.obj <- squeeze(
-    scmpObject = scmp.obj,
-    bin_method = "Sturges",
-    drop_fac = 0.6,
-    verbose = F,
-    cluster_count_by = "sum",
-    split_bins = F,
-    prune_bins = F,
-    drop_trails = F,
-    fill_gaps = F
+  scmpObject = scmp.obj,
+  bin_method = "Sturges",
+  drop_fac = 0.6,
+  verbose = F,
+  cluster_count_by = "sum",
+  split_bins = F,
+  prune_bins = F,
+  drop_trails = F,
+  fill_gaps = F
 )
 sc.plot.bins.tile(scmp.obj)
 
@@ -47,7 +50,7 @@ scmp.obj <- sc.make.design.matrix(scmp.obj,
 scmp.obj <- sc.p.vector(
   scmpObj = scmp.obj, verbose = F, min.obs = 1,
   parallel = T,
-  #MT.adjust = "fdr",
+  # MT.adjust = "fdr",
   offset = T, useWeights = T,
   useInverseWeights = T,
   logOffset = T,
@@ -57,9 +60,9 @@ scmp.obj <- sc.p.vector(
 
 # Run-Step-2
 scmp.obj <- sc.T.fit(
-scmpObj = scmp.obj, verbose = T,
-  step.method = "backward",parallel = T,
-nvar.correction = F
+  scmpObj = scmp.obj, verbose = T,
+  step.method = "backward", parallel = T,
+  nvar.correction = F
 )
 
 # Get sol
@@ -109,4 +112,3 @@ cobra.dataset <- cbind(TradeSeq_Clean, sol[, 1, drop = F])
 save(cobra.dataset,
   file = paste0(resPath, "CobraInputObject.RData")
 )
-

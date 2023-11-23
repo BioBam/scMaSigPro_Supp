@@ -130,7 +130,7 @@ time_points <- length(time_series)
 # Number of Bins "Sturges Method"
 estBins <- log2(time_points) + 1
 
-# Multiply by drop.factor 
+# Multiply by drop.factor
 estBins <- round(estBins * 0.7) # drop.fac
 
 # Print the number of bins

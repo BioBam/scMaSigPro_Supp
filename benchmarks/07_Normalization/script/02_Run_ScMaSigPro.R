@@ -28,65 +28,69 @@ for (i in names(dataSets)) {
 
   cat(paste("\nRunning for Type:", i))
 
-  #stop("Expected Stop")
+  # stop("Expected Stop")
 
   # Load Data
   load(file = paste0(dirPath, dataSets[i]))
 
   tryCatch(
     expr = {
-        # Convert
-        scmp.obj <- as_scmp(sce.obj, from = "sce",
-                            additional_params = list(
-                                labels_exist = TRUE,
-                                existing_pseudotime_colname = "Step",
-                                existing_path_colname = "Group"), verbose = F)
+      # Convert
+      scmp.obj <- as_scmp(sce.obj,
+        from = "sce",
+        additional_params = list(
+          labels_exist = TRUE,
+          existing_pseudotime_colname = "Step",
+          existing_path_colname = "Group"
+        ), verbose = F
+      )
 
-        # Compress
-        scmp.obj <- squeeze(
-            scmpObject = scmp.obj,
-            bin_method = "Sturges",
-            drop.fac = 0.7,
-            verbose = F,
-            cluster_count_by = "sum",
-            split_bins = F,
-            prune_bins = F,
-            drop_trails = F,
-            fill_gaps = F
-        )
+      # Compress
+      scmp.obj <- squeeze(
+        scmpObject = scmp.obj,
+        bin_method = "Sturges",
+        drop.fac = 0.7,
+        verbose = F,
+        cluster_count_by = "sum",
+        split_bins = F,
+        prune_bins = F,
+        drop_trails = F,
+        fill_gaps = F
+      )
 
-        # Make Design
-        scmp.obj <- sc.make.design.matrix(scmp.obj,
-                                          poly_degree = poly.degree)
+      # Make Design
+      scmp.obj <- sc.make.design.matrix(scmp.obj,
+        poly_degree = poly.degree
+      )
 
       if (i != "offset") {
-          # Run p-vector
-          scmp.obj <- sc.p.vector(
-              scmpObj = scmp.obj, verbose = F, min.obs = 1,
-              offset = F, parallel = T
-          )
-          
-          # Run-Step-2
-          scmp.obj <- sc.T.fit(
-              parallel = T,
-              scmpObj = scmp.obj, verbose = F,
-              step.method = "backward",
-              offset = F
-          )
-      } else if (i == "offset") {
         # Run p-vector
-          scmp.obj <- sc.p.vector(
-              scmpObj = scmp.obj, verbose = F, min.obs = 1,
-              offset = T, parallel = T
-          )
+        scmp.obj <- sc.p.vector(
+          scmpObj = scmp.obj, verbose = F, min.obs = 1,
+          offset = F, parallel = T
+        )
 
         # Run-Step-2
-          scmp.obj <- sc.T.fit(
-              parallel = T,
-              scmpObj = scmp.obj, verbose = F,
-              step.method = "backward",
-              offset = T
-          )
+        scmp.obj <- sc.T.fit(
+          parallel = T,
+          scmpObj = scmp.obj, verbose = F,
+          step.method = "backward",
+          offset = F
+        )
+      } else if (i == "offset") {
+        # Run p-vector
+        scmp.obj <- sc.p.vector(
+          scmpObj = scmp.obj, verbose = F, min.obs = 1,
+          offset = T, parallel = T
+        )
+
+        # Run-Step-2
+        scmp.obj <- sc.T.fit(
+          parallel = T,
+          scmpObj = scmp.obj, verbose = F,
+          step.method = "backward",
+          offset = T
+        )
       }
 
       # Save Object

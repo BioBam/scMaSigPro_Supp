@@ -115,16 +115,20 @@ parameter.list <- mclapply(names(zi), function(dropout_shape, params_groups = pa
     "Simulated_Sparsity" = simulatedSparsity,
     "Filename" = paste0("zi_", totSparsity, ".RData")
   )
-  
+
   # Compute UMAP Dimensions
   sob <- CreateSeuratObject(
-      counts = sim.sce@assays@data@listData$counts,
-      meta.data = as.data.frame(sim.sce@colData)
+    counts = sim.sce@assays@data@listData$counts,
+    meta.data = as.data.frame(sim.sce@colData)
   )
-  sob <- NormalizeData(sob, normalization.method = "LogNormalize", 
-                       scale.factor = 10000, verbose = F)
-  sob <- FindVariableFeatures(sob, selection.method = "vst", nfeatures = 2000,
-                              verbose = F)
+  sob <- NormalizeData(sob,
+    normalization.method = "LogNormalize",
+    scale.factor = 10000, verbose = F
+  )
+  sob <- FindVariableFeatures(sob,
+    selection.method = "vst", nfeatures = 2000,
+    verbose = F
+  )
   sob <- ScaleData(sob, verbose = F)
   sob <- RunPCA(sob, features = VariableFeatures(object = sob), verbose = F)
   sob <- RunUMAP(sob, dims = 1:10, verbose = F)
@@ -137,15 +141,15 @@ parameter.list <- mclapply(names(zi), function(dropout_shape, params_groups = pa
   #   decay = 100,
   #   t = 50
   # )
-  
+
   # Create Plotting frame for PHATE
   plt.data <- data.frame(
-      UMAP_1 = sob@reductions[["umap"]]@cell.embeddings[, 1],
-      UMAP_2 = sob@reductions[["umap"]]@cell.embeddings[, 2],
-      Simulated_Steps = sim.sce@colData$Step,
-      Path = sim.sce@colData$Group
+    UMAP_1 = sob@reductions[["umap"]]@cell.embeddings[, 1],
+    UMAP_2 = sob@reductions[["umap"]]@cell.embeddings[, 2],
+    Simulated_Steps = sim.sce@colData$Step,
+    Path = sim.sce@colData$Group
   )
-  
+
   # Create Plotting frame for PHATE
   # plt.data <- data.frame(
   #   PHATE_1 = phate_dim$embedding[, 1],
@@ -153,7 +157,7 @@ parameter.list <- mclapply(names(zi), function(dropout_shape, params_groups = pa
   #   Simulated_Steps = sim.sce@colData$Step,
   #   Path = sim.sce@colData$Group
   # )
-  # 
+  #
   # Plot PHATE dimensions
   plt <- ggplot(plt.data) +
     geom_point(

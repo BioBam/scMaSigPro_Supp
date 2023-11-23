@@ -96,10 +96,10 @@ for (i in names(skew)) {
   truTopImg.plot <- plot_simulations(sim.sce,
     assay_type = "TrueCounts",
     plot3d = F, plot2d = T, frame = 2,
-    title.2d = paste("SkewValue:", SkewValue,totSparsity, "Simulated:", simulatedSparsity)
+    title.2d = paste("SkewValue:", SkewValue, totSparsity, "Simulated:", simulatedSparsity)
   )
   ggsave(filename = truTopImgName, plot = truTopImg.plot, dpi = 600)
-  
+
   img.list[[SkewValue]] <- truTopImg.plot
 
   # Plot Simulated Topology
@@ -110,7 +110,7 @@ for (i in names(skew)) {
     title.2d = paste("SkewValue:", totSparsity, "Simulated:", simulatedSparsity)
   )
   ggsave(filename = simTopImgName, plot = simTopImg.plot, dpi = 600)
-  
+
   # Plotting True Trajectory Topology Group
   truTopImgNameGroup <- paste0(imgPath, "true_topology_pca_group/", "skew_", SkewValue, ".png")
   truTopImgGroup.plot <- plot_simulations(sim.sce,
@@ -177,10 +177,11 @@ for (i in names(skew)) {
 
 
 combined_pplot <- ggarrange(img.list[["0"]],
-                            img.list[["0.1"]],
-                            img.list[["0.9"]],
-                            img.list[["1"]],
-                            ncol = 2, nrow = 2,
-                            labels = c("A.","B.","C.","D."))
+  img.list[["0.1"]],
+  img.list[["0.9"]],
+  img.list[["1"]],
+  ncol = 2, nrow = 2,
+  labels = c("A.", "B.", "C.", "D.")
+)
 
 ggsave(filename = "Images/Supp_Fig_3.A_Vary_Capture_Bias_Extreme.png", plot = combined_pplot, dpi = 600, height = 8, width = 14)

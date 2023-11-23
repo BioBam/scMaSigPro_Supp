@@ -62,23 +62,23 @@ for (i in names(dataSets)) {
 
 # Combine
 evaluation.frame <- do.call(rbind, eval.list)
-rownames(evaluation.frame) <-NULL
-evaluation.frame <- evaluation.frame[,c("INFLU","INFLU_FP", "Family", "INFLU_FN", "TP")]
-evaluation.frame <- evaluation.frame[!duplicated(evaluation.frame),]
+rownames(evaluation.frame) <- NULL
+evaluation.frame <- evaluation.frame[, c("INFLU", "INFLU_FP", "Family", "INFLU_FN", "TP")]
+evaluation.frame <- evaluation.frame[!duplicated(evaluation.frame), ]
 write.table(evaluation.frame, paste0(dirPath, "Performance.Table.tsv"),
   sep = "\t",
   row.names = F, quote = F
 )
 
 
-ggplot(evaluation.frame, aes(x = Family, y = log(INFLU+1), fill = "INFLU")) +
-    geom_bar(aes(y = log1p(INFLU), fill = "INFLU"), stat = "identity") +
-    geom_bar(aes(y = log1p(TP), fill = "TP"), stat = "identity") +
-    geom_bar(aes(y = log1p(INFLU_FN), fill = "INFLU_FN"), stat = "identity") +
-    geom_bar(aes(y = log1p(INFLU_FP), fill = "INFLU_FP"), stat = "identity") +
-    ylab("Value (log)") +
-    xlab("Family") +
-    ggtitle("Comparison of log-transformed INFLU, INFLU_FN and INFLU_FP by Family")
+ggplot(evaluation.frame, aes(x = Family, y = log(INFLU + 1), fill = "INFLU")) +
+  geom_bar(aes(y = log1p(INFLU), fill = "INFLU"), stat = "identity") +
+  geom_bar(aes(y = log1p(TP), fill = "TP"), stat = "identity") +
+  geom_bar(aes(y = log1p(INFLU_FN), fill = "INFLU_FN"), stat = "identity") +
+  geom_bar(aes(y = log1p(INFLU_FP), fill = "INFLU_FP"), stat = "identity") +
+  ylab("Value (log)") +
+  xlab("Family") +
+  ggtitle("Comparison of log-transformed INFLU, INFLU_FN and INFLU_FP by Family")
 
 
 ggsave(acc,

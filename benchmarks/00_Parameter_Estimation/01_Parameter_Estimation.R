@@ -19,9 +19,11 @@ source(paste0(helpScriptsDir, "plot_simulations().R"))
 cr_counts <- Read10X_h5(paste0(inPath, "filtered_feature_bc_matrix.h5"))
 
 # Create SeuratObject
-sob <- CreateSeuratObject(counts = cr_counts,
-                          project = "setty_et_all_don1",
-                          min.cells = 2000, min.features = 2500)
+sob <- CreateSeuratObject(
+  counts = cr_counts,
+  project = "setty_et_all_don1",
+  min.cells = 2000, min.features = 2500
+)
 # Basic QC
 sob[["percent.mt"]] <- PercentageFeatureSet(sob, pattern = "^MT-")
 sob <- subset(sob, subset = nFeature_RNA > 200 & nFeature_RNA < 3000 & percent.mt < 5)

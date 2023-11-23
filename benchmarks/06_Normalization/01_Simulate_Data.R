@@ -57,12 +57,12 @@ gene.info <- gene.info[mixedsort(gene.info$gene_short_name), ]
 
 # Norm Method
 norm_methods <- c(
-  "true", 
-  "raw", 
-  "offset", 
-  "cpm", 
+  "true",
+  "raw",
+  "offset",
+  "cpm",
   "clr",
-  "logN", 
+  "logN",
   "rc",
   "fquant",
   "sct"
@@ -72,9 +72,8 @@ img.list <- list()
 
 # Run
 for (i in names(norm_methods)) {
-    
   cat(paste("\nRunning for:", i))
-    
+
   tryCatch(
     expr = {
       if (i == "true") {
@@ -83,7 +82,6 @@ for (i in names(norm_methods)) {
         sce.obj@colData <- sim.sce@colData
         pca <- plotPCA(sce.obj, colour_by = "Step") + ggtitle(paste("Transformation on count", i))
         img.list[[i]] <- pca
-        
       } else if (i == "raw") {
         sce.obj <- SingleCellExperiment(list(counts = sim.sce@assays@data@listData$counts))
         sce.obj <- runPCA(sce.obj, exprs_values = "counts")
@@ -186,20 +184,23 @@ for (i in names(norm_methods)) {
   )
 }
 
-# 
+#
 # # Plot for supplemnetary Material
 combined_pplot <- ggarrange(
-    img.list[["true"]],
-    img.list[["raw"]],
-    img.list[["offset"]],
-    img.list[["cpm"]],
-    img.list[["clr"]],
-    img.list[["logN"]],
-    img.list[["rc"]],
-    img.list[["fquant"]],
-    img.list[["sct"]],
-    ncol = 3, nrow = 3,
-    labels = c("A.","B.","C.","D.","E.","F.","G.", "H.", "I."))
-# 
-ggsave(filename = "Figures/SuppData/06_Sim_Norm.png",
-       plot = combined_pplot, dpi = 600, height = 8, width = 14)
+  img.list[["true"]],
+  img.list[["raw"]],
+  img.list[["offset"]],
+  img.list[["cpm"]],
+  img.list[["clr"]],
+  img.list[["logN"]],
+  img.list[["rc"]],
+  img.list[["fquant"]],
+  img.list[["sct"]],
+  ncol = 3, nrow = 3,
+  labels = c("A.", "B.", "C.", "D.", "E.", "F.", "G.", "H.", "I.")
+)
+#
+ggsave(
+  filename = "Figures/SuppData/06_Sim_Norm.png",
+  plot = combined_pplot, dpi = 600, height = 8, width = 14
+)
