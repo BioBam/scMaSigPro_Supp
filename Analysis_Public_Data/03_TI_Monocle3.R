@@ -53,9 +53,10 @@ umaps.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPat
 
   # Compute clusters and use single partition
   cds <- cluster_cells(cds, resolution = 0.5)
-  sing.partition <- rep(1, length(cds@clusters$UMAP$partitions))
-  names(sing.partition) <- names(cds@clusters$UMAP$partitions)
-  cds@clusters$UMAP$partitions <- as.factor(sing.partition)
+  
+  # sing.partition <- rep(1, length(cds@clusters$UMAP$partitions))
+  # names(sing.partition) <- names(cds@clusters$UMAP$partitions)
+  # cds@clusters$UMAP$partitions <- as.factor(sing.partition)
 
   # Learn graph
   cds <- learn_graph(cds)
@@ -96,4 +97,8 @@ top <- ggarrange(umaps.list$rep1$cell_type,
                     labels = c("A.", "B.", "C."),nrow = 1,
                     common.legend = T, legend = "bottom")
 
-ggarrange(top, bottom, nrow = 2)
+combined_plot <- ggarrange(top, bottom, nrow = 2)
+ggsave(combined_plot,
+       filename = paste0("Figures/SuppData/01_Real_Data.png"),
+       dpi = 600, height = 8, width = 16
+)

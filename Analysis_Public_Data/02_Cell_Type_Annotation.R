@@ -61,15 +61,16 @@ umaps.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPat
   # Keep the annotation with with Cd34+ cells
   sob <- subset(sob, fine_labels %in% c(
     "Common myeloid progenitors", 
-    "Early B cells",
+    #"Early B cells",
     "Erythroid_CD34+ CD71+ GlyA-",
     "Hematopoietic stem cells_CD133+ CD34dim",
     "Hematopoietic stem cells_CD38- CD34+",
     "Megakaryocyte/erythroid progenitors",
-    #"Megakaryocytes", "Monocytes",
-    "Myeloid Dendritic Cells",
+    #"Megakaryocytes", 
+    "Monocytes",
+    "Myeloid Dendritic Cells"#,
     #"Plasmacytoid Dendritic Cells",
-    "Pro B cells"
+    #"Pro B cells"
   ))
 
   # Keep cells with high scores
