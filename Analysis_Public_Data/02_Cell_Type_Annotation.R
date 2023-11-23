@@ -60,25 +60,26 @@ umaps.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPat
 
   # Keep the annotation with with Cd34+ cells
   sob <- subset(sob, fine_labels %in% c(
-    "Common myeloid progenitors", "Early B cells",
+    "Common myeloid progenitors", 
+    "Early B cells",
     "Erythroid_CD34+ CD71+ GlyA-",
     "Hematopoietic stem cells_CD133+ CD34dim",
     "Hematopoietic stem cells_CD38- CD34+",
     "Megakaryocyte/erythroid progenitors",
     #"Megakaryocytes", "Monocytes",
-    "Myeloid Dendritic Cells"
+    "Myeloid Dendritic Cells",
     #"Plasmacytoid Dendritic Cells",
-    #"Pro B cells "
+    "Pro B cells"
   ))
 
   # Keep cells with high scores
-  sob <- subset(sob, fine_label_scores >= -0.05)
+  #sob <- subset(sob, fine_label_scores >= -0.05)
 
   # Downstream processibg
   sob <- RunPCA(sob, features = VariableFeatures(object = sob), verbose = F)
-  sob <- FindNeighbors(sob, dims = 1:50, verbose = F)
+  sob <- FindNeighbors(sob, dims = 1:10, verbose = F)
   sob <- FindClusters(sob, resolution = 1, verbose = F)
-  sob <- RunUMAP(sob, dims = 1:50, verbose = F)
+  sob <- RunUMAP(sob, dims = 1:10, verbose = F)
 
   # Save
   file_name <- paste(outPath, rep_i, paste(rep_i, "anno.RDS", sep = "_"), sep = "/")

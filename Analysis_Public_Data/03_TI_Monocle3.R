@@ -66,7 +66,7 @@ umaps.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPat
     root_pr_nodes = find_root_pp(cds,
       cell = "Hematopoietic stem cells_CD133+ CD34dim",
       cell_col = "cell_type"
-    )
+    )[1]
   )
   
   # Save
@@ -76,10 +76,24 @@ umaps.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPat
 
   # Plot
   pseudotime <- plot_cells(cds, color_cells_by = "pseudotime", cell_size = 1.5)+
-      theme(legend.position = "bottom") + ggtitle(paste(rep_i), "Inferred Pseudotime")
-  cell_type <- plot_cells(cds, color_cells_by = "fine_labels", cell_size = 1.5)+
-      theme(legend.position = "bottom") + ggtitle(paste(rep_i), "Annotated Cell types")
+      theme(legend.position = "bottom") + ggtitle(paste(rep_i))
+  cell_type <- plot_cells(cds, color_cells_by = "fine_labels", cell_size = 1.5,
+                          label_cell_groups = F)+
+      theme(legend.position = "bottom") + ggtitle(paste(rep_i))
 
-  plt <- ggarrange(cell_type, pseudotime, labels = c("A.", "B."))
-  return(plt)
+  return(list(pseudotime = pseudotime,
+              cell_type = cell_type))
 })
+
+bottom <- ggarrange(umaps.list$rep1$pseudotime,
+          umaps.list$rep2$pseudotime,
+          umaps.list$rep3$pseudotime,
+          labels = c("D.", "E.", "F."),nrow = 1,
+          common.legend = F, legend = "bottom")
+top <- ggarrange(umaps.list$rep1$cell_type,
+                    umaps.list$rep2$cell_type,
+                    umaps.list$rep3$cell_type,
+                    labels = c("A.", "B.", "C."),nrow = 1,
+                    common.legend = T, legend = "bottom")
+
+ggarrange(top, bottom, nrow = 2)
