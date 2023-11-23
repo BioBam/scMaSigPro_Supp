@@ -21,10 +21,10 @@ names(drop.fac.list) <- seq(0.3, 1, 0.1)
 
 # Set-up a for loop
 for (i in names(drop.fac.list)) {
-    poly.degree <- 2
+  poly.degree <- 2
   min.gene <- 6
   ep <- 0.00001
-  
+
   cat(paste("\nRunning for Compression :", i))
 
   tryCatch(

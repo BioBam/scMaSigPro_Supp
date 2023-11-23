@@ -24,37 +24,37 @@ eval.list <- list()
 
 # Set-up a for loop
 for (i in names(dataSets)) {
-    # Validation
-    cat(paste("\nRunning for skew:", i))
-    
-    # Load
-    loadedName <- load(file = paste0(dirPath, dataSets[i]))
+  # Validation
+  cat(paste("\nRunning for skew:", i))
 
-    # Extract the Row Data
-    row_data <- as.data.frame(
-        rowData(scmp.obj@sce)
-    )[, c("gene_short_name", "status")]
-    
-    # Get the gene-info
-    gene.change <- rownames(row_data[row_data$status != "No_Change", ])
-    gene.no.change <- rownames(row_data[row_data$status == "No_Change", ])
-    
-    
-    r2_sequence_value <- seq(0.05, 0.95, 0.1)
-    
-    # Get Performance
-    performance.measure <- get_performance(
-        scmp_obj = scmp.obj,
-        gene_change = gene.change,
-        gene_no_change = gene.no.change,
-        r2_sequence = r2_sequence_value
-    )
-    
-    # Add Inflation
-    performance.measure[["Combination"]] <-i
-    
-    # Add to list
-    eval.list[[i]] <- performance.measure
+  # Load
+  loadedName <- load(file = paste0(dirPath, dataSets[i]))
+
+  # Extract the Row Data
+  row_data <- as.data.frame(
+    rowData(scmp.obj@sce)
+  )[, c("gene_short_name", "status")]
+
+  # Get the gene-info
+  gene.change <- rownames(row_data[row_data$status != "No_Change", ])
+  gene.no.change <- rownames(row_data[row_data$status == "No_Change", ])
+
+
+  r2_sequence_value <- seq(0.05, 0.95, 0.1)
+
+  # Get Performance
+  performance.measure <- get_performance(
+    scmp_obj = scmp.obj,
+    gene_change = gene.change,
+    gene_no_change = gene.no.change,
+    r2_sequence = r2_sequence_value
+  )
+
+  # Add Inflation
+  performance.measure[["Combination"]] <- i
+
+  # Add to list
+  eval.list[[i]] <- performance.measure
 }
 
 # Combine
@@ -62,6 +62,6 @@ evaluation.frame <- do.call(rbind, eval.list)
 
 # Write
 write.table(evaluation.frame, paste0(dirPath, "Performance.Table.tsv"),
-            sep = "\t",
-            row.names = F, quote = F
+  sep = "\t",
+  row.names = F, quote = F
 )

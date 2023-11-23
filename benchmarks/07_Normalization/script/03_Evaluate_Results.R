@@ -27,7 +27,6 @@ eval.list <- list()
 
 # Set-up a for loop
 for (i in names(dataSets)) {
-    
   # Validation
   cat(paste("\nRunning for NormMethod:", i))
 

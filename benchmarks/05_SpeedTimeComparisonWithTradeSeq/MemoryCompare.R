@@ -70,173 +70,178 @@ lineage_table <- lineage_table[, c("Lineage1", "Lineage2")]
 
 
 # Running scMaSigPro
-scmp.obj <- as_scmp(sim.sce, from = "sce",
-                    align_pseudotime = T,
-                    additional_params = list(
-                        labels_exist = TRUE,
-                        existing_pseudotime_colname = "Step",
-                        existing_path_colname = "Group"), verbose = F)
+scmp.obj <- as_scmp(sim.sce,
+  from = "sce",
+  align_pseudotime = T,
+  additional_params = list(
+    labels_exist = TRUE,
+    existing_pseudotime_colname = "Step",
+    existing_path_colname = "Group"
+  ), verbose = F
+)
 # Squeeze
 scmp.obj <- squeeze(
-    scmpObject = scmp.obj,
-    bin_method = "Sturges",
-    drop.fac = 0.5,
-    verbose = F,
-    cluster_count_by = "sum",
-    split_bins = F,
-    prune_bins = F,
-    drop_trails = F,
-    fill_gaps = F
+  scmpObject = scmp.obj,
+  bin_method = "Sturges",
+  drop.fac = 0.5,
+  verbose = F,
+  cluster_count_by = "sum",
+  split_bins = F,
+  prune_bins = F,
+  drop_trails = F,
+  fill_gaps = F
 )
 
 # Make Design
 scmp.obj <- sc.make.design.matrix(scmp.obj,
-                                  poly_degree = 2
+  poly_degree = 2
 )
 
 # Compute Memory
 
 Rprof("profile_output.out", memory.profiling = T)
 # Run p-vector
-    scmp.obj <- sc.p.vector(
-        scmpObj = scmp.obj, verbose = F, min.obs = 1,
-        parallel = F,
-        MT.adjust = "fdr",
-        offset = T, useWeights = T,
-        useInverseWeights = F,
-        logOffset = T,
-        globalTheta = T,
-        max_it = 1000
-    )
-    # # Run-Step-2
-    # scmp.obj <- sc.T.fit(
-    #     scmpObj = scmp.obj, verbose = F,
-    #     step.method = "backward",parallel = F,
-    #     offset = T
-    # )
-    Rprof(NULL)
-    summary <- summaryRprof("profile_output.out")
-    print(summary)
-    
+scmp.obj <- sc.p.vector(
+  scmpObj = scmp.obj, verbose = F, min.obs = 1,
+  parallel = F,
+  MT.adjust = "fdr",
+  offset = T, useWeights = T,
+  useInverseWeights = F,
+  logOffset = T,
+  globalTheta = T,
+  max_it = 1000
+)
+# # Run-Step-2
+# scmp.obj <- sc.T.fit(
+#     scmpObj = scmp.obj, verbose = F,
+#     step.method = "backward",parallel = F,
+#     offset = T
+# )
+Rprof(NULL)
+summary <- summaryRprof("profile_output.out")
+print(summary)
+
 
 ScMaSigPro_8_CPU <- profmem({
-    # Run p-vector
-    scmp.obj <- sc.p.vector(
-        scmpObj = scmp.obj, verbose = F, min.obs = 1,
-        parallel = F,
-        MT.adjust = "fdr",
-        offset = T, useWeights = T,
-        useInverseWeights = F,
-        logOffset = T,
-        globalTheta = T,
-        max_it = 1000
-    )
+  # Run p-vector
+  scmp.obj <- sc.p.vector(
+    scmpObj = scmp.obj, verbose = F, min.obs = 1,
+    parallel = F,
+    MT.adjust = "fdr",
+    offset = T, useWeights = T,
+    useInverseWeights = F,
+    logOffset = T,
+    globalTheta = T,
+    max_it = 1000
+  )
 })
 
 ScMaSigPro_1_CPU <- ScMaSigPro_1_CPU %>% as.data.frame()
-ScMaSigPro_1_CPU$Function <- 'ScMaSigPro_1_CPU'
+ScMaSigPro_1_CPU$Function <- "ScMaSigPro_1_CPU"
 ScMaSigPro_1_CPU$Index <- seq_len(nrow(ScMaSigPro_1_CPU))
 
 # Benchmark time
 mbm <- microbenchmark(
-    "TradeSeq_1_CPU" = {
-        # Fit GAM
-        sce.tradeseq <- fitGAM(
-            counts = normCounts,
-            pseudotime = pseudotime_table,
-            cellWeights = lineage_table,
-            parallel = F,
-            nknots = 4, verbose = FALSE
-        )
-        gc()
-        
-        # One of the test
-        patternRes <- patternTest(sce.tradeseq)
-        gc()
-    },
-    "TradeSeq_8_CPU" = {
-        # Fit GAM
-        sce.tradeseq <- fitGAM(
-            counts = normCounts,
-            pseudotime = pseudotime_table,
-            cellWeights = lineage_table,
-            parallel = T,
-            nknots = 4, verbose = FALSE
-        )
-        gc()
-        
-        # One of the test
-        patternRes <- patternTest(sce.tradeseq)
-        gc()
-    },
-    "ScMaSigPro_1_CPU" = {
-        # Run p-vector
-        scmp.obj <- sc.p.vector(
-            scmpObj = scmp.obj, verbose = T, min.obs = 1,
-            parallel = F,
-            MT.adjust = "fdr",
-            offset = T, useWeights = T,
-            useInverseWeights = F,
-            logOffset = T,
-            globalTheta = T,
-            max_it = 1000
-        )
-        gc()
-        
-        # Run-Step-2
-        scmp.obj <- sc.T.fit(
-            scmpObj = scmp.obj, verbose = T,
-            step.method = "backward",parallel = F,
-            offset = T
-        )
-        gc()
-    },
-    "ScMaSigPro_8_CPU" = {
-        # Run p-vector
-        scmp.obj <- sc.p.vector(
-            scmpObj = scmp.obj, verbose = T, min.obs = 1,
-            parallel = T,
-            MT.adjust = "fdr",
-            offset = T, useWeights = T,
-            useInverseWeights = F,
-            logOffset = T,
-            globalTheta = T,
-            max_it = 1000
-        )
-        gc()
-        
-        # Run-Step-2
-        scmp.obj <- sc.T.fit(
-            scmpObj = scmp.obj, verbose = T,
-            step.method = "backward",parallel = T,
-            offset = T
-        )
-        gc()
-    },
-    times = 1
+  "TradeSeq_1_CPU" = {
+    # Fit GAM
+    sce.tradeseq <- fitGAM(
+      counts = normCounts,
+      pseudotime = pseudotime_table,
+      cellWeights = lineage_table,
+      parallel = F,
+      nknots = 4, verbose = FALSE
+    )
+    gc()
+
+    # One of the test
+    patternRes <- patternTest(sce.tradeseq)
+    gc()
+  },
+  "TradeSeq_8_CPU" = {
+    # Fit GAM
+    sce.tradeseq <- fitGAM(
+      counts = normCounts,
+      pseudotime = pseudotime_table,
+      cellWeights = lineage_table,
+      parallel = T,
+      nknots = 4, verbose = FALSE
+    )
+    gc()
+
+    # One of the test
+    patternRes <- patternTest(sce.tradeseq)
+    gc()
+  },
+  "ScMaSigPro_1_CPU" = {
+    # Run p-vector
+    scmp.obj <- sc.p.vector(
+      scmpObj = scmp.obj, verbose = T, min.obs = 1,
+      parallel = F,
+      MT.adjust = "fdr",
+      offset = T, useWeights = T,
+      useInverseWeights = F,
+      logOffset = T,
+      globalTheta = T,
+      max_it = 1000
+    )
+    gc()
+
+    # Run-Step-2
+    scmp.obj <- sc.T.fit(
+      scmpObj = scmp.obj, verbose = T,
+      step.method = "backward", parallel = F,
+      offset = T
+    )
+    gc()
+  },
+  "ScMaSigPro_8_CPU" = {
+    # Run p-vector
+    scmp.obj <- sc.p.vector(
+      scmpObj = scmp.obj, verbose = T, min.obs = 1,
+      parallel = T,
+      MT.adjust = "fdr",
+      offset = T, useWeights = T,
+      useInverseWeights = F,
+      logOffset = T,
+      globalTheta = T,
+      max_it = 1000
+    )
+    gc()
+
+    # Run-Step-2
+    scmp.obj <- sc.T.fit(
+      scmpObj = scmp.obj, verbose = T,
+      step.method = "backward", parallel = T,
+      offset = T
+    )
+    gc()
+  },
+  times = 1
 )
 
 # Process the results
-data <-summary(mbm) %>% as.data.frame()
+data <- summary(mbm) %>% as.data.frame()
 
 compareBar_Time <- ggplot(data, aes(x = expr, y = mean, fill = expr)) +
-    geom_bar(stat = "identity") +
-    labs(
-        title = "Execution Times for a bifurcating trajectory",
-        subtitle = "Number of Cells: 1500; Number of Genes: 2500",
-        x = "Method",
-        y = "Time (seconds)"
-    ) + 
-    coord_flip() + 
-    scale_fill_viridis(discrete = TRUE, name = "Custom Legend Title",
-                       breaks = c("TradeSeq_1_CPU", "ScMaSigPro_1_CPU", "TradeSeq_8_CPU", "ScMaSigPro_8_CPU"),
-                       labels = c("Custom Label 1", "Custom Label 2", "Custom Label 3", "Custom Label 4")) +
-    theme_minimal(base_size = 20) + 
-    theme(legend.position = "none", legend.justification = "left", legend.box.just = "left")
+  geom_bar(stat = "identity") +
+  labs(
+    title = "Execution Times for a bifurcating trajectory",
+    subtitle = "Number of Cells: 1500; Number of Genes: 2500",
+    x = "Method",
+    y = "Time (seconds)"
+  ) +
+  coord_flip() +
+  scale_fill_viridis(
+    discrete = TRUE, name = "Custom Legend Title",
+    breaks = c("TradeSeq_1_CPU", "ScMaSigPro_1_CPU", "TradeSeq_8_CPU", "ScMaSigPro_8_CPU"),
+    labels = c("Custom Label 1", "Custom Label 2", "Custom Label 3", "Custom Label 4")
+  ) +
+  theme_minimal(base_size = 20) +
+  theme(legend.position = "none", legend.justification = "left", legend.box.just = "left")
 
 # Save
 ggsave(
-    plot = compareBar_Time,
-    filename = paste0("Figures/SuppData/04_CompareBarTime.png"),
-    dpi = 1200, width = 10
+  plot = compareBar_Time,
+  filename = paste0("Figures/SuppData/04_CompareBarTime.png"),
+  dpi = 1200, width = 10
 )
