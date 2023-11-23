@@ -93,32 +93,33 @@ rowData(sim.sce) <- DataFrame(gene.info)
 obj.path <- paste0(sce_path, paste0("testTradeSeq.RData"))
 save(sim.sce, file = obj.path)
 
-# Plot
-# Compute PHATE Dimensions
-phateIn <- t(as.matrix(sim.sce@assays@data@listData$counts))
-keep_cols <- colSums(phateIn > 0) > 10
-phateIn <- phateIn[, keep_cols]
-phate_dim <- phate(phateIn,
-                   ndim = 2, verbose = F,
-                   knn = 100,
-                   decay = 100,
-                   t = 15
+
+# Compute UMAP Dimensions
+sob <- CreateSeuratObject(
+    counts = sim.sce@assays@data@listData$counts,
+    meta.data = as.data.frame(sim.sce@colData)
 )
+sob <- NormalizeData(sob, normalization.method = "LogNormalize", 
+                     scale.factor = 10000, verbose = F)
+sob <- FindVariableFeatures(sob, selection.method = "vst", nfeatures = 2000,
+                            verbose = F)
+sob <- ScaleData(sob, verbose = F)
+sob <- RunPCA(sob, features = VariableFeatures(object = sob), verbose = F)
+sob <- RunUMAP(sob, dims = 1:10, verbose = F)
 
 # Create Plotting frame for PHATE
 plt.data <- data.frame(
-    PHATE_1 = phate_dim$embedding[, 1],
-    PHATE_2 = phate_dim$embedding[, 2],
+    UMAP_1 = sob@reductions[["umap"]]@cell.embeddings[, 1],
+    UMAP_2 = sob@reductions[["umap"]]@cell.embeddings[, 2],
     Simulated_Steps = sim.sce@colData$Step,
     Path = sim.sce@colData$Group
 )
 
-# Plot PHATE dimensions
-ggplot(plt.data) +
+plt <- ggplot(plt.data) +
     geom_point(
         aes(
-            x = PHATE_1,
-            y = PHATE_2,
+            x = UMAP_1,
+            y = UMAP_2,
             color = Simulated_Steps,
             shape = Path
         ),
@@ -127,5 +128,12 @@ ggplot(plt.data) +
     theme_minimal(base_size = 12) +
     scale_color_viridis(option = "C") +
     ggtitle(
-        paste("Total Sparsity:", totSparsity)
-    )
+        paste("Total Sparsity:", totSparsity,
+              "| True Sparsity:", trueSparsity,
+              "| Simulated Sparsity:", simulatedSparsity),
+        subtitle = paste("Complexity: Different Lengths, Different Skewness")
+    )+ theme(legend.position = "bottom")
+plt
+
+gene.info <- gene.info[gene.info$status2 != "No_Change",]
+plot(table(gene.info[, c("status","status2")]))
