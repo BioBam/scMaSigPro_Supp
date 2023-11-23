@@ -59,7 +59,12 @@ umaps.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPat
   # cds@clusters$UMAP$partitions <- as.factor(sing.partition)
 
   # Learn graph
-  cds <- learn_graph(cds)
+  cds <- learn_graph(cds, learn_graph_control = list(
+      
+      minimal_branch_len = 5,
+      prune_graph  =F,
+      ncenter = 100
+  ))
 
   # Order cells
   cds@colData$cell_type <- cds@colData$fine_labels
@@ -98,6 +103,8 @@ top <- ggarrange(umaps.list$rep1$cell_type,
                     common.legend = T, legend = "bottom")
 
 combined_plot <- ggarrange(top, bottom, nrow = 2)
+combined_plot
+stop()
 ggsave(combined_plot,
        filename = paste0("Figures/SuppData/01_Real_Data.png"),
        dpi = 600, height = 8, width = 16
