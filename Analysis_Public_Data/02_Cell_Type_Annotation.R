@@ -65,9 +65,10 @@ umaps.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPat
     "Hematopoietic stem cells_CD133+ CD34dim",
     "Hematopoietic stem cells_CD38- CD34+",
     "Megakaryocyte/erythroid progenitors",
-    "Megakaryocytes", "Monocytes",
-    "Myeloid Dendritic Cells",
-    "Plasmacytoid Dendritic Cells", "Pro B cells "
+    #"Megakaryocytes", "Monocytes",
+    "Myeloid Dendritic Cells"
+    #"Plasmacytoid Dendritic Cells",
+    #"Pro B cells "
   ))
 
   # Keep cells with high scores
@@ -75,16 +76,14 @@ umaps.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPat
 
   # Downstream processibg
   sob <- RunPCA(sob, features = VariableFeatures(object = sob), verbose = F)
-  sob <- FindNeighbors(sob, dims = 1:10, verbose = F)
+  sob <- FindNeighbors(sob, dims = 1:50, verbose = F)
   sob <- FindClusters(sob, resolution = 1, verbose = F)
-  sob <- RunUMAP(sob, dims = 1:10, verbose = F)
+  sob <- RunUMAP(sob, dims = 1:50, verbose = F)
 
   # Save
-  file_name <- paste(outPath, rep_i, paste(rep_i, "anno", sep = "_"), sep = "/")
-  SaveH5Seurat(
-    object = sob, filename = file_name,
-    overwrite = T, verbose = FALSE
-  )
+  file_name <- paste(outPath, rep_i, paste(rep_i, "anno.RDS", sep = "_"), sep = "/")
+  saveRDS(
+    object = sob, file = file_name)
 
   # Return UMAP
   return(NULL)
