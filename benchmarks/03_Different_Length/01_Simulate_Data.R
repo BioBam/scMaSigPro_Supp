@@ -110,21 +110,23 @@ parameter.list <- mclapply(names(len), function(length, params_groups = params.g
         "Filename" = paste0("len_", paste(length_value, collapse = "."), ".RData")
     )
     
-    # Compute PHATE Dimensions
-    phateIn <- t(as.matrix(sim.sce@assays@data@listData$TrueCounts))
-    keep_cols <- colSums(phateIn > 0) > 10
-    phateIn <- phateIn[, keep_cols]
-    phate_dim <- phate(phateIn,
-                       ndim = 2, verbose = F,
-                       knn = 100,
-                       decay = 100,
-                       t = 50
+    # Compute UMAP Dimensions
+    sob <- CreateSeuratObject(
+        counts = sim.sce@assays@data@listData$counts,
+        meta.data = as.data.frame(sim.sce@colData)
     )
+    sob <- NormalizeData(sob, normalization.method = "LogNormalize", 
+                         scale.factor = 10000, verbose = F)
+    sob <- FindVariableFeatures(sob, selection.method = "vst", nfeatures = 2000,
+                                verbose = F)
+    sob <- ScaleData(sob, verbose = F)
+    sob <- RunPCA(sob, features = VariableFeatures(object = sob), verbose = F)
+    sob <- RunUMAP(sob, dims = 1:10, verbose = F)
     
     # Create Plotting frame for PHATE
     plt.data <- data.frame(
-        PHATE_1 = phate_dim$embedding[, 1],
-        PHATE_2 = phate_dim$embedding[, 2],
+        UMAP_1 = sob@reductions[["umap"]]@cell.embeddings[, 1],
+        UMAP_2 = sob@reductions[["umap"]]@cell.embeddings[, 2],
         Simulated_Steps = sim.sce@colData$Step,
         Path = sim.sce@colData$Group
     )
@@ -133,8 +135,8 @@ parameter.list <- mclapply(names(len), function(length, params_groups = params.g
     plt <- ggplot(plt.data) +
         geom_point(
             aes(
-                x = PHATE_1,
-                y = PHATE_2,
+                x = UMAP_1,
+                y = UMAP_2,
                 color = Simulated_Steps,
                 shape = Path
             ),
@@ -143,7 +145,7 @@ parameter.list <- mclapply(names(len), function(length, params_groups = params.g
         theme_minimal(base_size = 12) +
         scale_color_viridis(option = "C") +
         ggtitle(
-            paste("Length:", paste(length_value, collapse = "."))
+            paste("Skew:", paste(length_value, collapse = "."))
         )
     
     # Return

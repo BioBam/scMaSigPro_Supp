@@ -61,7 +61,7 @@ bottom <- ggarrange(
     performance.list$zi_70,
     performance.list$zi_80,
     performance.list$zi_90,
-    labels = c("E.","F.","G.","G."),
+    labels = c("E.","F.","G.","H."),
     common.legend = T, ncol = 4, nrow = 1,
     legend = "bottom"
 )

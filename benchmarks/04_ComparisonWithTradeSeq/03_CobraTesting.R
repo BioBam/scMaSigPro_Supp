@@ -104,9 +104,11 @@ ggsave(plot = ROC,
        width = 6, height = 5)
 saveRDS(ROC, file = "Figures/MainArticle/Figure1_B.RDS")
 
-# TPRvsFDR <- plot_fdrtprcurve(cobraplot, title = "TPR vs FDR")
-# TPR <- plot_tpr(cobraplot, title = "TPR")
-# FPR <- plot_fpr(cobraplot, title = "FPR")
+plot_overlap(cobraplot)
+
+TPRvsFDR <- plot_fdrtprcurve(cobraplot, title = "TPR vs FDR")
+TPR <- plot_tpr(cobraplot, title = "TPR")
+FPR <- plot_fpr(cobraplot, title = "FPR")
 # 
 # ggsave(filename = paste0(resPath, "ROC.png"), plot = ROC, dpi = 600, width = 7, height = 5)
 # ggsave(filename = paste0(resPath, "TPRvsFDR.png"), plot = TPRvsFDR, dpi = 600, width = 7, height = 5)

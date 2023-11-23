@@ -46,11 +46,11 @@ lineage_table$Lineage2 <- ifelse(lineage_table$Group == "Path2", 1, 0)
 lineage_table <- lineage_table[, c("Lineage1", "Lineage2")]
 
 # Evaluate K
-#Choosing lowest AIC i.e. 3
+#Choosing lowest AIC i.e. 5
 # icMat <- evaluateK(counts = normCounts,
 #                    pseudotime = pseudotime_table,
 #                    cellWeights = lineage_table,
-#                    k = 3:10,
+#                    k = 3:15,
 #                    nGenes = 200, verbose = T)
 
 # Fit GAM
@@ -59,7 +59,7 @@ sce.tradeseq <- fitGAM(
   pseudotime = pseudotime_table,
   cellWeights = lineage_table,
   parallel = F,
-  nknots = 3,
+  nknots = 5,
   verbose = FALSE
 )
 
