@@ -1,5 +1,3 @@
-# scMaSigPro Supplementary Material
-
 # Supplementary Materials for [scMaSigPro: Detection of differential genes along pseudotime with MaSigPro]
 
 This repository contains the supplementary material for the [scMaSigPro: Detection of differential genes along pseudotime with MaSigPro], which details our bioinformatics analysis. The repository is structured as follows:
