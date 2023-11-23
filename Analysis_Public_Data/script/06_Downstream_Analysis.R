@@ -1,3 +1,29 @@
+<<<<<<< HEAD
+
+# Extract the genes
+scmp.obj <- sc.get.siggenes(scmpObj = scmp.obj, rsq = 0.7, vars = "groups")
+
+# Plot Gene Expression
+sc.PlotGroups(scmpObj = scmp.obj,feature_id = "MPO", dis = scmp.obj@scTFit@dis,
+              edesign =  scmp.obj@scTFit@edesign,
+              groups.vector = scmp.obj@scTFit@groups.vector)
+
+sc.PlotGroups(scmpObj = scmp.obj,feature_id = "EPOR", dis = scmp.obj@scTFit@dis,
+              edesign =  scmp.obj@scTFit@edesign,
+              groups.vector = scmp.obj@scTFit@groups.vector)
+
+
+sc.PlotGroups(scmpObj = scmp.obj,feature_id = "IRF8", dis = scmp.obj@scTFit@dis,
+              edesign =  scmp.obj@scTFit@edesign,
+              groups.vector = scmp.obj@scTFit@groups.vector)
+
+sc.PlotGroups(scmpObj = scmp.obj, feature_id = "EBF1", dis = scmp.obj@scTFit@dis,
+              edesign =  scmp.obj@scTFit@edesign,
+              groups.vector = scmp.obj@scTFit@groups.vector)
+
+sc.plot.bins(scmpObj = scmp.obj)
+sc.path.intersection(scmpObj = scmp.obj)
+=======
 # Load data
 load("Analysis_Public_Data/data/SingleCellExperimentAtlas/scMaSigPro_Donor2_Monocle3.RData")
 
@@ -54,6 +80,7 @@ ggplot(data = cluster.trend.data, aes(x = x, y = log(y), group = interaction(fea
     guides(color = guide_legend(title = "Path"))
 
 
+>>>>>>> dev
 
 
 # Get the sol

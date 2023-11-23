@@ -1,0 +1,191 @@
+---
+title: "Offsets in GLMs"
+author: "Priyansh Srivastava"
+date: "`r Sys.Date()`"
+output: ioslides_presentation
+---
+
+```{r, message=FALSE, echo=FALSE, eval=T, warning=FALSE}
+# Load the libraries
+suppressPackageStartupMessages(library(SingleCellExperiment))
+suppressPackageStartupMessages(library(DESeq2))
+install.packages("../scMaSigPro_0.1.0.tar.gz")
+library(scMaSigPro)
+```
+
+---
+
+## What is offset?
+
+### In Generalized Linear Models
+
+- A term that is included in the linear predictor (part of the GLM that combines the independent variables to predict the mean of the dependent variable). 
+
+- Set to be constant for all observations.
+
+- Allows the model to account for different exposure levels or lengths of observation time for each subject, or in other scenarios, to help account for certain fixed effects.
+
+--- 
+
+### In RNA-Seq data
+
+- Offset term is often used to account for the library size or the sequencing depth. 
+
+- A gene might appear to be expressed more in one sample simply because that sample has more total reads. This is where the offset comes in. 
+
+- It can be used to adjust the observed counts based on the total library size, so that the counts become comparable across samples.
+
+---
+
+### In DESeq2 pipeline
+
+- It uses the raw count data __(integer values)__, but includes an _offset term_ in the model that accounts for the different library sizes __(sequencing depth)__ across samples.
+
+- Normalization is done in a slightly different manner that keeps the counts as integers, but uses a _normalization factor_ __(the size factor)__ in the _offset_ term of the GLM to adjust for sequencing depth.
+
+---
+
+### Create the count table
+```{r, message=FALSE, echo=FALSE, eval=T, warning=FALSE}
+count_table <- matrix(c(50, 100, 150, 200, 400, 600),
+  nrow = 3, ncol = 2, byrow = FALSE,
+  dimnames = list(c("Gene1", "Gene2", "Gene3"), c("Sample1", "Sample2"))
+)
+count_table
+```
+
+---
+
+### Calculate geometric means
+
+Formula
+$$GM_i = \exp\left(\frac{1}{n} \sum_{j=1}^{n} \log(x_{ij})\right)$$
+```{r, message=FALSE, echo=FALSE, eval=T, warning=FALSE}
+geo_means <- apply(count_table, 1, function(row) {
+  exp(mean(log(row)))
+})
+geo_means
+```
+
+---
+
+### Calculate size factors
+
+Formula 
+$$
+s_j = \text{median}\left(\frac{x_{1j}}{GM_1}, \frac{x_{2j}}{GM_2}, \ldots, \frac{x_{nj}}{GM_n}\right)
+$$
+```{r, message=FALSE, echo=FALSE, eval=T, warning=FALSE}
+size_factors <- apply(count_table, 2, function(col) {
+  median(col / geo_means)
+})
+size_factors
+```
+
+---
+
+### Calculate offsets
+
+Formula
+
+$$\text{offset}_j = \log(s_j)$$
+```{r, message=FALSE, echo=FALSE, eval=T, warning=FALSE}
+offsets <- log(size_factors)
+print(offsets)
+```
+
+---
+
+
+```{r, message=FALSE, echo=FALSE, eval=T, warning=FALSE}
+sce <- readRDS("../benchMarking_Normalization/data/output/scMaSigPro/zi_shape_-0.2_RawCounts_sum_tstep.RDS")
+
+# Extract Metadata
+count.matrix <- as.matrix(sce$sig.profiles)
+```
+
+---
+
+
+```{r, message=FALSE, echo=FALSE, eval=T, warning=FALSE}
+geo_means <- apply(count.matrix, 1, function(row) {
+  exp(mean(log(row)))
+})
+size_factors <- apply(count.matrix, 2, function(col) {
+  median(col / geo_means)
+})
+size_factors
+
+offsets <- log(size_factors)
+print(offsets)
+```
+
+
+---
+
+
+```{r, message=FALSE, echo=FALSE, eval=T, warning=FALSE}
+library(scMaSigPro)
+sce.obj <- readRDS("../benchMarking_Normalization/data/output/SimObjectsSCE/zi_shape_-0.2.RDS")
+
+scmp.obj <- sc_makeDesign(sce.obj,
+  path.col = "Group",
+  time.col = "Step", poly.order = 2
+)
+
+# Extract Required Data
+counts <- as.matrix(scmp.obj@assays@data$counts)
+# Extract the metadata
+covarite.data <- as.data.frame(scmp.obj@covariate@covariate)
+
+# Construct the dataframe
+covarite.data$y <- counts[rownames(counts) == "Gene2", ]
+
+# Calculate Offset
+geo_means <- apply(counts + 1, 1, function(row) {
+  exp(mean(log(row)))
+})
+
+size_factors <- apply(counts, 2, function(col) {
+  median(col / geo_means)
+})
+
+covarite.data$offsets <- log(size_factors)
+sum(is.infinite(covarite.data$offsets))
+
+glm.model <- glm(y ~ .,
+  data = covarite.data,
+  family = MASS::negative.binomial(10),
+  offset = offsets, epsilon = 0.1
+)
+```
+
+---
+
+
+```{r, message=FALSE, echo=FALSE, eval=T, warning=FALSE}
+size_factors <- estimateSizeFactorsForMatrix(counts + 1)
+
+covarite.data$offsets <- log(size_factors)
+
+sum(is.infinite(covarite.data$offsets))
+
+glm.model.1 <- glm(y ~ .,
+  data = covarite.data,
+  family = MASS::negative.binomial(10),
+  # offset = offsets,
+  epsilon = 0.1
+)
+glm.model.2 <- glm(y ~ .,
+  data = covarite.data,
+  family = MASS::negative.binomial(10),
+  offset = offsets,
+  epsilon = 0.1
+)
+```
+
+---
+
+
+```{r, message=FALSE, echo=FALSE, eval=T, warning=FALSE}
+```
