@@ -6,11 +6,19 @@
 scMaSigPro_*.tar.gz
 
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> dev
 Testing_And_Development/*.RDS
 
 
 benchmarks/*/data/simulated/
 benchmarks/*/data/input/
+<<<<<<< HEAD
+=======
+benchmarks/04_ComparisonWithTradeSeq/data/input
+>>>>>>> dev
 benchmarks/*/data/output/*.RData
 Analysis_Public_Data/data/*
 Article_Image/data

@@ -49,8 +49,13 @@ segments_data <- data.frame(xstart = start_points$TPR,
 # ROC Curve
 roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = parameter)) +
     geom_path(linewidth = 1, alpha = 0.7) +
+<<<<<<< HEAD
     scale_color_manual( labels = c("Different Lengths: 400 & 2600",
                                    "Skewness: nCells Start >> nCells End", 
+=======
+    scale_color_manual(labels = c("Different Lengths: 400 & 2600",
+                                   "Skew: nCells Start >> nCells", 
+>>>>>>> dev
                                    "Zero-Inflation of 60%"),
                         
                         values = c(colorConesa(6)[1],
@@ -68,14 +73,22 @@ roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = parameter)) +
     geom_point(
         data = subset(evaluation.frame, RSQ == 0.7 & parameter == "ZI"),
         color = colorConesa(6)[6],
+<<<<<<< HEAD
         size = 2) +
+=======
+        size = 2.5) +
+>>>>>>> dev
     
     geom_label_repel(
         data = subset(evaluation.frame, RSQ == 0.7 & parameter == "ZI"),
         aes(label = RSQ,
             color = parameter),
         nudge_x = 0.007, nudge_y = -0.12, # Adjust these values as needed
+<<<<<<< HEAD
             size = 3,
+=======
+            size = 4,
+>>>>>>> dev
             segment.color = colorConesa(6)[6], # Color of the line connecting label and point
             segment.size = 0.5, # Size of the line connecting label and point
         show.legend = FALSE # Prevent the creation of a legend for this aesthetic
@@ -84,21 +97,34 @@ roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = parameter)) +
     geom_point(
         data = subset(evaluation.frame, TPR >= 0.8 & FPR < 0.01 & parameter == "ZI"),
         color = colorConesa(6)[6],
+<<<<<<< HEAD
         size = 2) +
+=======
+        size = 2.5) +
+>>>>>>> dev
 
     
     # Skew
     geom_point(
         data = subset(evaluation.frame, RSQ == 0.7 & parameter == "Skew"),
         color = colorConesa(3)[2],
+<<<<<<< HEAD
         size = 2) +
+=======
+        size = 2.5) +
+>>>>>>> dev
     
     geom_label_repel(
         data = subset(evaluation.frame, RSQ == 0.7 & parameter == "Skew"),
         aes(label = RSQ,
             color = parameter),
+<<<<<<< HEAD
         nudge_x = 0.04, nudge_y = -0.1, # Adjust these values as needed
         size = 3,
+=======
+        nudge_x = 0.01, nudge_y = -0.1, # Adjust these values as needed
+        size = 4,
+>>>>>>> dev
         segment.color = colorConesa(3)[2], # Color of the line connecting label and point
         segment.size = 0.5, # Size of the line connecting label and point
         show.legend = FALSE # Prevent the creation of a legend for this aesthetic
@@ -107,13 +133,21 @@ roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = parameter)) +
     geom_point(
         data = subset(evaluation.frame, TPR >= 0.8 & FPR <= 0.01 & parameter == "Skew"),
         color = colorConesa(3)[2],
+<<<<<<< HEAD
         size = 2) +
+=======
+        size = 2.5) +
+>>>>>>> dev
     geom_label_repel(
         data = subset(evaluation.frame, TPR >= 0.8 & FPR <= 0.01 & parameter == "Skew"),
         aes(label = RSQ,
             color = parameter),
         nudge_x = 0.04, nudge_y = -0.2, # Adjust these values as needed
+<<<<<<< HEAD
         size = 3,
+=======
+        size = 4,
+>>>>>>> dev
         segment.color = colorConesa(3)[2], # Color of the line connecting label and point
         segment.size = 0.5, # Size of the line connecting label and point
         show.legend = FALSE # Prevent the creation of a legend for this aesthetic
@@ -123,13 +157,21 @@ roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = parameter)) +
     geom_point(
         data = subset(evaluation.frame, RSQ == 0.7 & parameter == "Length"),
         color = colorConesa(3)[1],
+<<<<<<< HEAD
         size = 2) +
+=======
+        size = 2.5) +
+>>>>>>> dev
     geom_label_repel(
         data = subset(evaluation.frame, RSQ == 0.7 & parameter == "Length"),
         aes(label = RSQ,
             color = parameter),
         nudge_x = 0.0, nudge_y = 0.1, # Adjust these values as needed
+<<<<<<< HEAD
         size = 3,
+=======
+        size = 4,
+>>>>>>> dev
         segment.color = colorConesa(3)[1], # Color of the line connecting label and point
         segment.size = 0.5, # Size of the line connecting label and point
         show.legend = FALSE # Prevent the creation of a legend for this aesthetic
@@ -138,24 +180,37 @@ roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = parameter)) +
     geom_point(
         data = subset(evaluation.frame, TPR >= 0.9 & FPR < 0.01 & parameter == "Length"),
         color = colorConesa(3)[1],
+<<<<<<< HEAD
         size = 2) +
+=======
+        size = 2.5) +
+>>>>>>> dev
     geom_label_repel(
         data = subset(evaluation.frame, TPR >= 0.9 & FPR < 0.01 & parameter == "Length"),
         aes(label = RSQ,
             color = parameter),
         nudge_x = 0.01, nudge_y = 0.07, # Adjust these values as needed
+<<<<<<< HEAD
         size = 3,
+=======
+        size = 4,
+>>>>>>> dev
         segment.color = colorConesa(3)[1], # Color of the line connecting label and point
         segment.size = 0.5, # Size of the line connecting label and point
         show.legend = FALSE # Prevent the creation of a legend for this aesthetic
     )+
   
     labs(
+<<<<<<< HEAD
         title = "ROC: Performance on Simulated Data",
+=======
+        title = "ROC Curve: Performance on Simulated Data",
+>>>>>>> dev
         subtitle = "Varying R-Square",
         x = "False Positive Rate (1-Specificity)",
         y = "True Positive Rate (Sensitivity)",
         color = "Simulation") +
+<<<<<<< HEAD
     theme_classic(base_size = 10) +
     theme(legend.box = "vertical",
           legend.direction = "vertical",
@@ -163,6 +218,17 @@ roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = parameter)) +
         panel.grid.minor = element_line(linewidth = 0.1, color = "lightgrey", linetype = "dotted"),
         #legend.position = "bottom"
         legend.position = c(0.5, 0.5), legend.justification = c("left", "top")
+=======
+    theme_classic(base_size = 15) +
+    theme(legend.box = "vertical",
+          legend.direction = "vertical",
+          legend.title=element_text(size=16), 
+          legend.text=element_text(size=14),
+        panel.grid.major = element_line(linewidth = 0.3, color = "lightgrey", linetype = "dotted"),
+        panel.grid.minor = element_line(linewidth = 0.1, color = "lightgrey", linetype = "dotted"),
+        #legend.position = "bottom"
+        legend.position = c(0.35, 0.5), legend.justification = c("left", "top")
+>>>>>>> dev
     ) +
     geom_vline(xintercept = 0.01, colour = "lightgrey", linetype = "dotted") +  # Highlighted the x-intercept of 0.01
     geom_vline(xintercept = 0.05, colour = "lightgrey", linetype = "dotted") +

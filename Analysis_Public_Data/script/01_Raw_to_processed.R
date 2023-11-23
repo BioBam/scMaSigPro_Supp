@@ -12,12 +12,16 @@ suppressPackageStartupMessages(library(parallel))
 suppressPackageStartupMessages(library(rhdf5))
 suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(Matrix))
+<<<<<<< HEAD
 suppressPackageStartupMessages(library(Azimuth))
+=======
+>>>>>>> dev
 suppressPackageStartupMessages(library(SeuratData))
 suppressPackageStartupMessages(library(SeuratDisk))
 suppressPackageStartupMessages(library(parallel))
 
 # Prefix
+<<<<<<< HEAD
 prefixIn <- "Analysis_Public_Data/data"
 prefixOut <- "Analysis_Public_Data/data"
 
@@ -28,6 +32,16 @@ reg.out <- c(unique(biomart.anno$SYMBOL))
 # Get folder names
 rep_vec <- list.dirs(prefixIn, full.names = F, recursive = F)
 rep_vec <- rep_vec[!(rep_vec %in% c("Azimuth_Human_BoneMarrow", "Setty_et_al_2019_Integrated_sob.h5seurat", "Human_Cell_Atlas"))]
+=======
+dirPath <- "/supp_data/Analysis_Public_Data/"
+
+# Read BioMart info
+biomart.anno <- readRDS(paste(dirPath, "cell_cycle_data.mart", sep = "/"))
+reg.out <- c(unique(biomart.anno$SYMBOL))
+
+# Get folder names
+rep_vec <- list.dirs(dirPath, full.names = F, recursive = F)
+>>>>>>> dev
 names(rep_vec) <- rep_vec
 
 # Run lapply
@@ -71,6 +85,7 @@ umaps.list <- lapply(rep_vec, function(rep_i, inPath = prefixIn, outPath = prefi
     sob.prs <- NormalizeData(sob.sub, verbose = F)
     
     # Find Variable features
+<<<<<<< HEAD
     sob.prs <- FindVariableFeatures(sob.prs, selection.method = "dispersion", verbose = F, )
     
     # # Check how many genes are present in the dataset
@@ -114,11 +129,41 @@ umaps.list <- lapply(rep_vec, function(rep_i, inPath = prefixIn, outPath = prefi
     
     # Save 
     file_name <- paste(outPath, rep_i, paste(rep_i, "prs", sep = "_"), sep = "/")
+=======
+    sob.prs <- FindVariableFeatures(sob.prs, selection.method = "dispersion", verbose = F)
+    
+    # Check how many genes are present in the dataset
+    indata <- rownames(sob.prs)[rownames(sob.prs) %in% reg.out]
+    
+    # Keep only those which are present in data
+    biomart.anno <- biomart.anno[biomart.anno$SYMBOL %in% indata, ]
+    
+    # For seurat we need to divide genes into vectors
+    s.genes <- unique(biomart.anno[biomart.anno$GO %in% c("GO:0006260"), "SYMBOL"])
+    g2m.genes <- unique(biomart.anno[biomart.anno$GO %in% c("GO:0000087", "GO:0000279", "GO:0007059", "GO:0048285"), "SYMBOL"])
+    
+    # Cell Cycle Scores
+    sob.prs <- CellCycleScoring(sob.prs,
+                               s.features = s.genes,
+                               g2m.features = g2m.genes,
+                               set.ident = TRUE
+    )
+    
+    # Regress Cell Cycle Score
+    sob.prs <- ScaleData(sob.prs,
+                        vars.to.regress = c("S.Score", "G2M.Score"),
+                        features = rownames(sob.prs), verbose = T,
+    )
+    
+    # Save 
+    file_name <- paste(dirPath, rep_i, paste(rep_i, "prs", sep = "_"), sep = "/")
+>>>>>>> dev
     SaveH5Seurat(
         object = sob.prs, filename = file_name,
         overwrite = T, verbose = FALSE
     )
     
+<<<<<<< HEAD
     # Save UMAP
     ggsave(umap,
            filename = paste(outPath, rep_i, paste0(rep_i, "_prs_umap.png"), sep = "/"),
@@ -131,3 +176,9 @@ umaps.list <- lapply(rep_vec, function(rep_i, inPath = prefixIn, outPath = prefi
 })
 #}, mc.cores = detectCores(), mc.set.seed = 123)
 
+=======
+    # Return UMAP
+    return(NULL)
+    
+})
+>>>>>>> dev
