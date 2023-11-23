@@ -20,7 +20,12 @@ plot_loess_fit <- function(sce_obj, gene_name, log = F,
                            path_col = "Group",
                            plt_subtitle = NULL,
                            dfreedom = 3,
-                           span = 0.75) {
+                           span = 0.75,
+                           point.alpha = 0.7,
+                           line.alpha = 0.7,
+                           point.size = 0.6,
+                           line.size = 0.7,
+                           ci = F) {
     # Test
     if (length(unique(rownames(sce_obj) %in% gene_name)) == 1) {
         stop("gene names does not exist")
@@ -80,20 +85,25 @@ plot_loess_fit <- function(sce_obj, gene_name, log = F,
         loess_plot <- loess_plot +
             geom_point(
                 data = plt.tab.path,
-                aes(x = .data[[time_col]], y = .data[["counts_value"]], color = .data[[path_col]]),
-                alpha = 0.1, fill = "#fdc659", size = rel(0.6)
+                aes(x = .data[[time_col]], y = .data[["counts_value"]], 
+                    color = .data[[path_col]],
+                    shape = .data[[path_col]]
+                    ),
+                alpha = point.alpha, 
+                size = point.size
             )
         
         # Add Smoother
         loess_plot <- loess_plot +
             geom_smooth(
-                formula = y ~ x, data = plt.tab.path, linewidth = 0.75,
-                alpha = 0.75, aes(
+                formula = y ~ x, data = plt.tab.path, linewidth = line.size,
+                alpha = line.alpha, aes(
                     x = .data[[time_col]],
                     y = .data[["counts_value"]],
-                    color = .data[[path_col]]
+                    color = .data[[path_col]],
+                    #linetype = .data[[path_col]]
                 ),
-                fill = "#FFFFCC", method = "loess", se = T,
+                fill = "#FFFFCC", method = "loess", se = ci,
                 method.args = list(
                     degree = dfreedom, span = span,
                     normalize = F,
@@ -103,7 +113,8 @@ plot_loess_fit <- function(sce_obj, gene_name, log = F,
     }
     
     # Additional Formatting
-    loess_plot <- loess_plot + scale_color_brewer(palette = "Dark2")
+    loess_plot <- loess_plot + scale_color_viridis(option="D", discrete = T,
+                                                   direction = -1)#scale_color_brewer(palette = "Dark2")
     loess_plot <- loess_plot +
         scale_x_continuous(
         breaks = round(seq(
