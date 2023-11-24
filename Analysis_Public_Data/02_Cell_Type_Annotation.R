@@ -13,6 +13,7 @@ suppressPackageStartupMessages(library(SeuratDisk))
 suppressPackageStartupMessages(library(SingleCellExperiment))
 suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(Azimuth))
+suppressPackageStartupMessages(library(ggpubr))
 
 # Get reference GSE24759 (Novershtern et al. 2011).
 HSPCs <- NovershternHematopoieticData()
@@ -26,7 +27,7 @@ rep_vec <- rep_vec[rep_vec != "Azimuth_Human_BoneMarrow"]
 names(rep_vec) <- rep_vec
 
 # Run lapply
-umaps.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPath) {
+azimuth.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPath) {
   # Load seurat object
   sob <- LoadH5Seurat(file = paste0(inPath, rep_i, "/", rep_i, "_prs.h5seurat"))
   
@@ -38,7 +39,12 @@ umaps.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPat
   
   # Add column
   sob@meta.data$cell_type <- sob@meta.data$predicted.celltype.l2
-  
+  return(sob)
+})
+
+# Run lapply
+null.list <- lapply(azimuth.list, function(sob, inPath = dirPath, outPath = dirPath) {
+    
   # Select cells with relatively high score
   sob.sub <- subset(sob, predicted.celltype.l2.score > .2)
   
@@ -54,14 +60,15 @@ umaps.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPat
                      min.dist = 0.0001)
   
   # Save
-  file_name <- paste(outPath, rep_i, paste(rep_i, "anno.RDS", sep = "_"), sep = "/")
-  saveRDS(
-    object = sob.sub, file = file_name)
+  # file_name <- paste(outPath, rep_i, paste(rep_i, "anno.RDS", sep = "_"), sep = "/")
+  # saveRDS(
+  #   object = sob.sub, file = file_name)
 
   # Return UMAP
-  return(NULL)
+  return(DimPlot(sob.sub, group.by = "cell_type"))
 })
 
+ggarrange(null.list[[1]], null.list[[1]], null.list[[1]], ncol =1)
 # SingleR Clusters
 #   # Create a single cell experiment object
 #   sce <- SingleCellExperiment(list(logcounts = sob@assays$RNA@scale.data))

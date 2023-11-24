@@ -23,6 +23,7 @@ dirPath <- "/supp_data/Analysis_Public_Data/"
 
 # Get folder names
 rep_vec <- list.dirs(dirPath, full.names = F, recursive = F)
+rep_vec <- rep_vec[rep_vec != "Azimuth_Human_BoneMarrow"]
 names(rep_vec) <- rep_vec
 
 # Run lapply
@@ -52,22 +53,27 @@ umaps.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPat
     reducedDims(cds)[["UMAP"]] <- new_umap
     
     # Compute clusters and use single partition
-    cds <- cluster_cells(cds, resolution = 0.5)
+    cds <- cluster_cells(cds)
     
     # sing.partition <- rep(1, length(cds@clusters$UMAP$partitions))
     # names(sing.partition) <- names(cds@clusters$UMAP$partitions)
     # cds@clusters$UMAP$partitions <- as.factor(sing.partition)
     
     # Learn graph
-    cds <- learn_graph(cds)
+    cds <- learn_graph(cds, 
+                       learn_graph_control = list(
+                           prune_graph =T,
+                           minimal_branch_len =5,
+                           nn.k=100
+                       ))
     
     # Order cells
-    cds@colData$cell_type <- cds@colData$fine_labels
     cds <- order_cells(cds,
                        root_pr_nodes = find_root_pp(cds,
-                                                    cell = "Hematopoietic stem cells_CD133+ CD34dim",
+                                                    #cell = "Hematopoietic stem cells_CD133+ CD34dim",
+                                                    cell = "HSC",
                                                     cell_col = "cell_type"
-                       )[1]
+                       )[c(1:3)]
     )
     
     # Save
@@ -78,7 +84,7 @@ umaps.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPat
     # Plot
     pseudotime <- plot_cells(cds, color_cells_by = "pseudotime", cell_size = 1.5)+
         theme(legend.position = "bottom") + ggtitle(paste(rep_i))
-    cell_type <- plot_cells(cds, color_cells_by = "fine_labels", cell_size = 1.5,
+    cell_type <- plot_cells(cds, color_cells_by = "cell_type", cell_size = 1.5,
                             label_cell_groups = F)+
         theme(legend.position = "bottom") + ggtitle(paste(rep_i))
     
@@ -98,6 +104,7 @@ top <- ggarrange(umaps.list$rep1$cell_type,
                  common.legend = T, legend = "bottom")
 
 combined_plot <- ggarrange(top, bottom, nrow = 2)
+combined_plot
 ggsave(combined_plot,
        filename = paste0("Figures/SuppData/01_Real_Data.png"),
        dpi = 600, height = 8, width = 16

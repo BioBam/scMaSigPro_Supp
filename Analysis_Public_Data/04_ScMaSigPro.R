@@ -11,6 +11,7 @@ dirPath <- "/supp_data/Analysis_Public_Data/"
 
 # Get folder names
 rep_vec <- list.dirs(dirPath, full.names = F, recursive = F)
+rep_vec <- rep_vec[rep_vec != "Azimuth_Human_BoneMarrow"]
 names(rep_vec) <- rep_vec
     
 # Call the required libraries
@@ -47,7 +48,7 @@ object.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPa
 # Path-2:Y_4,Y_10,Y_11,Y_13,Y_21,Y_22,Y_36,Y_40,Y_41,Y_49,Y_57,Y_67,Y_77,Y_81,Y_84,Y_92,Y_94,Y_95,Y_98 (HSC -> mega)
 
 # Create ScMaSigPro
-scMaSigPro.list <- lapply(object.list, function(don){
+scMaSigPro.list <- lapply(object.list[1], function(don){
     # Convert the ScMaSigPro Object
     scmp.obj <- as_scmp(don, from = "cds",
                         align_pseudotime = F,
@@ -56,7 +57,7 @@ scMaSigPro.list <- lapply(object.list, function(don){
 })
 
 # Run scMaSigPro
-scMaSigPro.list <- lapply(scMaSigPro.list[-2], function(don){
+scMaSigPro.list <- lapply(scMaSigPro.list, function(don){
     
     
     # Compress
@@ -66,7 +67,6 @@ scMaSigPro.list <- lapply(scMaSigPro.list[-2], function(don){
                         drop_trails = F,
                         drop_fac = 1
     )
-    stop("expected")
     # Make Design
     scmp.obj <- sc.make.design.matrix(scmp.obj,
                                       poly_degree = 3,
@@ -91,12 +91,11 @@ scMaSigPro.list <- lapply(scMaSigPro.list[-2], function(don){
         scmpObj = scmp.obj, verbose = T,
         step.method = "backward"
     )
-    
-    
-    return(scmp.obj)
 })
 
-sc.plot.bins.bar(scMaSigPro.list$don2) + sc.plot.bins.tile(scMaSigPro.list$don2)
+scmp.obj <- sc.get.siggenes(scmp.obj,
+                rsq = 0.7,
+                vars = "groups")
 
 # save
 # Save the object for further analysis
