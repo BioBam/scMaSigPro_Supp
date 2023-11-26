@@ -45,79 +45,78 @@ umaps.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPat
     sex <- "Female"
     loop <- FALSE
   }
+    
+    sob <- readRDS(file = paste0(dirPath, rep_i,"subSampled.RDS"))
 
-  # Load seurat object
-  sob <- readRDS(file = paste0(inPath, rep_i, "/", rep_i, "_anno.RDS"))
-
-  # Create cds
-  cds <- new_cell_data_set(
-    expression_data = sob@assays$RNA@data,
-    cell_metadata = sob@meta.data,
-    gene_metadata = data.frame(
-      row.names = rownames(sob),
-      gene_short_name = rownames(sob)
+    # Create cds
+    cds <- new_cell_data_set(
+      expression_data = sob@assays$RNA@data,
+      cell_metadata = sob@meta.data,
+      gene_metadata = data.frame(
+        row.names = rownames(sob),
+        gene_short_name = rownames(sob)
+      )
     )
-  )
 
-  # No Normalization
-  cds <- preprocess_cds(cds, norm_method = "none")
+    # No Normalization
+    cds <- preprocess_cds(cds, norm_method = "none")
 
-  # Compute UMAP
-  cds <- reduce_dimension(cds)
+    # Compute UMAP
+    cds <- reduce_dimension(cds)
 
-  # We will use UMAP and clusters from seurat
-  new_umap <- as.matrix(sob@reductions$umap@cell.embeddings)
-  colnames(new_umap) <- NULL
-  reducedDims(cds)[["UMAP"]] <- new_umap
+    # We will use UMAP and clusters from seurat
+    new_umap <- as.matrix(sob@reductions$umap@cell.embeddings)
+    colnames(new_umap) <- NULL
+    reducedDims(cds)[["UMAP"]] <- new_umap
 
-  # Compute clusters and use single partition
-  cds <- cluster_cells(cds)
+    # Compute clusters and use single partition
+    cds <- cluster_cells(cds)
 
-  # sing.partition <- rep(1, length(cds@clusters$UMAP$partitions))
-  # names(sing.partition) <- names(cds@clusters$UMAP$partitions)
-  # cds@clusters$UMAP$partitions <- as.factor(sing.partition)
-
-  # Learn graph
-  cds <- learn_graph(cds,
-    close_loop = loop,
-    learn_graph_control = list(
-      # prune_graph =T,
-      # minimal_branch_len = 5
+    # Learn graph
+    cds <- learn_graph(cds,
+      close_loop = F,
+      learn_graph_control = list(
+        prune_graph =T,
+        ncenter = 750,
+         minimal_branch_len = 10
+      )
     )
-  )
 
-  # Order cells
-  cds <- order_cells(cds,
-    root_pr_nodes = find_root_pp(cds,
-      # cell = "Hematopoietic stem cells_CD133+ CD34dim",
-      cell = "HSC",
-      cell_col = "cell_type"
-    )[c(1)]
-  )
+    # Order cells
+    cds <- order_cells(cds,
+      root_pr_nodes = find_root_pp(cds,
+        cell = "HSC",
+        cell_col = "cell_type"
+      )[c(1)]
+    )
+
+    # Plot
+    pseudotime <- plot_cells(cds, color_cells_by = "pseudotime", cell_size = 1.5) +
+      theme(legend.position = "bottom") + ggtitle(paste(
+        individual, "| Age:", age,
+        "| sex:", sex
+      ))
+    cell_type <- plot_cells(cds,
+      color_cells_by = "cell_type", cell_size = 1.5,
+      label_cell_groups = F
+    ) +
+      theme(legend.position = "bottom") + ggtitle(paste(
+        individual, "| Age:", age,
+        "| sex:", sex
+      ))
+
 
   # Save
   file_name <- paste(outPath, rep_i, paste(rep_i, "cds.RDS", sep = "_"), sep = "/")
   saveRDS(object = cds, file = file_name)
 
-  # Plot
-  pseudotime <- plot_cells(cds, color_cells_by = "pseudotime", cell_size = 1.5) +
-    theme(legend.position = "bottom") + ggtitle(paste(
-      individual, "| Age:", age,
-      "| sex:", sex
-    ))
-  cell_type <- plot_cells(cds,
-    color_cells_by = "cell_type", cell_size = 1.5,
-    label_cell_groups = F
-  ) +
-    theme(legend.position = "bottom") + ggtitle(paste(
-      individual, "| Age:", age,
-      "| sex:", sex
-    ))
+  return(list(pseudotime = pseudotime,
+              cell_type = cell_type))
 
-  return(list(
-    pseudotime = pseudotime,
-    cell_type = cell_type
-  ))
+  # return(list(
+  #   pseudotime = pseudotime,
+  #   cell_type = cell_type
+  # ))
 })
 
 bottom <- ggarrange(umaps.list$rep1$pseudotime,
@@ -139,3 +138,5 @@ ggsave(combined_plot,
   filename = paste0("Figures/SuppData/01_Real_Data.png"),
   dpi = 600, height = 8, width = 16
 )
+
+

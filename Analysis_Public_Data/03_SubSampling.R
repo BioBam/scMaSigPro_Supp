@@ -71,37 +71,39 @@ all.donor.subSample.list <- lapply(
       
       sob <- azimuth.list[[rep_i]]
       
-      
       # Step-1: Add Annotation for donors
       if (rep_i == "rep1") {
           individual <- "Donor-1"
           age <- "35"
           sex <- "Male"
+          min_dist = 0.2
+          n_neighbors = 20
+          sp = 1
       } else if (rep_i == "rep2") {
           individual <- "Donor-2"
           age <- "28"
           sex <- "Female"
+          min_dist = 0.2
+          n_neighbors = 20
+          sp = 1
       } else if (rep_i == "rep3") {
           individual <- "Donor-3"
           age <- "19"
           sex <- "Female"
+          min_dist = 0.4
+          n_neighbors = 100
+          sp = 0.5
       }
-
-    # Create lineage sets
-    lineage_set <- list(
-        hsc_lineage = c("HSC", "CLP", "EMP"),
-      lymphoid_lineage = c("CLP", "LMPP", "NK", "pro B", "pre B", "Memory B"),
-      granulocyte_monocyte_lineage = c("HSC","GMP", "CD14 Mono", "Macrophage", "cDC2", "pre-mDC", "pre-pDC"),
-      megakaryocyte_erythroid_lineage = c("EMP", "Prog Mk", "Platelet", "Early Eryth", "Late Eryth")
-    )
+      
+      # Subsample
+      subSample <- c("HSC","EMP", "GMP", "CD14 Mono", "Macrophage", "cDC2", "pre-mDC", "pre-pDC",
+                     "EMP", "Prog Mk", "Platelet", "Early Eryth", "Late Eryth")
 
     # Get all cells
     all_cells <- unique(sob@meta.data$cell_type)
 
-    # Create per linegae Plot
-    sub.sample.list <- lapply(names(lineage_set), function(i) {
       # Keep cells
-      keep <- all_cells[(all_cells %in% lineage_set[[i]])]
+      keep <- all_cells[all_cells %in% subSample]
 
       # Subset
       sob.sub <- subset(sob, cell_type %in% keep)
@@ -115,61 +117,42 @@ all.donor.subSample.list <- lapply(
       # Compute UMAP
       sob.sub <- RunUMAP(sob.sub,
         verbose = F, features = VariableFeatures(sob.sub),
-        min.dist = 0.1
+        min.dist = min_dist,
+        n.neighbors = n_neighbors,
+        spread = sp
+        
       )
 
       # Plot
       plt <- DimPlot(sob.sub, group.by = "cell_type") + ggtitle(paste(
         individual, "| Age:", age,
         "| sex:", sex
-      ), subtitle = paste(i))
-
-
-      # Return
-      return(list(
-        obj = sob.sub,
-        plot = plt
       ))
-    })
 
-    # Set name
-    names(sub.sample.list) <- names(lineage_set)
-    
     # Return UMAP
-    return(sub.sample.list)
+    return(list(obj = sob.sub,
+                plot = plt))
   }
 )
 
 names(all.donor.subSample.list) <-  names(azimuth.list)
 
 sub_samples <- ggarrange(
-    all.donor.subSample.list$rep1$hsc_lineage$plot,
-    all.donor.subSample.list$rep1$lymphoid_lineage$plot,
-    all.donor.subSample.list$rep1$granulocyte_monocyte_lineage$plot,
-    all.donor.subSample.list$rep1$megakaryocyte_erythroid_lineage$plot,
-    all.donor.subSample.list$rep2$hsc_lineage$plot,
-    all.donor.subSample.list$rep2$lymphoid_lineage$plot,
-    all.donor.subSample.list$rep2$granulocyte_monocyte_lineage$plot,
-    all.donor.subSample.list$rep2$megakaryocyte_erythroid_lineage$plot,
-    all.donor.subSample.list$rep3$hsc_lineage$plot,
-          all.donor.subSample.list$rep3$lymphoid_lineage$plot,
-          all.donor.subSample.list$rep3$granulocyte_monocyte_lineage$plot,
-          all.donor.subSample.list$rep3$megakaryocyte_erythroid_lineage$plot,
-    nrow=3, ncol = 4,
+    all.donor.subSample.list$rep1$plot,
+    all.donor.subSample.list$rep2$plot,
+    all.donor.subSample.list$rep3$plot,
+    nrow=1, ncol = 3,common.legend = T,
 legend = "bottom")
+sub_samples
 
 ggsave(sub_samples,
        filename = "01_SubSamples.png",
        path = "Figures/SuppData",
-       width = 16, height = 10)
+       width = 16)
 
 # Save
 nullList <- lapply(names(all.donor.subSample.list), function(rep_i){
-    ob.list <- all.donor.subSample.list[[rep_i]]
-    names <- names(ob.list)
-    for (i in names){
-        file_name <- paste0(dirPath, rep_i, "/", i,".RDS")
-        saveRDS(ob.list[[i]]$obj, file_name)
-        
-    }
+    ob.list <- all.donor.subSample.list[[rep_i]]$obj
+        file_name <- paste0(dirPath, rep_i,"subSampled.RDS")
+        saveRDS(ob.list, file_name)
 })

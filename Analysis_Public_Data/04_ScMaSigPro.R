@@ -48,7 +48,7 @@ object.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPa
 # Path-2:Y_4,Y_10,Y_11,Y_13,Y_21,Y_22,Y_36,Y_40,Y_41,Y_49,Y_57,Y_67,Y_77,Y_81,Y_84,Y_92,Y_94,Y_95,Y_98 (HSC -> mega)
 
 # Create ScMaSigPro
-scMaSigPro.list <- lapply(object.list[1], function(don) {
+scMaSigPro.list <- lapply(object.list, function(don) {
   # Convert the ScMaSigPro Object
   scmp.obj <- as_scmp(don,
     from = "cds",
@@ -86,7 +86,6 @@ scMaSigPro.list <- lapply(scMaSigPro.list, function(don) {
     offset = T,
     min.obs = 1
   )
-  scmp.obj@distribution <- MASS::negative.binomial(10)
 
   # Run-Step-2
   scmp.obj <- sc.T.fit(
@@ -95,16 +94,11 @@ scMaSigPro.list <- lapply(scMaSigPro.list, function(don) {
   )
 })
 
-scmp.obj <- sc.get.siggenes(scMaSigPro.list[[1]],
-  rsq = 0.7,
-  vars = "groups"
-)
 
 # save
-# Save the object for further analysis
 scMaSigPro.list <- lapply(names(scMaSigPro.list), function(don) {
   saveRDS(
     scMaSigPro.list[[don]],
-    paste0("Analysis_Public_Data/data/SingleCellExperimentAtlas/Monocle3_Input/scMaSigPro_Processed_", don, ".RDS")
+    paste0("/supp_data/Analysis_Public_Data/scMaSigPro_Processed_", don, ".RDS")
   )
 })
