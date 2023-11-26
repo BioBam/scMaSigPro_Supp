@@ -27,3 +27,26 @@ scMaSigPro.list <- lapply(rep_vec, function(don) {
 
 # Explore donor-1
 scmp.obj <- scMaSigPro.list$rep1
+
+# Extract Sol
+sol <- showSol(scmp.obj, includeInflu = T)
+    
+# Change NA 
+sol[is.na(sol$`p-value`), "p-value"] <- 1
+sol[is.na(sol$`R-squared`), "R-squared"] <- 0
+sol[,!(colnames(sol) %in% c("p-value", "R-squared"))][is.na(sol[,!(colnames(sol) %in% c("p-value", "R-squared"))])] <- 1
+
+# Get genes with pvalue as significant
+sol <- sol[sol$`p-value` <= 0.05, ]
+sol <- sol[sol$`R-squared` >= 0.6, ]
+
+# Remove the columns
+sol <- sol[,!(colnames(sol) %in% c("p-value", "R-squared"))]
+
+# Get the ones for which only beta changes
+beta0.sol <- sol[sol$p.valor_beta0 <= 0.05, ]
+beta0.sol.not <- sol[sol$p.valor_beta0 >= 0.05, ]
+
+sc.PlotGroups(scmp.obj,
+              sample(rownames(beta0.sol.not), 1),
+              logs = T, logType = "log10")
