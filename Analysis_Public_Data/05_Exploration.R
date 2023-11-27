@@ -28,25 +28,91 @@ scMaSigPro.list <- lapply(rep_vec, function(don) {
 # Explore donor-1
 scmp.obj <- scMaSigPro.list$rep1
 
-# Extract Sol
-sol <- showSol(scmp.obj, includeInflu = T)
+# Select the Significant genes
+scmp.obj <- sc.get.siggenes(scmpObj = scmp.obj,
+                            rsq = 0.7,
+                            Q = 0.05,
+                            vars = "groups",
+                            significant.intercept = "dummy",
+                            term.Q = 0.05,
+                            includeInflu = T)
     
-# Change NA 
-sol[is.na(sol$`p-value`), "p-value"] <- 1
-sol[is.na(sol$`R-squared`), "R-squared"] <- 0
-sol[,!(colnames(sol) %in% c("p-value", "R-squared"))][is.na(sol[,!(colnames(sol) %in% c("p-value", "R-squared"))])] <- 1
 
-# Get genes with pvalue as significant
-sol <- sol[sol$`p-value` <= 0.05, ]
-sol <- sol[sol$`R-squared` >= 0.6, ]
+sc.PlotGroups(scmp.obj, "GATA1", logType = "log", logs = T,
+              smoothness = 1, pseudoCount = 1)
 
-# Remove the columns
-sol <- sol[,!(colnames(sol) %in% c("p-value", "R-squared"))]
+sc.PlotGroups(scmp.obj, "MPO", logType = "log", logs = T,
+              smoothness = 1, pseudoCount = 1)
 
-# Get the ones for which only beta changes
-beta0.sol <- sol[sol$p.valor_beta0 <= 0.05, ]
-beta0.sol.not <- sol[sol$p.valor_beta0 >= 0.05, ]
+sc.PlotGroups(scmp.obj, "EPOR", logType = "log", logs = T,
+              smoothness = 1, pseudoCount = 1)
 
-sc.PlotGroups(scmp.obj,
-              sample(rownames(beta0.sol.not), 1),
-              logs = T, logType = "log10")
+sc.PlotGroups(scmp.obj, "ELANE", logType = "log", logs = T,
+              smoothness = 1, pseudoCount = 1)
+
+sc.PlotGroups(scmp.obj, "GATA2", logType = "log", logs = T,
+              smoothness = 1, pseudoCount = 1)
+
+sc.PlotGroups(scmp.obj, "IRF2", logType = "log", logs = T,
+              smoothness = 1, pseudoCount = 1)
+
+sc.PlotGroups(scmp.obj, "AZU1", logType = "log", logs = T,
+              smoothness = 1, pseudoCount = 1)
+
+sc.PlotGroups(scmp.obj, "CD34", logType = "log", logs = T,
+              smoothness = 1, pseudoCount = 1)
+
+sc.PlotGroups(scmp.obj, "ASXL1", logType = "log", logs = T,
+              smoothness = 1, pseudoCount = 1)
+
+sc.PlotGroups(scmp.obj, "SERPINB10", logType = "log", logs = T,
+              smoothness = 1, pseudoCount = 1)
+
+sc.PlotGroups(scmp.obj, "RNASE3", logType = "log", logs = T,
+              smoothness = 1, pseudoCount = 1)
+
+sc.PlotGroups(scmp.obj, "MS4A3", logType = "log", logs = T,
+              smoothness = 1, pseudoCount = 1)
+
+sc.PlotGroups(scmp.obj, "PRTN3", logType = "log", logs = T,
+              smoothness = 1, pseudoCount = 1)
+
+sc.PlotGroups(scmp.obj, "CTSG", logType = "log", logs = T,
+              smoothness = 1, pseudoCount = 1)
+
+sc.PlotGroups(scmp.obj, "RNASE2", logType = "log", logs = T,
+              smoothness = 1, pseudoCount = 1)
+
+sc.PlotGroups(scmp.obj, "NPW", logType = "log", logs = T,
+              smoothness = 1, pseudoCount = 1)
+
+# GMP
+sc.PlotGroups(scmp.obj, "MYCT1", logType = "log", logs = T,
+              smoothness = 1, pseudoCount = 1)
+
+sc.PlotGroups(scmp.obj, "PBX1", logType = "log", logs = T,
+              smoothness = 1, pseudoCount = 1)
+
+sc.PlotGroups(scmp.obj, "IGSF10", logType = "log", logs = T,
+              smoothness = 1, pseudoCount = 1, significant = F)
+
+sc.PlotGroups(scmp.obj, "CYTL1", logType = "log", logs = T,
+              smoothness = 1, pseudoCount = 1, significant = T)
+
+
+sc.PlotGroups(scmp.obj, "HPGDS", logType = "log", logs = T,
+              smoothness = 1, pseudoCount = 1)
+
+sc.PlotGroups(scmp.obj, "AVP", logType = "log", logs = T,
+              smoothness = 1, pseudoCount = 1)
+
+sc.PlotGroups(scmp.obj, "NPR3", logType = "log", logs = T,
+              smoothness = 1, pseudoCount = 1)
+
+sc.PlotGroups(scmp.obj, "CRHBP", logType = "log", logs = T,
+              smoothness = 1, pseudoCount = 1)
+
+
+sc.PlotGroups(scmp.obj, "CCL18", logType = "log", logs = T,
+              smoothness = 1, pseudoCount = 1, significant = F)
+

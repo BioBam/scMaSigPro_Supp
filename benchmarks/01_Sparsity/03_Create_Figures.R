@@ -74,7 +74,7 @@ zero_inflation
 
 ggsave(zero_inflation,
   filename = paste0("Figures/SuppData/01_Sim_60_to_90_ZI_Performance.png"),
-  dpi = 600, height = 8, width = 16
+  dpi = 150, height = 8, width = 16
 )
 
 # ROC Curve
