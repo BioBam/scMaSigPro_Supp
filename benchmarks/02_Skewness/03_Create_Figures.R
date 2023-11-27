@@ -17,7 +17,7 @@ phate.plots <- readRDS("/supp_data/benchmarks/02_Skewness/simulated/png/01_skew_
 
 # Load Evaluation
 evaluation.frame <- read.table("Tables/02_Skew_Performance.Table.tsv", sep = "\t", header = T)
-evaluation.frame.split <- read.table("Tables/02_A_SkewSplit_Performance.Table.tsv", sep = "\t", header = T)
+evaluation.frame.split <- read.table("Tables/02_SkewSplit_Performance.Table.tsv", sep = "\t", header = T)
 
 # Plot all values against zero inflation
 long_data <- melt(evaluation.frame, id.vars = c("RSQ", "parameter.value"), measure.vars = c("TPR", "FPR", "Accuracy", "F1_Score")) %>% as.data.frame()
@@ -114,5 +114,5 @@ skewness
 
 ggsave(skewness,
   filename = paste0("Figures/SuppData/02_Sim_0_to_1_skew_Performance.png"),
-  dpi = 600, height = 10, width = 16
+  dpi = 150, height = 10, width = 16
 )

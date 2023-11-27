@@ -74,5 +74,5 @@ Length
 
 ggsave(Length,
   filename = paste0("Figures/SuppData/03_Sim_400_to_1400_length_Performance.png"),
-  dpi = 600, height = 8, width = 16
+  dpi = 150, height = 8, width = 16
 )

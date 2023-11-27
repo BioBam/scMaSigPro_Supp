@@ -138,6 +138,6 @@ for (i in names(dataSets)) {
 evaluation.frame <- do.call(rbind, eval.list)
 
 # Write
-write.table(evaluation.frame, paste0(outPath2, "02_A_SkewSplit_Performance.Table.tsv"),
+write.table(evaluation.frame, paste0(outPath2, "02_SkewSplit_Performance.Table.tsv"),
   sep = "\t", row.names = F, quote = F
 )
