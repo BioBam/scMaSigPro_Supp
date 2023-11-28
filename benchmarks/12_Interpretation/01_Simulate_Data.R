@@ -31,7 +31,7 @@ source(paste0(helpScriptsDir, "calc_bin_size.R"))
 params.groups <- newSplatParams(
   batch.rmEffect = TRUE, # No Batch affect
   batchCells = 3000, # Number of Cells
-  nGenes = 5000, # Number of Genes
+  nGenes = 2000, # Number of Genes
   seed = 2022, # Set seed
   mean.rate = 0.3, mean.shape = 5, lib.scale = 0.2,
   lib.loc = 12, dropout.type = "experiment",
