@@ -81,12 +81,12 @@ roc_B <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = parameter)) +
     
     
   geom_point(
-    data = subset(evaluation.frame, TPR > 0.8 & FPR <= 0.05 & parameter == "ZI"),
+    data = subset(evaluation.frame, TPR > 0.8 & TPR <= 0.85& FPR <= 0.05 & parameter == "ZI"),
     color = colorConesa(6)[6],
     size = 2.5
   ) +
   geom_label_repel(
-    data = subset(evaluation.frame,  TPR > 0.8 & FPR <= 0.05 & parameter == "ZI"),
+    data = subset(evaluation.frame,  TPR > 0.8 & TPR <= 0.85& FPR <= 0.05 & parameter == "ZI"),
     aes(
       label = RSQ,
       color = parameter
@@ -117,12 +117,12 @@ roc_B <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = parameter)) +
     show.legend = FALSE # Prevent the creation of a legend for this aesthetic
   ) +
   geom_point(
-    data = subset(evaluation.frame, TPR >= 0.75 & FPR <= 0.05 & parameter == "SkewSplit"),
+    data = subset(evaluation.frame, TPR >= 0.75 & TPR <= 0.85 & FPR <= 0.05 & parameter == "SkewSplit"),
     color = colorConesa(3)[2],
     size = 2.5
   ) +
   geom_label_repel(
-    data = subset(evaluation.frame, TPR >= 0.75 & FPR <= 0.05 & parameter == "SkewSplit"),
+    data = subset(evaluation.frame, TPR >= 0.75 & TPR <= 0.85 & FPR <= 0.05 & parameter == "SkewSplit"),
     aes(
       label = RSQ,
       color = parameter
@@ -153,12 +153,12 @@ roc_B <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = parameter)) +
     show.legend = FALSE # Prevent the creation of a legend for this aesthetic
   ) +
   geom_point(
-    data = subset(evaluation.frame, TPR >= 0.75 & FPR < 0.05 & parameter == "len"),
+    data = subset(evaluation.frame, TPR >= 0.75 & TPR <= 0.85& FPR < 0.05 & parameter == "len"),
     color = colorConesa(3)[1],
     size = 2.5
   ) +
   geom_label_repel(
-    data = subset(evaluation.frame, TPR >= 0.75 & FPR < 0.05 & parameter == "len"),
+    data = subset(evaluation.frame, TPR >= 0.75 & TPR <= 0.85& FPR < 0.05 & parameter == "len"),
     aes(
       label = RSQ,
       color = parameter
@@ -182,10 +182,11 @@ roc_B <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = parameter)) +
     legend.direction = "vertical",
     legend.title = element_text(size = 16),
     legend.text = element_text(size = 14),
+    axis.text.x = element_text(angle = 45, hjust = 1),
     panel.grid.major = element_line(linewidth = 0.3, color = "lightgrey", linetype = "dotted"),
     panel.grid.minor = element_line(linewidth = 0.1, color = "lightgrey", linetype = "dotted"),
     # legend.position = "bottom"
-    legend.position = c(0.35, 0.5), legend.justification = c("left", "top")
+    legend.position = c(0.3, 0.5), legend.justification = c("left", "top")
   ) +
   geom_vline(xintercept = 0.01, colour = "lightgrey", linetype = "dotted") + # Highlighted the x-intercept of 0.01
   geom_vline(xintercept = 0.05, colour = "lightgrey", linetype = "dotted") +
