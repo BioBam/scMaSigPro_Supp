@@ -50,7 +50,7 @@ for (i in names(dataSets)) {
   tryCatch(
     expr = {
       # Convert
-      scmp.obj <- as_scmp(sim.sce,
+      scmp.obj <- as.scmp(sim.sce,
         from = "sce",
         align_pseudotime = F,
         additional_params = list(
@@ -61,7 +61,7 @@ for (i in names(dataSets)) {
       )
 
       # Compress
-      scmp.obj <- squeeze(
+      scmp.obj <- sc.squeeze(
         scmpObject = scmp.obj,
         bin_method = "Sturges",
         drop_fac = drop_fac,
@@ -74,7 +74,7 @@ for (i in names(dataSets)) {
       )
 
       # Make Design
-      scmp.obj <- sc.make.design.matrix(scmp.obj, poly_degree = poly.degree)
+      scmp.obj <- sc.set.poly(scmp.obj, poly_degree = poly.degree)
 
       # Run p-vector
       scmp.obj <- sc.p.vector(

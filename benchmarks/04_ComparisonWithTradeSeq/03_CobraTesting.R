@@ -99,7 +99,7 @@ ROC <- ROC + theme_classic(base_size = 15) +
   geom_vline(xintercept = 0.05, colour = "lightgrey", linetype = "dotted") +
   geom_vline(xintercept = 0.1, colour = "lightgrey", linetype = "dotted") +
   scale_y_continuous(breaks = unique(c(seq(0.8, 1, 0.05), seq(0, 1, 0.1)))) +
-  scale_x_continuous(breaks = unique(c(c(0.05, 0.01, 0.1), seq(0.2, 1, 0.1))),limits = c(0, 1))
+  scale_x_continuous(breaks = unique(c(c(0.05, 0.01, 0.1), seq(0.2, 1, 0.1))), limits = c(0, 1))
 
 print(ROC)
 

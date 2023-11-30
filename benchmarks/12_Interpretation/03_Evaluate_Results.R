@@ -24,14 +24,17 @@ scmp.ob <- readRDS(paste0(inPath, dataSets))
 
 # Groups
 scmp.ob.none <- sc.get.siggenes(scmp.ob,
-                                rsq = 0.7, 
-                                vars = "groups", significant.intercept = "none")
+  rsq = 0.7,
+  vars = "groups", significant.intercept = "none"
+)
 scmp.ob.dummy <- sc.get.siggenes(scmp.ob,
-                                rsq = 0.7, 
-                                vars = "groups", significant.intercept = "dummy")
+  rsq = 0.7,
+  vars = "groups", significant.intercept = "dummy"
+)
 scmp.ob.all <- sc.get.siggenes(scmp.ob,
-                                rsq = 0.7, 
-                                vars = "groups", significant.intercept = "all")
+  rsq = 0.7,
+  vars = "groups", significant.intercept = "all"
+)
 
 # Plot Intersection
 none <- sc.path.intersection(scmp.ob.none)
@@ -41,22 +44,22 @@ ggarrange(none, dummy, all, ncol = 1)
 
 
 get.features(
-    scmp.ob.dummy,
-    query = "unique",
-    unique.group = "Path1",
-    unique.trend = "up",
+  scmp.ob.dummy,
+  query = "unique",
+  unique.group = "Path1",
+  unique.trend = "up",
 )
 
 
 
 
 
- get.features(
-    scmp.ob.dummy,
-    query = "union",
-    union.ref.trend = "up",
-    union.target.trend = "down",
-    union.ref = "Path1", 
-    union.target = "Path2vsPath1",
-    vars = "each"
+get.features(
+  scmp.ob.dummy,
+  query = "union",
+  union.ref.trend = "up",
+  union.target.trend = "down",
+  union.ref = "Path1",
+  union.target = "Path2vsPath1",
+  vars = "each"
 )

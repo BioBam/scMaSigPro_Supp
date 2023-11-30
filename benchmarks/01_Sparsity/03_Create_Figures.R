@@ -43,8 +43,37 @@ performance.list <- lapply(unique(long_data$parameter.value), function(zi) {
       x = "Varying R-Square", y = "Performance Metric",
       # title = paste("Zero-inflation level", zi)
     ) +
-    scale_x_continuous(breaks = seq(0.1, 0.95, 0.2), limits = c(0, 0.95)) +
-    theme_minimal(base_size = 12)
+    scale_x_continuous(
+      breaks = seq(0, 1, by = 0.2), # Major x-axis breaks
+      minor_breaks = seq(0, 1, by = 0.1) # Minor x-axis breaks
+    ) +
+    scale_y_continuous(
+      breaks = c(seq(0, 1, by = 0.2), 0.05), # Major y-axis breaks
+      minor_breaks = seq(0, 1, by = 0.1) # Minor y-axis breaks
+    ) +
+    geom_hline(yintercept = 0.05, linetype = "dotted", color = "black") +
+    theme_minimal(base_size = 12) +
+    theme(
+      panel.grid.major = element_line(color = "grey90", linewidth = 0.25), # Customize major grid lines
+      panel.grid.minor = element_line(color = "grey90", linewidth = 0.1) # Customize minor grid lines
+    )
+
+
+  # Add Annotation
+  if (zi == 60) {
+    performance.plot <- performance.plot +
+      annotate("rect", xmin = 0.45, xmax = 0.65, ymin = 0, ymax = 1, alpha = 0.3, fill = "lightgrey")
+  } else if (zi == 70) {
+    performance.plot <- performance.plot +
+      annotate("rect", xmin = 0.4, xmax = 0.6, ymin = 0, ymax = 1, alpha = 0.3, fill = "lightgrey")
+  } else if (zi == 80) {
+    performance.plot <- performance.plot +
+      annotate("rect", xmin = 0.35, xmax = 0.55, ymin = 0, ymax = 1, alpha = 0.3, fill = "lightgrey")
+  } else if (zi == 90) {
+    performance.plot <- performance.plot +
+      annotate("rect", xmin = 0.3, xmax = 0.5, ymin = 0, ymax = 1, alpha = 0.3, fill = "lightgrey")
+  }
+
   # Return
   return(performance.plot)
 })
