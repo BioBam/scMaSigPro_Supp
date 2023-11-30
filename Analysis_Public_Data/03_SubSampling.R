@@ -101,9 +101,13 @@ all.donor.subSample.list <- lapply(
           sp = 0.5
       }
       
-      # Subsample
-      subSample <- c("ASDC", "HSC","EMP", "GMP", "CD14 Mono", "Macrophage", "cDC2", "pre-mDC", "pre-pDC",
-                     "EMP", "Prog Mk", "Platelet", "Early Eryth", "Late Eryth")
+      if(rep_i == "rep3"){
+          subSample <- c("ASDC", "HSC","EMP", "GMP", "CD14 Mono", "Macrophage", "cDC2", "pre-mDC", "pre-pDC",
+                         "EMP", "Prog Mk", "Platelet", "Early Eryth", "pro B")
+      }else{
+          subSample <- c("ASDC", "HSC","EMP", "GMP", "CD14 Mono", "Macrophage", "cDC2", "pre-mDC", "pre-pDC",
+                         "EMP", "Prog Mk", "Platelet", "Early Eryth")
+      }
 
     # Get all cells
     all_cells <- unique(sob@meta.data$cell_type)
@@ -113,7 +117,7 @@ all.donor.subSample.list <- lapply(
 
       # Subset
       sob.sub <- subset(sob, cell_type %in% keep)
-      sob.sub <- subset(sob.sub, subset = nFeature_RNA > 100)
+      sob.sub <- subset(sob.sub, subset = nFeature_RNA > 50)
 
       # Recompute
       sob.sub <- RunPCA(sob.sub, features = VariableFeatures(object = sob.sub), verbose = F)

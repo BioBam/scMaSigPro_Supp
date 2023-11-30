@@ -50,7 +50,7 @@ umaps.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPat
 
     # Create cds
     cds <- new_cell_data_set(
-      expression_data = sob@assays$RNA@data,
+      expression_data = sob@assays$RNA@counts,
       cell_metadata = sob@meta.data,
       gene_metadata = data.frame(
         row.names = rownames(sob),
@@ -113,10 +113,6 @@ umaps.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPat
   return(list(pseudotime = pseudotime,
               cell_type = cell_type))
 
-  # return(list(
-  #   pseudotime = pseudotime,
-  #   cell_type = cell_type
-  # ))
 })
 
 bottom <- ggarrange(umaps.list$rep1$pseudotime,
@@ -135,7 +131,7 @@ top <- ggarrange(umaps.list$rep1$cell_type,
 combined_plot <- ggarrange(top, bottom, nrow = 2)
 combined_plot
 ggsave(combined_plot,
-  filename = paste0("Figures/SuppData/01_Real_Data.png"),
+  filename = paste0("Figures/SuppData/05_Real_Data-TI.png"),
   dpi = 600, height = 8, width = 16
 )
 
