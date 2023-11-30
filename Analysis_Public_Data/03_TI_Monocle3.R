@@ -80,7 +80,6 @@ umaps.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPat
       close_loop = F,
       learn_graph_control = list(
         prune_graph =T,
-        ncenter = 750,
          minimal_branch_len = 10
       )
     )
@@ -90,7 +89,7 @@ umaps.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPat
       root_pr_nodes = find_root_pp(cds,
         cell = root_cell,
         cell_col = "cell_type"
-      )[c(3)]
+      )
     )
 
     # Plot
@@ -124,18 +123,19 @@ bottom <- ggarrange(umaps.list$rep1$pseudotime,
   labels = c("D.", "E.", "F."), nrow = 1,
   common.legend = F, legend = "bottom"
 )
+bottom
 top <- ggarrange(umaps.list$rep1$cell_type,
   umaps.list$rep2$cell_type,
   umaps.list$rep3$cell_type,
   labels = c("A.", "B.", "C."), nrow = 1,
-  common.legend = T, legend = "bottom"
+  common.legend = F, legend = "bottom"
 )
 
 combined_plot <- ggarrange(top, bottom, nrow = 2)
 combined_plot
 ggsave(combined_plot,
   filename = paste0("Figures/SuppData/05_Real_Data-TI.png"),
-  dpi = 600, height = 8, width = 16
+  dpi = 150, height = 8, width = 12
 )
 
 
