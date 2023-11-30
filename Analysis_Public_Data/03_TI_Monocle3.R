@@ -128,7 +128,7 @@ top <- ggarrange(umaps.list$rep1$cell_type,
   umaps.list$rep2$cell_type,
   umaps.list$rep3$cell_type,
   labels = c("A.", "B.", "C."), nrow = 1,
-  common.legend = F, legend = "bottom"
+  common.legend = T, legend = "bottom"
 )
 
 combined_plot <- ggarrange(top, bottom, nrow = 2)
