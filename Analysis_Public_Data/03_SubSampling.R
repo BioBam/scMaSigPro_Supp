@@ -58,18 +58,24 @@ azimuth.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirP
   sob.sub <- RunUMAP(sob.sub,
     verbose = F, features = VariableFeatures(sob.sub)
   )
+  
+  # Plot
+  plt <- DimPlot(sob.sub, group.by = "cell_type") + ggtitle(paste(
+      individual, "| Age:", age,
+      "| sex:", sex
+  )) +theme(legend.position = "bottom", legend.justification = "center")
 
   # Return
-  return(sob.sub)
+  return(list(sob.sub = sob.sub,
+              plt = plt))
 })
-
 
 # Subsample for donor-1
 all.donor.subSample.list <- lapply(
   names(azimuth.list),
   function(rep_i, inPath = dirPath, outPath = dirPath) {
       
-      sob <- azimuth.list[[rep_i]]
+      sob <- azimuth.list[[rep_i]][["sob.sub"]]
       
       # Step-1: Add Annotation for donors
       if (rep_i == "rep1") {
@@ -96,7 +102,7 @@ all.donor.subSample.list <- lapply(
       }
       
       # Subsample
-      subSample <- c("HSC","EMP", "GMP", "CD14 Mono", "Macrophage", "cDC2", "pre-mDC", "pre-pDC",
+      subSample <- c("ASDC", "HSC","EMP", "GMP", "CD14 Mono", "Macrophage", "cDC2", "pre-mDC", "pre-pDC",
                      "EMP", "Prog Mk", "Platelet", "Early Eryth", "Late Eryth")
 
     # Get all cells
@@ -127,7 +133,7 @@ all.donor.subSample.list <- lapply(
       plt <- DimPlot(sob.sub, group.by = "cell_type") + ggtitle(paste(
         individual, "| Age:", age,
         "| sex:", sex
-      ))
+      ))+theme(legend.position = "bottom", legend.justification = "center")
 
     # Return UMAP
     return(list(obj = sob.sub,
@@ -138,17 +144,24 @@ all.donor.subSample.list <- lapply(
 names(all.donor.subSample.list) <-  names(azimuth.list)
 
 sub_samples <- ggarrange(
+    azimuth.list$rep1$plt,
+    azimuth.list$rep2$plt,
+    azimuth.list$rep3$plt,
     all.donor.subSample.list$rep1$plot,
     all.donor.subSample.list$rep2$plot,
     all.donor.subSample.list$rep3$plot,
-    nrow=1, ncol = 3,common.legend = T,
-legend = "bottom")
+    nrow=2, ncol = 3,common.legend = T,
+    
+legend = "bottom",
+    labels = c("A.", "B.", "C.", "D.", "E.", "F.")
+    )
 sub_samples
 
+
 ggsave(sub_samples,
-       filename = "01_SubSamples.png",
+       filename = "05_RealData-SubSampling.png",
        path = "Figures/SuppData",
-       width = 16)
+       width = 16, dpi = 150)
 
 # Save
 nullList <- lapply(names(all.donor.subSample.list), function(rep_i){
