@@ -38,16 +38,9 @@ azimuth.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirP
   # Load seurat object
   sob <- readRDS(file = paste0(inPath, rep_i, "/", rep_i, "_azimuth.RDS"))
 
-  # Get all cells
-  all_cells <- unique(sob@meta.data$cell_type)
-
-  # Drop cells
-  keep <- all_cells[!(all_cells %in% c(
-    "BaEoMa", "Stromal", "transitional B"
-  ))]
 
   # Subset
-  sob.sub <- subset(sob, cell_type %in% keep)
+  sob.sub <- sob
 
   # Recompute
   sob.sub <- RunPCA(sob.sub, features = VariableFeatures(object = sob.sub), verbose = F)
@@ -82,32 +75,28 @@ all.donor.subSample.list <- lapply(
           individual <- "Donor-1"
           age <- "35"
           sex <- "Male"
-          min_dist = 0.2
+          min_dist = 0.1
           n_neighbors = 20
           sp = 1
       } else if (rep_i == "rep2") {
           individual <- "Donor-2"
           age <- "28"
           sex <- "Female"
-          min_dist = 0.2
           n_neighbors = 20
+          min_dist = 0.1
           sp = 1
       } else if (rep_i == "rep3") {
           individual <- "Donor-3"
           age <- "19"
           sex <- "Female"
-          min_dist = 0.4
-          n_neighbors = 100
+          min_dist = 0.2
+          n_neighbors = 50
           sp = 0.5
       }
       
-      if(rep_i == "rep3"){
-          subSample <- c("ASDC", "HSC","EMP", "GMP", "CD14 Mono", "Macrophage", "cDC2", "pre-mDC", "pre-pDC",
+      # Keep Cells
+      subSample <- c("ASDC", "HSC","EMP", "GMP", "Macrophage", "cDC2", "pre-mDC", "pre-pDC",
                          "EMP", "Prog Mk", "Platelet", "Early Eryth", "pro B")
-      }else{
-          subSample <- c("ASDC", "HSC","EMP", "GMP", "CD14 Mono", "Macrophage", "cDC2", "pre-mDC", "pre-pDC",
-                         "EMP", "Prog Mk", "Platelet", "Early Eryth")
-      }
 
     # Get all cells
     all_cells <- unique(sob@meta.data$cell_type)
@@ -130,7 +119,6 @@ all.donor.subSample.list <- lapply(
         min.dist = min_dist,
         n.neighbors = n_neighbors,
         spread = sp
-        
       )
 
       # Plot
@@ -147,6 +135,7 @@ all.donor.subSample.list <- lapply(
 
 names(all.donor.subSample.list) <-  names(azimuth.list)
 
+# Plot
 sub_samples <- ggarrange(
     azimuth.list$rep1$plt,
     azimuth.list$rep2$plt,

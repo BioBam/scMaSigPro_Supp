@@ -34,16 +34,19 @@ umaps.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPat
     age <- "35"
     sex <- "Male"
     loop <- TRUE
+    root_cell <- "HSC"
   } else if (rep_i == "rep2") {
     individual <- "Donor-2"
     age <- "28"
     sex <- "Female"
     loop <- TRUE
+    root_cell <- "HSC"
   } else if (rep_i == "rep3") {
     individual <- "Donor-3"
     age <- "19"
     sex <- "Female"
     loop <- FALSE
+    root_cell <- "HSC"
   }
     
     sob <- readRDS(file = paste0(dirPath, rep_i,"subSampled.RDS"))
@@ -85,9 +88,9 @@ umaps.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPat
     # Order cells
     cds <- order_cells(cds,
       root_pr_nodes = find_root_pp(cds,
-        cell = "HSC",
+        cell = root_cell,
         cell_col = "cell_type"
-      )[c(1)]
+      )[c(3)]
     )
 
     # Plot

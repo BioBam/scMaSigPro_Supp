@@ -17,7 +17,7 @@ suppressPackageStartupMessages(library(SeuratDisk))
 suppressPackageStartupMessages(library(parallel))
 
 # Prefix
-dirPath <- "/supp_data/Analysis_Public_Data/"
+dirPath <- "/supp_data/Analysis_Public_Data"
 
 # Read BioMart info
 biomart.anno <- readRDS(paste(dirPath, "cell_cycle_data.mart", sep = "/"))
@@ -25,10 +25,11 @@ reg.out <- c(unique(biomart.anno$SYMBOL))
 
 # Get folder names
 rep_vec <- list.dirs(dirPath, full.names = F, recursive = F)
+rep_vec <- rep_vec[rep_vec != "Azimuth_Human_BoneMarrow"]
 names(rep_vec) <- rep_vec
 
 # Run lapply
-umaps.list <- lapply(rep_vec, function(rep_i, inPath = prefixIn, outPath = prefixOut) {
+umaps.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPath) {
   # Step-1: Add Annotation for donors
   if (rep_i == "rep1") {
     individual <- "Donor-1"
@@ -61,7 +62,7 @@ umaps.list <- lapply(rep_vec, function(rep_i, inPath = prefixIn, outPath = prefi
   sob.raw[["percent.mt"]] <- PercentageFeatureSet(sob.raw, pattern = "^MT-")
 
   # Remove Cells
-  sob.sub <- subset(sob.raw, subset = nFeature_RNA > 100 & nCount_RNA < 40000 & percent.mt < 10)
+  sob.sub <- subset(sob.raw, subset = nFeature_RNA > 100 & nCount_RNA < 40000 & percent.mt < 15)
 
   # Normalize
   sob.prs <- NormalizeData(sob.sub, verbose = F)
