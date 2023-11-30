@@ -105,13 +105,8 @@ print(ROC)
 
 saveRDS(ROC, file = "Figures/MainArticle/MainArticle_FigureC.RDS")
 
-plot_overlap(cobraplot)
+# Save Truth table with results
+df <- cbind(gt, cobraInput)
+saveRDS(df, file = "/supp_data/benchmarks/04_ComparisonWithTradeSeq/output/Prediction.RDS")
 
-TPRvsFDR <- plot_fdrtprcurve(cobraplot, title = "TPR vs FDR")
-TPR <- plot_tpr(cobraplot, title = "TPR")
-FPR <- plot_fpr(cobraplot, title = "FPR")
-#
-# ggsave(filename = paste0(resPath, "ROC.png"), plot = ROC, dpi = 600, width = 7, height = 5)
-# ggsave(filename = paste0(resPath, "TPRvsFDR.png"), plot = TPRvsFDR, dpi = 600, width = 7, height = 5)
-# ggsave(filename = paste0(resPath, "TPR.png"), plot = TPR, dpi = 600, width = 7, height = 5)
-# ggsave(filename = paste0(resPath, "FPR.png"), plot = FPR, dpi = 600, width = 7, height = 5)
+plot_overlap(cobraplot)

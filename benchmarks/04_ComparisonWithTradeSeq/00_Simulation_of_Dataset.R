@@ -94,12 +94,14 @@ colnames(bar.df) <- c("DE", "Fold_Change")
 bar.df <- as.data.frame(table(bar.df[, c("DE", "Fold_Change")]))
 bar.df <- bar.df[bar.df$Freq != 0, ]
 bar <- ggplot(bar.df, aes(x = DE, y = Freq, fill = Fold_Change)) +
-    geom_bar(stat = "identity", position = "stack") +
-    geom_text(aes(label = Freq), position = position_stack(vjust = 0.5), size = 3) +
-    theme_minimal() + ggtitle("Number of genes in the simulated data",
-                              subtitle = "Category-wise distribution")+
-    labs(x = "DE", y = "Frequency", fill = "Fold Change") +
-    theme(legend.position = "bottom")
+  geom_bar(stat = "identity", position = "stack") +
+  geom_text(aes(label = Freq), position = position_stack(vjust = 0.5), size = 3) +
+  theme_minimal() +
+  ggtitle("Number of genes in the simulated data",
+    subtitle = "Category-wise distribution"
+  ) +
+  labs(x = "DE", y = "Frequency", fill = "Fold Change") +
+  theme(legend.position = "bottom")
 
 # Update the SCE Simulated Object
 rowData(sim.sce) <- DataFrame(gene.info)
@@ -156,7 +158,9 @@ plt
 
 combine <- ggarrange(plt, bar, labels = c("A.", "B."), nrow = 1)
 
-ggsave(plot = combine,
-       path = "Figures/SuppData/",
-       filename = "04_TradeSeq_Sim.png",
-       dpi = 150, width = 10, height = 6)
+ggsave(
+  plot = combine,
+  path = "Figures/SuppData/",
+  filename = "04_TradeSeq_Sim.png",
+  dpi = 150, width = 10, height = 6
+)
