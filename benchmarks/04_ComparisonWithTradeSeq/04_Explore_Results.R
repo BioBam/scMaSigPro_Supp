@@ -107,15 +107,15 @@ bar.list <- lapply(names(df.list), function(df.name) {
   if (df.name == "fn_by_all") {
     barplot <- barplot + ggtitle("False Negative by all methods")
   } else if (df.name == "incorrect_by_scmp") {
-    barplot <- barplot + ggtitle("Incorrectly identified by scMaSigPro",
+    barplot <- barplot + ggtitle("False Negative by scMaSigPro",
       subtitle = "Correctly Identified by both 'TS_pattern' & 'TS_diffEnd'"
     )
   } else if (df.name == "incorrect_by_ts_pattern") {
-    barplot <- barplot + ggtitle("Incorrectly identified by TS_pattern",
+    barplot <- barplot + ggtitle("False Negative by TS_pattern",
       subtitle = "Correctly Identified by scMaSigPro"
     )
   } else if (df.name == "incorrect_by_ts_diffEnd") {
-    barplot <- barplot + ggtitle("Incorrectly identified by TS_diffEnd",
+    barplot <- barplot + ggtitle("False Negative by TS_diffEnd",
       subtitle = "Correctly Identified by scMaSigPro"
     )
   }
