@@ -161,7 +161,7 @@ sub_samples
 ggsave(sub_samples,
        filename = "05_RealData-SubSampling.png",
        path = "Figures/SuppData",
-       width = 16, dpi = 150)
+       width = 12, dpi = 150, height = 8)
 
 # Save
 nullList <- lapply(names(all.donor.subSample.list), function(rep_i){
