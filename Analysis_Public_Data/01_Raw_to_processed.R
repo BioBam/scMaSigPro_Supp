@@ -62,7 +62,7 @@ umaps.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPat
   sob.raw[["percent.mt"]] <- PercentageFeatureSet(sob.raw, pattern = "^MT-")
 
   # Remove Cells
-  sob.sub <- subset(sob.raw, subset = nFeature_RNA > 100 & nCount_RNA < 40000 & percent.mt < 15)
+  sob.sub <- subset(sob.raw, subset = nFeature_RNA > 100 & nCount_RNA < 40000 & percent.mt < 5)
 
   # Normalize
   sob.prs <- NormalizeData(sob.sub, verbose = F)

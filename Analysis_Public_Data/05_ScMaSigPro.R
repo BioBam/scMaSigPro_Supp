@@ -48,22 +48,31 @@ object.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPa
 # Path-2:Y_4,Y_10,Y_11,Y_13,Y_21,Y_22,Y_36,Y_40,Y_41,Y_49,Y_57,Y_67,Y_77,Y_81,Y_84,Y_92,Y_94,Y_95,Y_98 (HSC -> mega)
 
 # Create ScMaSigPro
-scMaSigPro.list <- lapply(object.list, function(don,  inPath = dirPath) {
+scMaSigPro.list <- lapply(names(object.list), function(rep_i,  inPath = dirPath) {
   # Convert the ScMaSigPro Object
-  scmp.obj <- as.scmp(don,
+  scmp.obj <- as.scmp(object.list[[rep_i]],
     from = "cds",
     align_pseudotime = F,
     annotation_colname = "cell_type"
   )
-  
+
   # Save
   saveRDS(scmp.obj, file = paste0(inPath, rep_i, "/", rep_i, "_selected.RDS"))
-  return(scmp.obj)
+  #return(scmp.obj)
+})
+
+
+# Create ScMaSigPro
+scMaSigPro.list.new <- lapply(names(object.list), function(rep_i,  inPath = dirPath) {
+
+    # Save
+    return(readRDS(paste0(inPath, rep_i, "/", rep_i, "_selected.RDS")))
+    #return(scmp.obj)
 })
 
 
 # Run scMaSigPro
-scMaSigPro.list <- lapply(scMaSigPro.list, function(don) {
+scMaSigPro.list <- lapply(scMaSigPro.list.new, function(don) {
   # Compress
   scmp.obj <- sc.squeeze(
     scmpObject = don,
@@ -95,13 +104,15 @@ scMaSigPro.list <- lapply(scMaSigPro.list, function(don) {
     scmpObj = scmp.obj, verbose = T,
     step.method = "backward"
   )
+  return(scmp.obj)
 })
 
 
+names(scMaSigPro.list) <- rep_vec
 # save
 scMaSigPro.list <- lapply(names(scMaSigPro.list), function(don) {
   saveRDS(
     scMaSigPro.list[[don]],
-    paste0("/supp_data/Analysis_Public_Data/scMaSigPro_Processed_", don, ".RDS")
+    paste0("/supp_data/Analysis_Public_Data/",don,"/","scMaSigPro_Processed_", don, ".RDS")
   )
 })

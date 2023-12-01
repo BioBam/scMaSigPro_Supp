@@ -92,7 +92,7 @@ all.donor.subSample.list <- lapply(
           sp = 1
           
           # Keep Cells
-          subSample <- c("ASDC", "HSC","EMP", "GMP", "Macrophage", "cDC2", "pre-mDC", "pre-pDC",
+          subSample <- c("ASDC", "HSC","EMP", "GMP", "Macrophage", "cDC2","Platelet", "pre-pDC",
                          "EMP", "Early Eryth")
           
       } else if (rep_i == "rep3") {

@@ -23,24 +23,24 @@ suppressPackageStartupMessages(library(scMaSigPro))
 # Load
 scMaSigPro.list <- lapply(rep_vec, function(don) {
     ob <- readRDS(
-        paste0("/supp_data/Analysis_Public_Data/scMaSigPro_Processed_", don, ".RDS")
+        paste0("/supp_data/Analysis_Public_Data/",don,"/","scMaSigPro_Processed_", don, ".RDS")
     )
 })
 
 # Explore donor-1
-scmp.obj <- scMaSigPro.list$rep3
+scmp.obj <- scMaSigPro.list$rep2
 
 # Get genes for Path2(EMP)
 emp_up <- sc.get.features(scmpObj = scmp.obj,
                           query = "union",
-                          rsq = 0.5,
+                          rsq = 0.7,
                           unique.group = "Path2vsPath1",
                           significant.intercept = "dummy",
-                          vars = "groups",includeInflu = F,
+                          vars = "groups",includeInflu = T,
                           union.ref = "Path1",
                           union.target = "Path2vsPath1",
                           union.ref.trend = "stable",
-                          union.target.trend = "stable")
+                          union.target.trend = "any")
 emp_up <- emp_up[order(emp_up)]
 
 az_emp <- c("MYCT1","CRHBP","NPR3","AVP","GATA2","HPGDS","CYTL1","CRYGD","IGSF10","PBX1")
