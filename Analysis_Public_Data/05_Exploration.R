@@ -28,27 +28,19 @@ scMaSigPro.list <- lapply(rep_vec, function(don) {
 })
 
 # Explore donor-1
-scmp.obj <- scMaSigPro.list$rep1
-
-scmp.obj <- sc.get.siggenes(scmp.obj,
-                rsq = 0.8,
-                vars = "groups",
-                includeInflu = T)
-
-# 
-sc.path.intersection(scmp.obj)
+scmp.obj <- scMaSigPro.list$rep3
 
 # Get genes for Path2(EMP)
 emp_up <- sc.get.features(scmpObj = scmp.obj,
                           query = "union",
-                          rsq = 0.8,
+                          rsq = 0.5,
                           unique.group = "Path2vsPath1",
                           significant.intercept = "dummy",
-                          vars = "groups",includeInflu = T,
+                          vars = "groups",includeInflu = F,
                           union.ref = "Path1",
                           union.target = "Path2vsPath1",
-                          union.ref.trend = "down",
-                          union.target.trend = "any")
+                          union.ref.trend = "stable",
+                          union.target.trend = "stable")
 emp_up <- emp_up[order(emp_up)]
 
 az_emp <- c("MYCT1","CRHBP","NPR3","AVP","GATA2","HPGDS","CYTL1","CRYGD","IGSF10","PBX1")
@@ -66,7 +58,7 @@ stop()
 
 write.table(emp_up, "test.tsv", sep = "\t", quote = F, row.names = F)
 ITGA2B
-sc.PlotGroups(scmp.obj, "TBXAS1", logType = "log", logs = T,
+plotTrend(scmp.obj, "BANK1", logType = "log", logs = T,
                        smoothness = 0.001, pseudoCount = 1, significant = F)
 
 

@@ -70,10 +70,10 @@ ego <- enrichGO(gene = entrez_id,
                 keyType = "ENTREZID",
                 universe = background_vector,
                 ont = "BP",  # Biological Processes
-                pAdjustMethod = "fdr",  # Benjamini-Hochberg adjustment
+                pAdjustMethod = "BH",  # Benjamini-Hochberg adjustment
                 qvalueCutoff = 0.05,  # Set threshold for q-value
                 readable = TRUE)  # To show readable gene names
-
+ego
 # Plot bar
 barplot(ego, showCategory=20)  # To show top 20 enriched GO terms
 

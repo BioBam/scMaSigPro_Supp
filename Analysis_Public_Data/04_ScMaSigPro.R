@@ -48,20 +48,24 @@ object.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPa
 # Path-2:Y_4,Y_10,Y_11,Y_13,Y_21,Y_22,Y_36,Y_40,Y_41,Y_49,Y_57,Y_67,Y_77,Y_81,Y_84,Y_92,Y_94,Y_95,Y_98 (HSC -> mega)
 
 # Create ScMaSigPro
-scMaSigPro.list <- lapply(object.list, function(don) {
+scMaSigPro.list <- lapply(object.list, function(don,  inPath = dirPath) {
   # Convert the ScMaSigPro Object
-  scmp.obj <- as_scmp(don,
+  scmp.obj <- as.scmp(don,
     from = "cds",
     align_pseudotime = F,
     annotation_colname = "cell_type"
   )
+  
+  # Save
+  saveRDS(scmp.obj, file = paste0(inPath, rep_i, "/", rep_i, "_selected.RDS"))
   return(scmp.obj)
 })
+
 
 # Run scMaSigPro
 scMaSigPro.list <- lapply(scMaSigPro.list, function(don) {
   # Compress
-  scmp.obj <- squeeze(
+  scmp.obj <- sc.squeeze(
     scmpObject = don,
     split_bins = F,
     prune_bins = F,
@@ -69,8 +73,8 @@ scMaSigPro.list <- lapply(scMaSigPro.list, function(don) {
     drop_fac = 1
   )
   # Make Design
-  scmp.obj <- sc.make.design.matrix(scmp.obj,
-    poly_degree = 3,
+  scmp.obj <- sc.set.poly(scmp.obj,
+    poly_degree = 2,
   )
 
   # Run p-vector
@@ -78,12 +82,11 @@ scMaSigPro.list <- lapply(scMaSigPro.list, function(don) {
     parallel = T,
     scmpObj = scmp.obj, verbose = T,
     max_it = 10000,
-    globalTheta = T,
     logOffset = F,
     useInverseWeights = F,
     logWeights = F,
     useWeights = T,
-    offset = T,
+    offset = F,
     min.obs = 1
   )
 

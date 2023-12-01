@@ -49,11 +49,11 @@ umaps.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPat
     root_cell <- "HSC"
   }
     
-    sob <- readRDS(file = paste0(dirPath, rep_i,"subSampled.RDS"))
+    sob <- readRDS(file =  paste0(dirPath, rep_i,"/", rep_i,"subSampled.RDS"))
 
     # Create cds
     cds <- new_cell_data_set(
-      expression_data = sob@assays$RNA@counts,
+      expression_data = sob@assays$RNA@data,
       cell_metadata = sob@meta.data,
       gene_metadata = data.frame(
         row.names = rownames(sob),
@@ -109,7 +109,7 @@ umaps.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPat
 
 
   # Save
-  file_name <- paste(outPath, rep_i, paste(rep_i, "cds.RDS", sep = "_"), sep = "/")
+  file_name <- paste0(outPath, rep_i, "/",paste(rep_i, "cds.RDS", sep = "_"))
   saveRDS(object = cds, file = file_name)
 
   return(list(pseudotime = pseudotime,

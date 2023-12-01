@@ -78,6 +78,11 @@ all.donor.subSample.list <- lapply(
           min_dist = 0.1
           n_neighbors = 20
           sp = 1
+          
+          # Keep Cells
+          subSample <- c("ASDC", "HSC","EMP", "GMP", "Macrophage", "cDC2", "pre-mDC", "pre-pDC",
+                         "EMP", "Prog Mk", "Platelet", "Early Eryth", "pro B")
+          
       } else if (rep_i == "rep2") {
           individual <- "Donor-2"
           age <- "28"
@@ -85,6 +90,11 @@ all.donor.subSample.list <- lapply(
           n_neighbors = 20
           min_dist = 0.1
           sp = 1
+          
+          # Keep Cells
+          subSample <- c("ASDC", "HSC","EMP", "GMP", "Macrophage", "cDC2", "pre-mDC", "pre-pDC",
+                         "EMP", "Early Eryth")
+          
       } else if (rep_i == "rep3") {
           individual <- "Donor-3"
           age <- "19"
@@ -92,11 +102,12 @@ all.donor.subSample.list <- lapply(
           min_dist = 0.2
           n_neighbors = 50
           sp = 0.5
-      }
-      
-      # Keep Cells
-      subSample <- c("ASDC", "HSC","EMP", "GMP", "Macrophage", "cDC2", "pre-mDC", "pre-pDC",
+          
+          # Keep Cells
+          subSample <- c("ASDC", "HSC","EMP", "GMP", "Macrophage", "cDC2", "pre-mDC", "pre-pDC",
                          "EMP", "Prog Mk", "Platelet", "Early Eryth", "pro B")
+          
+      }
 
     # Get all cells
     all_cells <- unique(sob@meta.data$cell_type)
@@ -159,6 +170,6 @@ ggsave(sub_samples,
 # Save
 nullList <- lapply(names(all.donor.subSample.list), function(rep_i){
     ob.list <- all.donor.subSample.list[[rep_i]]$obj
-        file_name <- paste0(dirPath, rep_i,"subSampled.RDS")
+        file_name <- paste0(dirPath, rep_i,"/", rep_i,"subSampled.RDS")
         saveRDS(ob.list, file_name)
 })
