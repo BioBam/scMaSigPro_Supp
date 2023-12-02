@@ -23,8 +23,6 @@ suppressPackageStartupMessages(library(Matrix))
 suppressPackageStartupMessages(library(SeuratData))
 suppressPackageStartupMessages(library(SeuratDisk))
 suppressPackageStartupMessages(library(monocle3))
-
-# Load scMaSigPro
 suppressPackageStartupMessages(library(scMaSigPro))
 
 # Load object
@@ -32,87 +30,117 @@ object.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPa
   sob <- readRDS(file = paste0(inPath, rep_i, "/", rep_i, "_cds.RDS"))
 })
 
-# Donor-1
-# Root-1: Y_63
-# Path1: Y_4,Y_18,Y_19,Y_24,Y_27,Y_29,Y_32,Y_37,Y_38,Y_47,Y_49,Y_50,Y_55,Y_56,Y_63,Y_67,Y_69,Y_74,Y_89,Y_100 (HSC-> Eryth)
-# Path2: Y_3,Y_5,Y_8,Y_11,Y_16,Y_20,Y_25,Y_36,Y_43,Y_44,Y_51,Y_52,Y_63,Y_85,Y_90,Y_91,Y_94,Y_97,Y_98 (HSC-> Myel/Mono)
+# Extract path and create scMaSigpro Object
 
-# Donor-2
-# Root-1: Y_45
-# Path1: Y_4,Y_6,Y_7,Y_8,Y_18,Y_26,Y_31,Y_36,Y_44,Y_45,Y_49,Y_51,Y_52,Y_53,Y_57,Y_58,Y_59,Y_69,Y_71,Y_72,Y_78,Y_81,Y_96(HMP-> pDend)
-# Path2: Y_12,Y_15,Y_16,Y_17,Y_21,Y_24,Y_28,Y_29,Y_30,Y_32,Y_33,Y_40,Y_43,Y_45,Y_54,Y_56,Y_61,Y_66,Y_68,Y_74,Y_77,Y_79,Y_91,Y_93,Y_95,Y_98 (HMP-> pMono)
+scmp.object.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPath) {
+   #rep_i <- "rep3"
 
-# Donor-3
-# Root: Y_94
-# Path-1:Y_5,Y_9,Y_23,Y_27,Y_28,Y_33,Y_38,Y_44,Y_50,Y_54,Y_55,Y_58,Y_66,Y_73,Y_76,Y_82,Y_86,Y_88,Y_89,Y_91,Y_94,Y_97,Y_99 (HSC-> Mono myelo)
-# Path-2:Y_4,Y_10,Y_11,Y_13,Y_21,Y_22,Y_36,Y_40,Y_41,Y_49,Y_57,Y_67,Y_77,Y_81,Y_84,Y_92,Y_94,Y_95,Y_98 (HSC -> mega)
+  # get object
+  rep_i_obj <- object.list[[rep_i]]
 
-# Create ScMaSigPro
-scMaSigPro.list <- lapply(names(object.list), function(rep_i,  inPath = dirPath) {
-  # Convert the ScMaSigPro Object
-  scmp.obj <- as.scmp(object.list[[rep_i]],
-    from = "cds",
-    align_pseudotime = F,
-    annotation_colname = "cell_type"
+  # Create Cell level metadata
+  # Step-1: Add barcodes
+  cell.data <- data.frame(
+    barcodes = colnames(assay(rep_i_obj)),
+    row.names = colnames(assay(rep_i_obj))
   )
 
-  # Save
-  saveRDS(scmp.obj, file = paste0(inPath, rep_i, "/", rep_i, "_selected.RDS"))
-  #return(scmp.obj)
-})
+  # Add Cell type
+  cell.data$cell_type <- rep_i_obj@colData$cell_type
 
+  # Add Pseudotime to cds and cell data
+  cell.data$pseudotime <- pseudotime(rep_i_obj)
 
-# Create ScMaSigPro
-scMaSigPro.list.new <- lapply(names(object.list), function(rep_i,  inPath = dirPath) {
+  # Hard Assignment of the Cells to path
+  if (rep_i == "rep1") {
+    path1 <- "Early Eryth"
+    path2 <- "Prog Mk"
+    individual <- "Donor-1"
+    age <- "35"
+    sex <- "Male"
+  } else if (rep_i == "rep2") {
+    path1 <- "GMP"
+    path2 <- "EMP"
+    individual <- "Donor-2"
+    age <- "28"
+    sex <- "Female"
+  } else if (rep_i == "rep3") {
+    path1 <- "EMP"
+    path2 <- "CLP"
+    individual <- "Donor-3"
+    age <- "19"
+    sex <- "Female"
+  }
 
-    # Save
-    return(readRDS(paste0(inPath, rep_i, "/", rep_i, "_selected.RDS")))
-    #return(scmp.obj)
-})
+  # Assign paths
+  cell.data[cell.data$cell_type %in% path1, "path"] <- paste(str_remove(path1, pattern = " "), collapse = "-")
+  cell.data[cell.data$cell_type %in% path2, "path"] <- paste(str_remove(path2, pattern = " "), collapse = "-")
+  cell.data <- cell.data[!is.na(cell.data$path), ]
+  
+  # Drop any infinite time
+  cell.data <- cell.data[!is.infinite(cell.data$pseudotime),]
 
+  # Extract Raw Counts and subset
+  raw_counts <- assay(rep_i_obj)
+  raw_counts <- raw_counts[, rownames(cell.data)]
 
-# Run scMaSigPro
-scMaSigPro.list <- lapply(scMaSigPro.list.new, function(don) {
-  # Compress
-  scmp.obj <- sc.squeeze(
-    scmpObject = don,
-    split_bins = F,
-    prune_bins = F,
-    drop_trails = F,
-    drop_fac = 1
+  # Drop gene
+  raw_counts <- raw_counts[rowSums(raw_counts) >= 100, ]
+
+  # Create SCMP Object
+  scmp.obj <- create.scmp(
+    counts = raw_counts,
+    cell_data = cell.data,
+    pseudotime_colname = "pseudotime",
+    path_colname = "path"
   )
+
+  # Sc.Squeeze
+  scmp.obj <- sc.squeeze(scmp.obj,
+    drop_trails = T,
+    bin_method = "Doane",
+    drop_fac = 0.5,
+    bin_pseudotime_colname = "bPseudotime"
+  )
+  binPlot <- plotBinTile(scmp.obj) + ggtitle(paste(
+    individual, "| Age:", age,
+    "| sex:", sex
+  ))
+
   # Make Design
   scmp.obj <- sc.set.poly(scmp.obj,
     poly_degree = 2,
   )
+  polyGlm <- showPoly(scmp.obj)
 
-  # Run p-vector
+  # Run p.vector
   scmp.obj <- sc.p.vector(
     parallel = T,
     scmpObj = scmp.obj, verbose = T,
     max_it = 10000,
-    logOffset = F,
+    logOffset = T,
+    family = gaussian(),# MASS::negative.binomial(10),
     useInverseWeights = F,
     logWeights = F,
-    useWeights = T,
-    offset = F,
-    min.obs = 1
+    useWeights = F,
+    offset = T
   )
 
-  # Run-Step-2
+  # Run Tstep
   scmp.obj <- sc.T.fit(
     scmpObj = scmp.obj, verbose = T,
     step.method = "backward"
   )
-  return(scmp.obj)
-})
 
-
-names(scMaSigPro.list) <- rep_vec
-# save
-scMaSigPro.list <- lapply(names(scMaSigPro.list), function(don) {
+  # Saving
   saveRDS(
-    scMaSigPro.list[[don]],
-    paste0("/supp_data/Analysis_Public_Data/",don,"/","scMaSigPro_Processed_", don, ".RDS")
+    scmp.obj,
+    paste0(outPath, rep_i, "/", "scMaSigPro_Processed_", rep_i, ".RDS")
   )
+
+  return(list(
+    scmpObj = scmp.obj,
+    polyGlm = polyGlm,
+    binPlot = binPlot
+  ))
 })
