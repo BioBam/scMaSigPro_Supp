@@ -73,7 +73,6 @@ scmp_results <- lapply(rep_vec, function(rep_i) {
                         vars = "groups")
   # get genes
   gene.list <- scmp.obj@sig.genes@sig.genes[[1]]
-  
   # Perform enrichmnet
   target.path = go_enrichment(
       scmp.obj = scmp.obj,

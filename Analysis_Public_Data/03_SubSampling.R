@@ -48,7 +48,6 @@ azimuth.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = di
       "pre-mDC", "pre-pDC", "pro B"))
   
   sob.sub <- subset(sob.sub, predicted.celltype.l2.score >= 0.4)
-
   # Recompute
   sob.sub <- RunPCA(sob.sub, features = VariableFeatures(object = sob.sub), verbose = F)
   sob.sub <- FindNeighbors(sob.sub, verbose = F)

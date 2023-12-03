@@ -54,6 +54,7 @@ umaps.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirP
   # Subset
   counts <- sob@assays$RNA@scale.data
   #counts <- counts[rowSums(counts) >= 200,]
+
   cell_metadata <- sob@meta.data
   cell_metadata <- cell_metadata[colnames(counts),]
   gene_metadata = data.frame(
