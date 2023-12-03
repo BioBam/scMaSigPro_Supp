@@ -35,6 +35,7 @@ go_enrichment <- function(gene_list, scmp.obj, rep, age,sex, path,
     
     # Combine
     entrez_id <- c(valid_entrez_ids_symb, valid_entrez_ids_ensg)
+
     
     # Separate Ensembl IDs and gene symbols
     ensembl_ids <- gene_list[grep("^ENSG", gene_list)]

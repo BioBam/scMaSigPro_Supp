@@ -14,6 +14,7 @@ suppressPackageStartupMessages(library(SingleCellExperiment))
 suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(ggpubr))
 suppressPackageStartupMessages(library(monocle3))
+suppressPackageStartupMessages(library(parallel))
 
 # Detect Root cells
 source("R_Scripts/helper_function/detect_root_nodes().R")
@@ -27,7 +28,7 @@ rep_vec <- rep_vec[rep_vec != "Azimuth_Human_BoneMarrow"]
 names(rep_vec) <- rep_vec
 
 # Run lapply
-umaps.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPath) {
+umaps.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPath) {
   # Step-1: Add Annotation for donors
   if (rep_i == "rep1") {
     individual <- "Donor-1"
@@ -53,7 +54,7 @@ umaps.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPat
 
   # Create cds
   cds <- new_cell_data_set(
-    expression_data = sob@assays$RNA@scale.data,
+    expression_data = sob@assays$RNA@counts,
     cell_metadata = sob@meta.data,
     gene_metadata = data.frame(
       row.names = rownames(sob),
@@ -116,7 +117,7 @@ umaps.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPat
     pseudotime = pseudotime,
     cell_type = cell_type
   ))
-})
+}, mc.cores = detectCores())
 
 bottom <- ggarrange(umaps.list$rep1$pseudotime,
   umaps.list$rep2$pseudotime,

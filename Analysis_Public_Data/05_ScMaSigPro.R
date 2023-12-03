@@ -31,9 +31,7 @@ object.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPa
 })
 
 # Extract path and create scMaSigpro Object
-
 scmp.object.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPath) {
-   #rep_i <- "rep3"
 
   # get object
   rep_i_obj <- object.list[[rep_i]]
@@ -59,8 +57,8 @@ scmp.object.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = 
     age <- "35"
     sex <- "Male"
   } else if (rep_i == "rep2") {
-    path1 <- "GMP"
-    path2 <- "EMP"
+    path1 <- "pre B"
+    path2 <- "Early Eryth"
     individual <- "Donor-2"
     age <- "28"
     sex <- "Female"
@@ -86,14 +84,16 @@ scmp.object.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = 
 
   # Drop gene
   raw_counts <- raw_counts[rowSums(raw_counts) >= 100, ]
-
-  # Create SCMP Object
-  scmp.obj <- create.scmp(
-    counts = raw_counts,
-    cell_data = cell.data,
-    pseudotime_colname = "pseudotime",
-    path_colname = "path"
-  )
+# 
+#   # Create SCMP Object
+#   scmp.obj <- create.scmp(
+#     counts = raw_counts,
+#     cell_data = cell.data,
+#     pseudotime_colname = "pseudotime",
+#     path_colname = "path"
+#   )
+  scmp.obj <- selectPath.m3(rep_i_obj,
+                            annotation_col = "cell_type")
 
   # Sc.Squeeze
   scmp.obj <- sc.squeeze(scmp.obj,
@@ -106,6 +106,7 @@ scmp.object.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = 
     individual, "| Age:", age,
     "| sex:", sex
   ))
+  binPlot
 
   # Make Design
   scmp.obj <- sc.set.poly(scmp.obj,
@@ -118,14 +119,17 @@ scmp.object.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = 
     parallel = T,
     scmpObj = scmp.obj, verbose = T,
     max_it = 10000,
-    logOffset = T,
-    family = gaussian(),# MASS::negative.binomial(10),
+    logOffset = F,
+    family = MASS::negative.binomial(10),
     useInverseWeights = F,
     logWeights = F,
     useWeights = F,
-    offset = T
+    offset = F
   )
 
+  if(length(scmp.obj@scPVector@p.vector) == 0){
+      return(NULL)
+  }else{
   # Run Tstep
   scmp.obj <- sc.T.fit(
     scmpObj = scmp.obj, verbose = T,
@@ -137,10 +141,12 @@ scmp.object.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = 
     scmp.obj,
     paste0(outPath, rep_i, "/", "scMaSigPro_Processed_", rep_i, ".RDS")
   )
+  
+  print(paste("done", rep_i))
 
   return(list(
     scmpObj = scmp.obj,
     polyGlm = polyGlm,
     binPlot = binPlot
-  ))
+  ))}
 })

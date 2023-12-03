@@ -42,26 +42,25 @@ scMaSigPro.list <- lapply(rep_vec, function(rep_i) {
 
 # Run Go and Extract important gene
 scmp_results <- lapply(rep_vec, function(rep_i) {
-    #rep_i <- "rep3"
     
   # Step-1: Add Annotation for donors
   if (rep_i == "rep1") {
     individual <- "Donor-1"
     age <- "35"
     sex <- "Male"
-    rsq <- 0.6
+    rsq <- .5
     num <- 5
   } else if (rep_i == "rep2") {
     individual <- "Donor-2"
     age <- "28"
     sex <- "Female"
-    rsq <- 0.6
+    rsq <- 0.5
     num <- 5
   } else if (rep_i == "rep3") {
     individual <- "Donor-3"
     age <- "19"
     sex <- "Female"
-    rsq <- 0.6
+    rsq <- 0.5
     num <- 5
   }
 
@@ -90,15 +89,15 @@ scmp_results <- lapply(rep_vec, function(rep_i) {
   # Extract Significant Genes in path2
   sig.features.path2 <- sc.get.features(
       scmpObj = scmp.obj,
-      query = "unique",
+      query = "union",
       rsq = rsq,
       significant.intercept = "dummy",
       vars = "groups",
       includeInflu = T,
-      union.ref = path.vec[["ref"]],
-      union.target = path.vec[["target"]],
-      unique.group = path.vec[["target"]],
+      union.ref = path.vec[["target"]],
+      union.target = path.vec[["ref"]],
       union.ref.trend = "down",
+      unique.group = path.vec[["ref"]],
       union.target.trend = "up"
   )
   
@@ -108,6 +107,10 @@ scmp_results <- lapply(rep_vec, function(rep_i) {
 
   path1.name <- str_split_1(path.vec[["target"]], "vs")[2]
   path2.name <-str_split_1(path.vec[["target"]], "vs")[1]
+  
+  tryCatch(
+      
+      expr = {
   # Run enrichmnet
   enrichmnet.list <- list(
     path1 = go_enrichment(
@@ -130,12 +133,18 @@ scmp_results <- lapply(rep_vec, function(rep_i) {
 
   # Set Name
   names(enrichmnet.list) <- c(path1.name, path1.name)
+  
+  print(paste("done", rep_i))
 
   # Return
   return(list(
     obj = scmp.obj,
     go_results = enrichmnet.list
   ))
+  
+      },
+  error = function(e) return(NULL)
+  )
 })
 
 # Set names
