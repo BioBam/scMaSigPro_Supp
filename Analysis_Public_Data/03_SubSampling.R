@@ -27,23 +27,25 @@ azimuth.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = di
     individual <- "Donor-1"
     age <- "35"
     sex <- "Male"
-    subset.vector <- c("HSC", "LMPP", "CLP", "GMP")
+    #subset.vector <- c("HSC", "LMPP", "CLP", "GMP")
   } else if (rep_i == "rep2") {
     individual <- "Donor-2"
     age <- "28"
     sex <- "Female"
-    subset.vector <- c("HSC", "EMP", "GMP", "LMPP", "CLP")
+    #subset.vector <- c("HSC", "EMP", "GMP", "LMPP", "CLP")
   } else if (rep_i == "rep3") {
     individual <- "Donor-3"
     age <- "19"
     sex <- "Female"
-    subset.vector <- c("HSC", "CLP", "GMP", "LMPP", "pre-pDC", "pre-mDC")
+    #subset.vector <- c("HSC", "CLP", "GMP", "LMPP", "pre-pDC", "pre-mDC")
   }
   # Load seurat object
   sob <- readRDS(file = paste0(inPath, rep_i, "/", rep_i, "_azimuth.RDS"))
 
   # Subset
-  sob.sub <- subset(sob, cell_type %in% subset.vector)
+  sob.sub <-subset(sob, cell_type %in% c(
+      "HSC", "GMP", "EMP", "CLP", "LMPP", "Prog Mk", "Early Eryth", "pDc", "pre B",
+      "pre-mDC", "pre-pDC", "pro B"))
 
   # Recompute
   sob.sub <- RunPCA(sob.sub, features = VariableFeatures(object = sob.sub), verbose = F)
@@ -52,9 +54,10 @@ azimuth.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = di
 
   # Compute UMAP
   sob.sub <- RunUMAP(sob.sub,
-                     min.dist = 0.001,
-                     n.neighbors = 100, 
-    verbose = F, features = VariableFeatures(sob.sub)
+                     #umap.method = "umap-learn",
+                     min.dist = 0.01,
+                     n.neighbors = 200, 
+    verbose = F, dims = c(1:5) #features = VariableFeatures(sob.sub)
   )
 
   # Plot
@@ -67,6 +70,7 @@ azimuth.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = di
     individual, "| Age:", age,
     "| sex:", sex
   )) + theme(legend.position = "bottom", legend.justification = "center")
+  plt.sub
 
   file_name <- paste0(outPath, rep_i, "/", rep_i, "subSampled.RDS")
   saveRDS(sob.sub, file_name)
@@ -74,7 +78,7 @@ azimuth.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = di
   # Return
   return(list(all = plt,
               sub = plt.sub))
-}, mc.cores = detectCores())
+}, mc.cores = 24)
 names(azimuth.list) <- rep_vec
 
 top <- ggarrange(azimuth.list$rep1$all,

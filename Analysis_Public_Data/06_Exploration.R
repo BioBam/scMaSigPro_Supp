@@ -42,127 +42,60 @@ scMaSigPro.list <- lapply(rep_vec, function(rep_i) {
 
 # Run Go and Extract important gene
 scmp_results <- lapply(rep_vec, function(rep_i) {
-    
   # Step-1: Add Annotation for donors
   if (rep_i == "rep1") {
     individual <- "Donor-1"
     age <- "35"
     sex <- "Male"
     rsq <- .5
-    num <- 5
+    num <- 10
   } else if (rep_i == "rep2") {
     individual <- "Donor-2"
     age <- "28"
     sex <- "Female"
     rsq <- 0.5
-    num <- 5
+    num <- 10
   } else if (rep_i == "rep3") {
     individual <- "Donor-3"
     age <- "19"
     sex <- "Female"
     rsq <- 0.5
-    num <- 5
+    num <- 10
   }
 
   # Extract the object
   scmp.obj <- scMaSigPro.list[[rep_i]]
-
-  # Get paths
-  path.vec <- unique(scmp.obj@scTFit@groups.vector)
-  names(path.vec) <- c("ref", "target") 
   
-  # Extract Significant Genes in path1
-  sig.features.path1 <- sc.get.features(
-    scmpObj = scmp.obj,
-    query = "union",
-    rsq = rsq,
-    significant.intercept = "dummy",
-    vars = "groups",
-    includeInflu = T,
-    union.ref = path.vec[["ref"]],
-    union.target = path.vec[["target"]],
-    unique.group = path.vec[["ref"]],
-    union.ref.trend = "down",
-    union.target.trend = "up"
-  )
-
-  # Extract Significant Genes in path2
-  sig.features.path2 <- sc.get.features(
-      scmpObj = scmp.obj,
-      query = "union",
-      rsq = rsq,
-      significant.intercept = "dummy",
-      vars = "groups",
-      includeInflu = T,
-      union.ref = path.vec[["target"]],
-      union.target = path.vec[["ref"]],
-      union.ref.trend = "down",
-      unique.group = path.vec[["ref"]],
-      union.target.trend = "up"
-  )
+  # Add Dummy
+  scmp.obj <- sc.filter(scmp.obj,
+                        rsq = rsq,
+                        significant.intercept = "dummy",
+                        vars = "groups")
+  # get genes
+  gene.list <- scmp.obj@sig.genes@sig.genes$Path2vsPath1
   
-  # Order
-  sig.features.path1 <- sig.features.path1[order(sig.features.path1)]
-  sig.features.path2 <- sig.features.path2[order(sig.features.path2)]
-
-  path1.name <- str_split_1(path.vec[["target"]], "vs")[2]
-  path2.name <-str_split_1(path.vec[["target"]], "vs")[1]
-  
-  tryCatch(
-      
-      expr = {
-  # Run enrichmnet
-  enrichmnet.list <- list(
-    path1 = go_enrichment(
+  # Perform enrichmnet
+  target.path = go_enrichment(
       scmp.obj = scmp.obj,
       rep = rep_i, age = age, sex = sex,
-      path = path1.name,
-      gene_list = sig.features.path1,
+      path = names(scmp.obj@sig.genes@sig.genes)[1],
+      gene_list = gene.list,
       ont = "BP", pAdjustMethod = "BH",
       nterms = num
-    ),
-    path2 = go_enrichment(
-      scmp.obj = scmp.obj,
-      rep = rep_i, age = age, sex = sex,
-      path =path2.name,
-      gene_list = sig.features.path2,
-      ont = "BP", pAdjustMethod = "BH",
-      nterms = num
-    )
   )
-
-  # Set Name
-  names(enrichmnet.list) <- c(path1.name, path1.name)
   
-  print(paste("done", rep_i))
-
-  # Return
-  return(list(
-    obj = scmp.obj,
-    go_results = enrichmnet.list
-  ))
-  
-      },
-  error = function(e) return(NULL)
-  )
+  return(target.path)
 })
 
 # Set names
 names(scmp_results) <- rep_vec
 
-# Dot list
-dot.list <- list()
-# get plot list
-for (rep in rep_vec) {
-  replist <- scmp_results[[rep]][["go_results"]]
-  path1 <- replist[[1]][["dot"]]
-  path2 <- replist[[2]][["dot"]]
-  dot.list[[rep]] <- ggarrange(path1, path2, nrow = 2, ncol = 1)
-}
-
-ggarrange(dot.list$rep1,
-  dot.list$rep2,
-  dot.list$rep3,
+# Dot
+combined.bar <- ggarrange(scmp_results$rep1$dot,
+                          scmp_results$rep2$dot,
+                          scmp_results$rep3$dot,
   ncol = 3,
   labels = c("A.", "B.", "C.")
 )
+
+combined.bar
