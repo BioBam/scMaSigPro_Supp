@@ -5,7 +5,7 @@
 ##################################
 
 go_enrichment <- function(gene_list, scmp.obj, rep, age,sex, path, 
-                          ont = "BP", pAdjustMethod = "fdr", nterms = 5){
+                          ont = "BP", pAdjustMethod = "fdr", nterms = 5, sig.level = 0.05){
     
     # Load
     suppressPackageStartupMessages(library(clusterProfiler))
@@ -72,7 +72,7 @@ go_enrichment <- function(gene_list, scmp.obj, rep, age,sex, path,
                     universe = background_vector,
                     ont = ont,  # Biological Processes
                     pAdjustMethod = pAdjustMethod,  # Benjamini-Hochberg adjustment
-                    qvalueCutoff = 0.05,  # Set threshold for q-value
+                    qvalueCutoff = sig.level,  # Set threshold for q-value
                     readable = TRUE)  # To show readable gene names
     
     # Check

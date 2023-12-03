@@ -33,91 +33,104 @@ object.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPa
 # Extract path and create scMaSigpro Object
 scmp.object.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPath) {
     
+    if (rep_i == "rep1") {
+        path1 <-"Early Eryth"
+        path2 <-"Prog Mk"
+        root = "EMP"
+        individual <- "Donor-1"
+        age <- "35"
+        sex <- "Male"
+    } else if (rep_i == "rep2") {
+        path1 <-"GMP"
+        path2 <-"CLP"
+        individual <- "Donor-2"
+        root = "HSC"
+        age <- "28"
+        sex <- "Female"
+    } else if (rep_i == "rep3") {
+        path1 <- "CLP"
+        path2 <- "GMP"
+        root = "LMPP"
+        individual <- "Donor-3"
+        age <- "19"
+        sex <- "Female"
+    }
+    
   # get object
   rep_i_obj <- object.list[[rep_i]]
-
-  # Create Cell level metadata
-  # Step-1: Add barcodes
-  cell.data <- data.frame(
-    barcodes = colnames(assay(rep_i_obj)),
-    row.names = colnames(assay(rep_i_obj))
-  )
-
-  # Add Cell type
-  cell.data$cell_type <- rep_i_obj@colData$cell_type
-
-  # Add Pseudotime to cds and cell data
-  cell.data$pseudotime <- pseudotime(rep_i_obj)
-
-  # Hard Assignment of the Cells to path
-  if (rep_i == "rep1") {
-    path1 <-"Early Eryth"
-    path2 <-"Prog Mk"
-    individual <- "Donor-1"
-    age <- "35"
-    sex <- "Male"
-  } else if (rep_i == "rep2") {
-    path1 <-"pre B"
-    path2 <-"Early Eryth"
-    individual <- "Donor-2"
-    age <- "28"
-    sex <- "Female"
-  } else if (rep_i == "rep3") {
-    path1 <- "EMP"
-    path2 <- "CLP"
-    individual <- "Donor-3"
-    age <- "19"
-    sex <- "Female"
-  }
-
-  # # Assign paths
-  # cell.data[cell.data$cell_type %in% path1, "path"] <- paste(str_remove(path1, pattern = " "), collapse = "-")
-  # cell.data[cell.data$cell_type %in% path2, "path"] <- paste(str_remove(path2, pattern = " "), collapse = "-")
-  # cell.data <- cell.data[!is.na(cell.data$path), ]
-  # 
-  # # Drop any infinite time
-  # cell.data <- cell.data[!is.infinite(cell.data$pseudotime),]
-  # 
-  # # Extract Raw Counts and subset
-  # raw_counts <- assay(rep_i_obj)
-  # raw_counts <- raw_counts[, rownames(cell.data)]
-
-  # Drop gene
-  #raw_counts <- raw_counts[rowSums(raw_counts) >= 10, ]
   
-  # Create SCMP Object
-  # scmp.obj <- create.scmp(
-  #   counts = raw_counts,
-  #   cell_data = cell.data,
-  #   pseudotime_colname = "pseudotime",
-  #   path_colname = "path"
-  # )
-  scmp.obj <- selectPath.m3(rep_i_obj,
-                            annotation_col = "cell_type")
+  # Create SCMP
+  normCounts <- assay(rep_i_obj)
+  cell.meta <- rep_i_obj@colData %>% as.data.frame()
+  cell.meta$Pseudotime <- pseudotime(rep_i_obj)
+  cell.meta <- cell.meta[cell.meta$cell_type %in% c(path1, path2, root),]
+  vertex.df <- data.frame(
+      vertex = paste("Y", rep_i_obj@principal_graph_aux$UMAP$pr_graph_cell_proj_closest_vertex, sep = "_"),
+      row.names = rownames(rep_i_obj@principal_graph_aux$UMAP$pr_graph_cell_proj_closest_vertex),
+      cell = rownames(rep_i_obj@principal_graph_aux$UMAP$pr_graph_cell_proj_closest_vertex)
+  )
+  
+  # Attach Principal points
+  pp <- data.frame(pp = paste("pp",
+                              names(as.data.frame(rep_i_obj@principal_graph_aux$UMAP$dp_mst)), sep = "_"), 
+                   vertex = names(as.data.frame(rep_i_obj@principal_graph_aux$UMAP$dp_mst)))
+  
+  # Merge
+  vertex.df <- merge(vertex.df, pp, by =  "vertex")
+  rownames(vertex.df) <- vertex.df$cell
+  vertex.df <- vertex.df[rownames(cell.meta),, drop = F]
+  cell.meta$vertex <- vertex.df$vertex
+  
+  # Set Cells
+  cell.meta[cell.meta$cell_type == path1, "Lin"] <- paste0(root, "_", str_remove(path1, pattern = " "))
+  cell.meta[cell.meta$cell_type == path2, "Lin"] <- paste0(root, "_", str_remove(path2, pattern = " "))
+  
+  # Divide EMPs
+  path1.vertex <- cell.meta[cell.meta$cell_type == path1, "vertex"]
+  cell.meta[cell.meta$cell_type == root & cell.meta$vertex %in% path1.vertex, "Lin"] <- paste0(root, "_", str_remove(path1, pattern = " "))
+  
+  path2.vertex <- cell.meta[cell.meta$cell_type == path2, "vertex"]
+  cell.meta[cell.meta$cell_type == root & cell.meta$vertex %in% path2.vertex, "Lin"] <- paste0(root, "_", str_remove(path2, pattern = " "))
+  
+  # Drop
+  cell.meta <- cell.meta[!is.na(cell.meta$Lin), ]
+  
+  # Subset counts
+  normCounts <- normCounts[, rownames(cell.meta)]
+  
+  # Create scmp
+  scmp.obj <- create.scmp(
+      counts = normCounts,
+      cell_data = cell.meta,
+      path_colname = "Lin",
+      pseudotime_colname = "Pseudotime"
+      
+  )
   
   # Return
   return(scmp.obj)
 })
 
-scmp.object.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPath) {
-    
-    
+scmp.object.list.2 <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPath) {
     # Hard Assignment of the Cells to path
     if (rep_i == "rep1") {
         path1 <-"Early Eryth"
         path2 <-"Prog Mk"
+        root = "EMP"
         individual <- "Donor-1"
         age <- "35"
         sex <- "Male"
     } else if (rep_i == "rep2") {
-        path1 <-"pre B"
-        path2 <-"Early Eryth"
+        path1 <-"GMP"
+        path2 <-"CLP"
         individual <- "Donor-2"
+        root = "HSC"
         age <- "28"
         sex <- "Female"
     } else if (rep_i == "rep3") {
-        path1 <- "EMP"
-        path2 <- "CLP"
+        path1 <- "CLP"
+        path2 <- "GMP"
+        root = "LMPP"
         individual <- "Donor-3"
         age <- "19"
         sex <- "Female"
@@ -125,13 +138,11 @@ scmp.object.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = 
     
     # Create new object with the names
     scmp.obj <- scmp.object.list[[rep_i]]
-    
-    
-    
+
   # Sc.Squeeze
   scmp.obj <- sc.squeeze(scmp.obj,
     drop_trails = T,
-    bin_method = "Doane",
+    bin_method = "Sturges",
     drop_fac = 1,
     bin_pseudotime_colname = "bPseudotime"
   )
@@ -146,6 +157,7 @@ scmp.object.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = 
     poly_degree = 3,
   )
   polyGlm <- showPoly(scmp.obj)
+  polyGlm
 
   # Run p.vector
   scmp.obj <- sc.p.vector(
@@ -165,16 +177,16 @@ scmp.object.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = 
   }else{
   # Run Tstep
   scmp.obj <- sc.T.fit(
-    scmpObj = scmp.obj, verbose = T,
+    scmpObj = scmp.obj, verbose = T,parallel = T,
     step.method = "backward"
   )
 
-  # Saving
+  # # Saving
   saveRDS(
     scmp.obj,
     paste0(outPath, rep_i, "/", "scMaSigPro_Processed_", rep_i, ".RDS")
   )
-  
+
   print(paste("done", rep_i))
 
   return(list(
@@ -183,3 +195,10 @@ scmp.object.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = 
     binPlot = binPlot
   ))}
 })
+
+
+# Plot bins
+ggarrange(scmp.object.list.2$rep1$binPlot,
+          scmp.object.list.2$rep2$binPlot,
+          scmp.object.list.2$rep3$binPlot,
+          nrow = 1)

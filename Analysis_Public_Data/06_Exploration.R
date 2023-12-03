@@ -47,19 +47,28 @@ scmp_results <- lapply(rep_vec, function(rep_i) {
     individual <- "Donor-1"
     age <- "35"
     sex <- "Male"
-    rsq <- .6
+    rsq <- 0.7
     num <- 10
+    path1 <-"Early Eryth"
+    path2 <-"Prog Mk"
+    root = "EMP"
   } else if (rep_i == "rep2") {
     individual <- "Donor-2"
     age <- "28"
+    root = "HSC"
     sex <- "Female"
-    rsq <- 0.6
+    path1 <-"GMP"
+    path2 <-"CLP"
+    rsq <- 0.7
     num <- 10
   } else if (rep_i == "rep3") {
     individual <- "Donor-3"
     age <- "19"
     sex <- "Female"
-    rsq <- 0.6
+    path1 <- "CLP"
+    path2 <- "GMP"
+    root = "LMPP"
+    rsq <- 0.7
     num <- 10
   }
 
@@ -77,10 +86,10 @@ scmp_results <- lapply(rep_vec, function(rep_i) {
   target.path = go_enrichment(
       scmp.obj = scmp.obj,
       rep = rep_i, age = age, sex = sex,
-      path = names(scmp.obj@sig.genes@sig.genes)[1],
+      path = paste0(root, "->", str_remove(path2, pattern = " ")),
       gene_list = gene.list,
       ont = "BP", pAdjustMethod = "BH",
-      nterms = num
+      nterms = 10, sig.level = 0.05
   )
   
   return(target.path)
