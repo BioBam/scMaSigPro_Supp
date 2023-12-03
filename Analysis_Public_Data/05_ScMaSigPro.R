@@ -32,7 +32,7 @@ object.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPa
 
 # Extract path and create scMaSigpro Object
 scmp.object.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPath) {
-
+    
   # get object
   rep_i_obj <- object.list[[rep_i]]
 
@@ -51,14 +51,14 @@ scmp.object.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = 
 
   # Hard Assignment of the Cells to path
   if (rep_i == "rep1") {
-    path1 <- "Early Eryth"
-    path2 <- "Prog Mk"
+    path1 <-"Early Eryth"
+    path2 <-"Prog Mk"
     individual <- "Donor-1"
     age <- "35"
     sex <- "Male"
   } else if (rep_i == "rep2") {
-    path1 <- "pre B"
-    path2 <- "Early Eryth"
+    path1 <-"pre B"
+    path2 <-"Early Eryth"
     individual <- "Donor-2"
     age <- "28"
     sex <- "Female"
@@ -83,15 +83,15 @@ scmp.object.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = 
   raw_counts <- raw_counts[, rownames(cell.data)]
 
   # Drop gene
-  raw_counts <- raw_counts[rowSums(raw_counts) >= 100, ]
-# 
-#   # Create SCMP Object
-#   scmp.obj <- create.scmp(
-#     counts = raw_counts,
-#     cell_data = cell.data,
-#     pseudotime_colname = "pseudotime",
-#     path_colname = "path"
-#   )
+  #raw_counts <- raw_counts[rowSums(raw_counts) >= 10, ]
+  
+  # Create SCMP Object
+  # scmp.obj <- create.scmp(
+  #   counts = raw_counts,
+  #   cell_data = cell.data,
+  #   pseudotime_colname = "pseudotime",
+  #   path_colname = "path"
+  # )
   scmp.obj <- selectPath.m3(rep_i_obj,
                             annotation_col = "cell_type")
 
@@ -99,7 +99,7 @@ scmp.object.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = 
   scmp.obj <- sc.squeeze(scmp.obj,
     drop_trails = T,
     bin_method = "Doane",
-    drop_fac = 0.5,
+    drop_fac = 1,
     bin_pseudotime_colname = "bPseudotime"
   )
   binPlot <- plotBinTile(scmp.obj) + ggtitle(paste(
@@ -110,7 +110,7 @@ scmp.object.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = 
 
   # Make Design
   scmp.obj <- sc.set.poly(scmp.obj,
-    poly_degree = 2,
+    poly_degree = 3,
   )
   polyGlm <- showPoly(scmp.obj)
 
@@ -120,7 +120,7 @@ scmp.object.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = 
     scmpObj = scmp.obj, verbose = T,
     max_it = 10000,
     logOffset = F,
-    family = MASS::negative.binomial(10),
+    family = gaussian(), #MASS::negative.binomial(30),
     useInverseWeights = F,
     logWeights = F,
     useWeights = F,

@@ -8,7 +8,6 @@ set.seed(007)
 
 suppressPackageStartupMessages(library(SingleR))
 suppressPackageStartupMessages(library(Seurat))
-suppressPackageStartupMessages(library(celldex))
 suppressPackageStartupMessages(library(SeuratDisk))
 suppressPackageStartupMessages(library(SingleCellExperiment))
 suppressPackageStartupMessages(library(tidyverse))
@@ -52,14 +51,21 @@ umaps.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirP
 
   sob <- readRDS(file = paste0(dirPath, rep_i, "/", rep_i, "subSampled.RDS"))
 
-  # Create cds
-  cds <- new_cell_data_set(
-    expression_data = sob@assays$RNA@counts,
-    cell_metadata = sob@meta.data,
-    gene_metadata = data.frame(
+  # Subset
+  counts <- sob@assays$RNA@scale.data
+  #counts <- counts[rowSums(counts) >= 200,]
+  cell_metadata <- sob@meta.data
+  cell_metadata <- cell_metadata[colnames(counts),]
+  gene_metadata = data.frame(
       row.names = rownames(sob),
       gene_short_name = rownames(sob)
-    )
+  )
+  gene_metadata <- gene_metadata[rownames(counts),, drop = F]
+  # Create cds
+  cds <- new_cell_data_set(
+    expression_data = counts,
+    cell_metadata =cell_metadata,
+    gene_metadata = gene_metadata
   )
 
   # No Normalization
