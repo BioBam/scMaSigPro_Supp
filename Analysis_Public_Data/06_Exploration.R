@@ -47,19 +47,19 @@ scmp_results <- lapply(rep_vec, function(rep_i) {
     individual <- "Donor-1"
     age <- "35"
     sex <- "Male"
-    rsq <- .5
+    rsq <- .6
     num <- 10
   } else if (rep_i == "rep2") {
     individual <- "Donor-2"
     age <- "28"
     sex <- "Female"
-    rsq <- 0.5
+    rsq <- 0.6
     num <- 10
   } else if (rep_i == "rep3") {
     individual <- "Donor-3"
     age <- "19"
     sex <- "Female"
-    rsq <- 0.5
+    rsq <- 0.6
     num <- 10
   }
 
@@ -98,3 +98,8 @@ combined.bar <- ggarrange(scmp_results$rep1$dot,
 )
 
 combined.bar
+
+ggsave(combined.bar,
+       filename = paste0("Figures/SuppData/05_Real_Data-GO_dot.png"),
+       dpi = 150, height = 8, width = 20
+)

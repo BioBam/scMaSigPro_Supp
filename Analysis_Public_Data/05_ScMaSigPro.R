@@ -70,17 +70,17 @@ scmp.object.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = 
     sex <- "Female"
   }
 
-  # Assign paths
-  cell.data[cell.data$cell_type %in% path1, "path"] <- paste(str_remove(path1, pattern = " "), collapse = "-")
-  cell.data[cell.data$cell_type %in% path2, "path"] <- paste(str_remove(path2, pattern = " "), collapse = "-")
-  cell.data <- cell.data[!is.na(cell.data$path), ]
-  
-  # Drop any infinite time
-  cell.data <- cell.data[!is.infinite(cell.data$pseudotime),]
-
-  # Extract Raw Counts and subset
-  raw_counts <- assay(rep_i_obj)
-  raw_counts <- raw_counts[, rownames(cell.data)]
+  # # Assign paths
+  # cell.data[cell.data$cell_type %in% path1, "path"] <- paste(str_remove(path1, pattern = " "), collapse = "-")
+  # cell.data[cell.data$cell_type %in% path2, "path"] <- paste(str_remove(path2, pattern = " "), collapse = "-")
+  # cell.data <- cell.data[!is.na(cell.data$path), ]
+  # 
+  # # Drop any infinite time
+  # cell.data <- cell.data[!is.infinite(cell.data$pseudotime),]
+  # 
+  # # Extract Raw Counts and subset
+  # raw_counts <- assay(rep_i_obj)
+  # raw_counts <- raw_counts[, rownames(cell.data)]
 
   # Drop gene
   #raw_counts <- raw_counts[rowSums(raw_counts) >= 10, ]
@@ -94,7 +94,40 @@ scmp.object.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = 
   # )
   scmp.obj <- selectPath.m3(rep_i_obj,
                             annotation_col = "cell_type")
+  
+  # Return
+  return(scmp.obj)
+})
 
+scmp.object.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPath) {
+    
+    
+    # Hard Assignment of the Cells to path
+    if (rep_i == "rep1") {
+        path1 <-"Early Eryth"
+        path2 <-"Prog Mk"
+        individual <- "Donor-1"
+        age <- "35"
+        sex <- "Male"
+    } else if (rep_i == "rep2") {
+        path1 <-"pre B"
+        path2 <-"Early Eryth"
+        individual <- "Donor-2"
+        age <- "28"
+        sex <- "Female"
+    } else if (rep_i == "rep3") {
+        path1 <- "EMP"
+        path2 <- "CLP"
+        individual <- "Donor-3"
+        age <- "19"
+        sex <- "Female"
+    }
+    
+    # Create new object with the names
+    scmp.obj <- scmp.object.list[[rep_i]]
+    
+    
+    
   # Sc.Squeeze
   scmp.obj <- sc.squeeze(scmp.obj,
     drop_trails = T,

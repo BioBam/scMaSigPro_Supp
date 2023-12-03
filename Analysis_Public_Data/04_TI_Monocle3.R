@@ -34,11 +34,13 @@ umaps.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirP
     age <- "35"
     sex <- "Male"
     loop <- TRUE
-    root_cell <- "HSC"
+    graph_prune <- FALSE
+    root_cell <- "EMP"
   } else if (rep_i == "rep2") {
     individual <- "Donor-2"
     age <- "28"
     sex <- "Female"
+    graph_prune <- TRUE
     loop <- TRUE
     root_cell <- "HSC"
   } else if (rep_i == "rep3") {
@@ -46,6 +48,7 @@ umaps.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirP
     age <- "19"
     sex <- "Female"
     loop <- FALSE
+    graph_prune <- TRUE
     root_cell <- "HSC"
   }
 
@@ -86,9 +89,10 @@ umaps.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirP
   # Learn graph
   cds <- learn_graph(cds,
     close_loop = F,
+    use_partition = F,
     learn_graph_control = list(
-      prune_graph = T,
-      minimal_branch_len = 7
+      prune_graph = graph_prune,
+      minimal_branch_len = 2
     )
   )
 
@@ -114,6 +118,7 @@ umaps.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirP
       individual, "| Age:", age,
       "| sex:", sex
     ))
+  pseudotime
 
 
   # Save

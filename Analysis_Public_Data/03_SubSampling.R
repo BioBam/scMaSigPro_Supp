@@ -27,17 +27,26 @@ azimuth.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = di
     individual <- "Donor-1"
     age <- "35"
     sex <- "Male"
-    #subset.vector <- c("HSC", "LMPP", "CLP", "GMP")
+    subset.vector <- c("EMP", "Early Eryth", "Prog Mk")
+    min_dist = 0.001
+    neigh =  200
+    dim = c(1:10)
   } else if (rep_i == "rep2") {
     individual <- "Donor-2"
     age <- "28"
     sex <- "Female"
-    #subset.vector <- c("HSC", "EMP", "GMP", "LMPP", "CLP")
+    subset.vector <- c("GMP", "CLP", "HSC", "LMPP")
+    min_dist = 0.1
+    neigh =  10
+    dim = c(1:5)
   } else if (rep_i == "rep3") {
     individual <- "Donor-3"
     age <- "19"
     sex <- "Female"
-    #subset.vector <- c("HSC", "CLP", "GMP", "LMPP", "pre-pDC", "pre-mDC")
+    subset.vector <- c("HSC", "CLP", "GMP", "LMPP")
+    min_dist = 0.001
+    neigh =  200
+    dim = c(1:5)
   }
   # Load seurat object
   sob <- readRDS(file = paste0(inPath, rep_i, "/", rep_i, "_azimuth.RDS"))
@@ -45,9 +54,9 @@ azimuth.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = di
   # Subset
   sob.sub <-subset(sob, cell_type %in% c(
       "HSC", "GMP", "EMP", "Prog Mk", "Early Eryth", "pDc",
-      "pre-mDC", "pre-pDC", "pro B"))
+      "pre-mDC", "pre-pDC", "pro B", "LMPP", "CLP"))
   
-  sob.sub <- subset(sob.sub, predicted.celltype.l2.score >= 0.4)
+  sob.sub <- subset(sob.sub, predicted.celltype.l2.score >= 0.2)
   # Recompute
   sob.sub <- RunPCA(sob.sub, features = VariableFeatures(object = sob.sub), verbose = F)
   sob.sub <- FindNeighbors(sob.sub, verbose = F)
@@ -55,12 +64,19 @@ azimuth.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = di
 
   # Compute UMAP
   sob.sub <- RunUMAP(sob.sub,
-                     #umap.method = "umap-learn",
-                     #min.dist = 0.01,
-                     #n.neighbors = 200, 
-    verbose = F, dims = c(1:3) #features = VariableFeatures(sob.sub)
+    verbose = F, dims = c(1:3)
   )
-
+  # Subset two
+  sob.sub.sub <- subset(sob.sub, cell_type %in% subset.vector)
+  sob.sub.sub <- RunPCA(sob.sub.sub, features = VariableFeatures(object = sob.sub), verbose = F)
+  sob.sub.sub <- FindNeighbors(sob.sub.sub, verbose = F)
+  sob.sub.sub <- FindClusters(sob.sub.sub, resolution = 1, verbose = F)
+  sob.sub.sub <- RunUMAP(sob.sub.sub,
+                         min.dist = min_dist,
+                         n.neighbors = neigh,
+                     verbose = F, dims = dim
+  )
+  
   # Plot
   plt <- DimPlot(sob, group.by = "cell_type") + ggtitle(paste(
       individual, "| Age:", age,
@@ -72,16 +88,23 @@ azimuth.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = di
     "| sex:", sex
   )) + theme(legend.position = "bottom", legend.justification = "center")
   plt.sub
+  plt.sub.sub <- DimPlot(sob.sub.sub, group.by = "cell_type") + ggtitle(paste(
+      individual, "| Age:", age,
+      "| sex:", sex
+  )) + theme(legend.position = "bottom", legend.justification = "center")
+  plt.sub.sub
 
   file_name <- paste0(outPath, rep_i, "/", rep_i, "subSampled.RDS")
-  saveRDS(sob.sub, file_name)
+  saveRDS(sob.sub.sub, file_name)
   
   # Return
   return(list(all = plt,
-              sub = plt.sub))
+              sub = plt.sub,
+              sub.sub = plt.sub.sub))
 }, mc.cores = 24)
 names(azimuth.list) <- rep_vec
 
+# Create plot
 top <- ggarrange(azimuth.list$rep1$all,
                  azimuth.list$rep2$all,
                  azimuth.list$rep3$all,
@@ -96,7 +119,14 @@ bottom <- ggarrange(azimuth.list$rep1$sub,
                  common.legend = F, legend = "bottom"
 )
 
-combined_plot <- ggarrange(top, bottom, nrow = 2)
+bottom2 <- ggarrange(azimuth.list$rep1$sub.sub,
+                    azimuth.list$rep2$sub.sub,
+                    azimuth.list$rep3$sub.sub,
+                    labels = c("G.", "H.", "I."), nrow = 1,
+                    common.legend = F, legend = "bottom"
+)
+
+combined_plot <- ggarrange(top, bottom, bottom2, nrow = 3)
 combined_plot
 
 ggsave(combined_plot,
