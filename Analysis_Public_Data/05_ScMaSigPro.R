@@ -119,6 +119,9 @@ scmp.object.list.2 <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath 
         root = "EMP"
         individual <- "Donor-1"
         age <- "35"
+        tail = F
+        drop =  0.3
+        bin.method = "Sturges"
         sex <- "Male"
     } else if (rep_i == "rep2") {
         path1 <-"GMP"
@@ -126,11 +129,17 @@ scmp.object.list.2 <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath 
         individual <- "Donor-2"
         root = "HSC"
         age <- "28"
+        drop =  0.3
+        bin.method = "Sturges"
+        tail = T
         sex <- "Female"
     } else if (rep_i == "rep3") {
         path1 <- "CLP"
         path2 <- "GMP"
         root = "LMPP"
+        drop =  0.3
+        tail = F
+        bin.method = "Sturges"
         individual <- "Donor-3"
         age <- "19"
         sex <- "Female"
@@ -141,9 +150,10 @@ scmp.object.list.2 <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath 
 
   # Sc.Squeeze
   scmp.obj <- sc.squeeze(scmp.obj,
-    drop_trails = T,
-    bin_method = "Sturges",
-    drop_fac = 1,
+    drop_trails = tail,
+    bin_method = bin.method,
+    drop_fac = drop,
+    split_bins = T,
     bin_pseudotime_colname = "bPseudotime"
   )
   binPlot <- plotBinTile(scmp.obj) + ggtitle(paste(
@@ -154,12 +164,12 @@ scmp.object.list.2 <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath 
 
   # Make Design
   scmp.obj <- sc.set.poly(scmp.obj,
-    poly_degree = 3,
+    poly_degree = 2,
   )
   polyGlm <- showPoly(scmp.obj)
   polyGlm
 
-  # Run p.vector
+  # # Run p.vector
   scmp.obj <- sc.p.vector(
     parallel = T,
     scmpObj = scmp.obj, verbose = T,
@@ -190,15 +200,17 @@ scmp.object.list.2 <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath 
   print(paste("done", rep_i))
 
   return(list(
-    scmpObj = scmp.obj,
+    #scmpObj = scmp.obj,
     polyGlm = polyGlm,
     binPlot = binPlot
-  ))}
+  ))
+}
 })
 
 
 # Plot bins
-ggarrange(scmp.object.list.2$rep1$binPlot,
-          scmp.object.list.2$rep2$binPlot,
-          scmp.object.list.2$rep3$binPlot,
+compress <- ggarrange(scmp.object.list.2$rep1$binPlot,
+                      scmp.object.list.2$rep2$binPlot,
+                      scmp.object.list.2$rep3$binPlot,
           nrow = 1)
+compress
