@@ -41,7 +41,7 @@ scMaSigPro.list <- lapply(rep_vec, function(rep_i) {
 })
 
 # Run Go and Extract important gene
-scmp_results <- lapply(rep_vec, function(rep_i) {
+scmp_results <- lapply(rep_vec[3], function(rep_i) {
   # Step-1: Add Annotation for donors
   if (rep_i == "rep1") {
     individual <- "Donor-1"

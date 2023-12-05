@@ -55,7 +55,7 @@ umaps.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirP
   sob <- readRDS(file = paste0(dirPath, rep_i, "/", rep_i, "subSampled.RDS"))
 
   # Subset
-  counts <- sob@assays$RNA@scale.data
+  counts <- sob@assays$RNA$scale.data
   #counts <- counts[rowSums(counts) >= 200,]
 
   cell_metadata <- sob@meta.data
@@ -79,7 +79,7 @@ umaps.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirP
   cds <- reduce_dimension(cds)
 
   # We will use UMAP and clusters from seurat
-  new_umap <- as.matrix(sob@reductions$umap@cell.embeddings)
+  new_umap <- as.matrix(sob@reductions$tsne@cell.embeddings)
   colnames(new_umap) <- NULL
   reducedDims(cds)[["UMAP"]] <- new_umap
 
@@ -109,7 +109,7 @@ umaps.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirP
     theme(legend.position = "bottom") + ggtitle(paste(
       individual, "| Age:", age,
       "| sex:", sex
-    ))
+    ))+ xlab("tSNE-1") + ylab("tSNE-2")
   cell_type <- plot_cells(cds,
     color_cells_by = "cell_type", cell_size = 1.5,
     label_cell_groups = F
@@ -117,7 +117,7 @@ umaps.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirP
     theme(legend.position = "bottom") + ggtitle(paste(
       individual, "| Age:", age,
       "| sex:", sex
-    ))
+    ))+ xlab("tSNE-1") + ylab("tSNE-2")
   pseudotime
 
 

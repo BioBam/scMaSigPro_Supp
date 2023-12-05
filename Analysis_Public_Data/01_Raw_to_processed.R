@@ -18,7 +18,7 @@ suppressPackageStartupMessages(library(parallel))
 suppressPackageStartupMessages(library(parallelly))
 
 # Prefix
-dirPath <- "/supp_data/Analysis_Public_Data"
+dirPath <- "/supp_data/Analysis_Public_Data/"
 
 # Read BioMart info
 biomart.anno <- readRDS(paste(dirPath, "cell_cycle_data.mart", sep = "/"))
@@ -55,7 +55,7 @@ violin.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dir
 
   # Create Raw Seurat Object
   sob.raw <- CreateSeuratObject(
-    counts = filt_mat, project = rep_i,
+    counts = filt_mat,
     min.cells = 10,
     min.features = 1000
   )
@@ -147,11 +147,9 @@ violin.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dir
   )
 
   # Save
-  file_name <- paste(dirPath, rep_i, paste(rep_i, "prs", sep = "_"), sep = "/")
-  SaveH5Seurat(
-    object = sob.prs, filename = file_name,
-    overwrite = T, verbose = FALSE
-  )
+  file_name <- paste0(dirPath, rep_i, "/", paste0(rep_i, "_prs.RDS"))
+  saveRDS(
+    object = sob.prs, file = file_name)
 
   # Return UMAP
   return(NULL)

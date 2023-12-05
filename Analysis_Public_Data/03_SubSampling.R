@@ -11,6 +11,8 @@ suppressPackageStartupMessages(library(SeuratDisk))
 suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(ggpubr))
 suppressPackageStartupMessages(library(parallel))
+suppressPackageStartupMessages(library(diffusionMap))
+suppressPackageStartupMessages(library(destiny))
 
 # Prefix
 dirPath <- "/supp_data/Analysis_Public_Data/"
@@ -52,55 +54,31 @@ azimuth.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = di
   sob <- readRDS(file = paste0(inPath, rep_i, "/", rep_i, "_azimuth.RDS"))
 
   # Subset
-  sob.sub <-subset(sob, cell_type %in% c(
-      "HSC", "GMP", "EMP", "Prog Mk", "Early Eryth", "pDc",
-      "pre-mDC", "pre-pDC", "pro B", "LMPP", "CLP"))
+  sob <- subset(sob, cell_type %in% c("pre-pDC", "GMP", "Early Eryth", "HSC", "LMPP", "pre B", "EMP", "pDC", "Late Eryth",
+                                          "Prog Mk", "CLP", "pro B", "cDC2", "pre-mDC", "ASDC"))
+  sob.sub <- subset(sob, predicted.celltype.l2.score >= 0.2)
   
-  sob.sub <- subset(sob.sub, predicted.celltype.l2.score >= 0.2)
-  # Recompute
-  sob.sub <- RunPCA(sob.sub, features = VariableFeatures(object = sob.sub), verbose = F)
-  sob.sub <- FindNeighbors(sob.sub, verbose = F)
-  sob.sub <- FindClusters(sob.sub, resolution = 1, verbose = F)
-
-  # Compute UMAP
-  sob.sub <- RunUMAP(sob.sub,
-    verbose = F, dims = c(1:3)
-  )
-  # Subset two
-  sob.sub.sub <- subset(sob.sub, cell_type %in% subset.vector)
-  sob.sub.sub <- RunPCA(sob.sub.sub, features = VariableFeatures(object = sob.sub), verbose = F)
-  sob.sub.sub <- FindNeighbors(sob.sub.sub, verbose = F)
-  sob.sub.sub <- FindClusters(sob.sub.sub, resolution = 1, verbose = F)
-  sob.sub.sub <- RunUMAP(sob.sub.sub,
-                         min.dist = min_dist,
-                         n.neighbors = neigh,
-                     verbose = F, dims = dim
-  )
+  # Compute PCA
+  sob.sub <- ScaleData(sob.sub)
+  sob.sub <- RunPCA(sob.sub, npcs = 300, verbose = F)
+  
+  # Compute tsne
+  sob.sub <- RunTSNE(sob.sub,
+                     reduction = "pca",
+                     dim.embed = 2,
+                     dims = 1:300)
   
   # Plot
-  plt <- DimPlot(sob, group.by = "cell_type") + ggtitle(paste(
+  plt <- DimPlot(sob.sub, group.by = "cell_type", reduction = "tsne") + xlab("tSNE-1") + ylab("tSNE-2")+ ggtitle(paste(
       individual, "| Age:", age,
       "| sex:", sex
   )) + theme(legend.position = "bottom", legend.justification = "center")
-  
-  plt.sub <- DimPlot(sob.sub, group.by = "cell_type") + ggtitle(paste(
-    individual, "| Age:", age,
-    "| sex:", sex
-  )) + theme(legend.position = "bottom", legend.justification = "center")
-  plt.sub
-  plt.sub.sub <- DimPlot(sob.sub.sub, group.by = "cell_type") + ggtitle(paste(
-      individual, "| Age:", age,
-      "| sex:", sex
-  )) + theme(legend.position = "bottom", legend.justification = "center")
-  plt.sub.sub
 
   file_name <- paste0(outPath, rep_i, "/", rep_i, "subSampled.RDS")
-  saveRDS(sob.sub.sub, file_name)
+  saveRDS(sob.sub, file_name)
   
   # Return
-  return(list(all = plt,
-              sub = plt.sub,
-              sub.sub = plt.sub.sub))
+  return(list(all = plt))
 }, mc.cores = 24)
 names(azimuth.list) <- rep_vec
 
@@ -112,24 +90,24 @@ top <- ggarrange(azimuth.list$rep1$all,
                     common.legend = F, legend = "bottom"
 )
 top
-bottom <- ggarrange(azimuth.list$rep1$sub,
-                    azimuth.list$rep2$sub,
-                    azimuth.list$rep3$sub,
-                 labels = c("D.", "E.", "F."), nrow = 1,
-                 common.legend = F, legend = "bottom"
-)
+# bottom <- ggarrange(azimuth.list$rep1$sub,
+#                     azimuth.list$rep2$sub,
+#                     azimuth.list$rep3$sub,
+#                  labels = c("D.", "E.", "F."), nrow = 1,
+#                  common.legend = F, legend = "bottom"
+# )
+# 
+# bottom2 <- ggarrange(azimuth.list$rep1$sub.sub,
+#                     azimuth.list$rep2$sub.sub,
+#                     azimuth.list$rep3$sub.sub,
+#                     labels = c("G.", "H.", "I."), nrow = 1,
+#                     common.legend = F, legend = "bottom"
+# )
+# 
+# combined_plot <- ggarrange(top, bottom, bottom2, nrow = 3)
+# combined_plot
 
-bottom2 <- ggarrange(azimuth.list$rep1$sub.sub,
-                    azimuth.list$rep2$sub.sub,
-                    azimuth.list$rep3$sub.sub,
-                    labels = c("G.", "H.", "I."), nrow = 1,
-                    common.legend = F, legend = "bottom"
-)
-
-combined_plot <- ggarrange(top, bottom, bottom2, nrow = 3)
-combined_plot
-
-ggsave(combined_plot,
+ggsave(top,
        filename = paste0("Figures/SuppData/05_Real_Data-SubSampling.png"),
        dpi = 150, height = 8, width = 12
 )
