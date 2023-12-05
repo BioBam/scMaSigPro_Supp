@@ -11,9 +11,8 @@ suppressPackageStartupMessages(library(Seurat))
 suppressPackageStartupMessages(library(parallel))
 suppressPackageStartupMessages(library(rhdf5))
 suppressPackageStartupMessages(library(tidyverse))
+suppressPackageStartupMessages(library(ggpubr))
 suppressPackageStartupMessages(library(Matrix))
-suppressPackageStartupMessages(library(SeuratData))
-suppressPackageStartupMessages(library(SeuratDisk))
 suppressPackageStartupMessages(library(parallel))
 suppressPackageStartupMessages(library(parallelly))
 
@@ -57,7 +56,8 @@ violin.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dir
   sob.raw <- CreateSeuratObject(
     counts = filt_mat,
     min.cells = 10,
-    min.features = 1000
+    min.features = 1000,
+    project = rep_i
   )
 
   # Calculate Percentage of Mitochondrial Reads
@@ -121,7 +121,8 @@ violin.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dir
   sob.prs <- NormalizeData(sob.sub, verbose = F)
 
   # Find Variable features
-  sob.prs <- FindVariableFeatures(sob.prs, verbose = F)
+  sob.prs <- FindVariableFeatures(sob.prs, selection.method = "dispersion",
+                                  nfeatures = 15000, verbose = F)
 
   # Check how many genes are present in the dataset
   indata <- rownames(sob.prs)[rownames(sob.prs) %in% reg.out]
@@ -153,4 +154,4 @@ violin.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dir
 
   # Return UMAP
   return(NULL)
-}, mc.cores = availableCores())
+}, mc.cores = 1)#availableCores())

@@ -59,7 +59,6 @@ azimuth.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = di
   sob.sub <- subset(sob, predicted.celltype.l2.score >= 0.2)
   
   # Compute PCA
-  sob.sub <- ScaleData(sob.sub)
   sob.sub <- RunPCA(sob.sub, npcs = 300, verbose = F)
   
   # Compute tsne
