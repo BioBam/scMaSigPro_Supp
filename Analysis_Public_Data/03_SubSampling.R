@@ -54,18 +54,18 @@ azimuth.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = di
   sob <- readRDS(file = paste0(inPath, rep_i, "/", rep_i, "_azimuth.RDS"))
 
   # Subset
-  sob <- subset(sob, cell_type %in% c("pre-pDC", "GMP", "Early Eryth", "HSC", "LMPP", "pre B", "EMP", "pDC", "Late Eryth",
-                                          "Prog Mk", "CLP", "pro B", "cDC2", "pre-mDC", "ASDC"))
+  sob <- subset(sob, cell_type %in% c("pre-pDC", "GMP", "Early Eryth", "HSC",
+                                      "LMPP", "EMP", "pDC", "Late Eryth", 
+                                      "Prog Mk", "CLP", "cDC2", "pre-mDC", "ASDC"))
   sob.sub <- subset(sob, predicted.celltype.l2.score >= 0.2)
   
   # Compute PCA
-  sob.sub <- RunPCA(sob.sub, npcs = 300, verbose = F)
+  sob.sub <- RunPCA(sob.sub, npcs = 100, verbose = F)
   
   # Compute tsne
   sob.sub <- RunTSNE(sob.sub,
                      reduction = "pca",
-                     dim.embed = 2,
-                     dims = 1:300)
+                     dim.embed = 2)
   
   # Plot
   plt <- DimPlot(sob.sub, group.by = "cell_type", reduction = "tsne") + xlab("tSNE-1") + ylab("tSNE-2")+ ggtitle(paste(
@@ -73,12 +73,14 @@ azimuth.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = di
       "| sex:", sex
   )) + theme(legend.position = "bottom", legend.justification = "center")
 
+  plt
+  
   file_name <- paste0(outPath, rep_i, "/", rep_i, "subSampled.RDS")
   saveRDS(sob.sub, file_name)
   
   # Return
   return(list(all = plt))
-}, mc.cores = 24)
+}, mc.cores = 1)
 names(azimuth.list) <- rep_vec
 
 # Create plot

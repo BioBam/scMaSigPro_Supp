@@ -91,8 +91,8 @@ umaps.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirP
     close_loop = F,
     use_partition = F,
     learn_graph_control = list(
-      prune_graph = graph_prune,
-      minimal_branch_len = 2
+      prune_graph = T,
+      minimal_branch_len = 5
     )
   )
 

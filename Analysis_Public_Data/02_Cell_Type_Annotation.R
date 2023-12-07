@@ -7,7 +7,7 @@
 set.seed(007)
 
 suppressPackageStartupMessages(library(Seurat))
-suppressPackageStartupMessages(library(SeuratDisk))
+suppressPackageStartupMessages(library(SeuratData))
 suppressPackageStartupMessages(library(Azimuth))
 
 # Prefix
