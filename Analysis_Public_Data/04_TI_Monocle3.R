@@ -23,11 +23,13 @@ dirPath <- "/supp_data/Analysis_Public_Data/"
 
 # Get folder names
 rep_vec <- list.dirs(dirPath, full.names = F, recursive = F)
-rep_vec <- rep_vec[rep_vec != "Azimuth_Human_BoneMarrow"]
+rep_vec <- rep_vec[!(rep_vec %in% c("Azimuth_Human_BoneMarrow", "integrated"))]
 names(rep_vec) <- rep_vec
 
 # Run lapply
 umaps.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPath) {
+    #rep_i = "rep1"
+    
   # Step-1: Add Annotation for donors
   if (rep_i == "rep1") {
     individual <- "Donor-1"
@@ -35,7 +37,7 @@ umaps.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirP
     sex <- "Male"
     loop <- TRUE
     graph_prune <- FALSE
-    root_cell <- "EMP"
+    root_cell <- "HSC"
   } else if (rep_i == "rep2") {
     individual <- "Donor-2"
     age <- "28"
@@ -53,10 +55,15 @@ umaps.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirP
   }
 
   sob <- readRDS(file = paste0(dirPath, rep_i, "/", rep_i, "subSampled.RDS"))
+  
+  # Get var features
+  var_features <- VariableFeatures(sob)
 
   # Subset
   counts <- sob@assays$RNA$scale.data
-  #counts <- counts[rowSums(counts) >= 200,]
+  
+  # Subset counts
+  counts <- counts[var_features, , drop=FALSE]
 
   cell_metadata <- sob@meta.data
   cell_metadata <- cell_metadata[colnames(counts),]
@@ -79,7 +86,7 @@ umaps.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirP
   cds <- reduce_dimension(cds)
 
   # We will use UMAP and clusters from seurat
-  new_umap <- as.matrix(sob@reductions$tsne@cell.embeddings)
+  new_umap <- as.matrix(sob@reductions$umap@cell.embeddings)
   colnames(new_umap) <- NULL
   reducedDims(cds)[["UMAP"]] <- new_umap
 
@@ -91,8 +98,7 @@ umaps.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirP
     close_loop = F,
     use_partition = F,
     learn_graph_control = list(
-      prune_graph = T,
-      minimal_branch_len = 5
+      prune_graph = F
     )
   )
 
@@ -109,7 +115,7 @@ umaps.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirP
     theme(legend.position = "bottom") + ggtitle(paste(
       individual, "| Age:", age,
       "| sex:", sex
-    ))+ xlab("tSNE-1") + ylab("tSNE-2")
+    ))+ xlab("UMAP-1") + ylab("UMAP-2")
   cell_type <- plot_cells(cds,
     color_cells_by = "cell_type", cell_size = 1.5,
     label_cell_groups = F
@@ -117,7 +123,7 @@ umaps.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirP
     theme(legend.position = "bottom") + ggtitle(paste(
       individual, "| Age:", age,
       "| sex:", sex
-    ))+ xlab("tSNE-1") + ylab("tSNE-2")
+    ))+ xlab("UMAP-1") + ylab("UMAP-2")
   pseudotime
 
 
@@ -148,6 +154,6 @@ top <- ggarrange(umaps.list$rep1$cell_type,
 combined_plot <- ggarrange(top, bottom, nrow = 2)
 combined_plot
 ggsave(combined_plot,
-  filename = paste0("Figures/SuppData/05_Real_Data-TI.png"),
+  filename = paste0("Figures/SuppData/05_Real_Data_TI.png"),
   dpi = 150, height = 8, width = 12
 )

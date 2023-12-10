@@ -15,7 +15,7 @@ dirPath <- "/supp_data/Analysis_Public_Data/"
 
 # Get folder names
 rep_vec <- list.dirs(dirPath, full.names = F, recursive = F)
-rep_vec <- rep_vec[rep_vec != "Azimuth_Human_BoneMarrow"]
+rep_vec <- rep_vec[!(rep_vec %in% c("Azimuth_Human_BoneMarrow", "integrated"))]
 names(rep_vec) <- rep_vec
 
 # Run lapply

@@ -4,7 +4,7 @@
 ## Script: ScMaSigPro ############
 ##################################
 
-go_enrichment <- function(gene_list, scmp.obj, rep, age,sex, path, 
+go_enrichment <- function(gene_list, background, rep, age,sex, path, 
                           ont = "BP", pAdjustMethod = "fdr", nterms = 5, sig.level = 0.05){
     
     # Load
@@ -16,7 +16,8 @@ go_enrichment <- function(gene_list, scmp.obj, rep, age,sex, path,
     # Separate Ensembl IDs and gene symbols
     ensembl_ids <- gene_list[grep("^ENSG", gene_list)]
     gene_symbols <- gene_list[!((gene_list) %in% ensembl_ids)]
-    
+    tryCatch(
+        expr = {
     # Convert Ensembl IDs to Entrez IDs
     entrez_ids_from_ensembl <- mapIds(org.Hs.eg.db,
                                       keys = ensembl_ids,
@@ -42,7 +43,7 @@ go_enrichment <- function(gene_list, scmp.obj, rep, age,sex, path,
     gene_symbols <- gene_list[!((gene_list) %in% ensembl_ids)]
     
     # Set up universe
-    universe_vector <- rownames(scmp.obj@compress.sce@assays@data@listData$bulk.counts)
+    universe_vector <- background.vector
     universe_vector_ensg <- universe_vector[grep("^ENSG", universe_vector)]
     universe_vector_sym <- universe_vector[!((universe_vector) %in% universe_vector_ensg)]
     
@@ -94,4 +95,8 @@ go_enrichment <- function(gene_list, scmp.obj, rep, age,sex, path,
     }else{
         return(NULL)
     }
+    },
+    e = function(e){
+        return(NULL)
+    })
 }

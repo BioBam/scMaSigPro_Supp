@@ -41,7 +41,8 @@ scMaSigPro.list <- lapply(rep_vec, function(rep_i) {
 })
 
 # Run Go and Extract important gene
-scmp_results <- lapply(rep_vec[3], function(rep_i) {
+scmp_results <- lapply(rep_vec, function(rep_i) {
+    rep_i ="rep1"
   # Step-1: Add Annotation for donors
   if (rep_i == "rep1") {
     individual <- "Donor-1"
@@ -49,26 +50,26 @@ scmp_results <- lapply(rep_vec[3], function(rep_i) {
     sex <- "Male"
     rsq <- 0.7
     num <- 10
-    path1 <-"Early Eryth"
-    path2 <-"Prog Mk"
+    path1_name <-"MPP_to_GMP"
+    path2_name <-"MPP_to_CLP"
     root = "EMP"
   } else if (rep_i == "rep2") {
     individual <- "Donor-2"
     age <- "28"
     root = "HSC"
     sex <- "Female"
-    path1 <-"GMP"
-    path2 <-"CLP"
-    rsq <- 0.7
+    path1_name <-"EMP_to_ProgEryth"
+    path2_name <-"EMP_to_ProgMk"
+    rsq <- 0.35
     num <- 10
   } else if (rep_i == "rep3") {
     individual <- "Donor-3"
     age <- "19"
     sex <- "Female"
-    path1 <- "CLP"
-    path2 <- "GMP"
+    path1_name <-"EMP_to_ProgMk"
+    path2_name <-"EMP_to_ProgEryth"
     root = "LMPP"
-    rsq <- 0.7
+    rsq <- 0.4
     num <- 10
   }
 
@@ -80,17 +81,29 @@ scmp_results <- lapply(rep_vec[3], function(rep_i) {
                         rsq = rsq,
                         significant.intercept = "dummy",
                         vars = "groups")
+  
   # get genes
-  gene.list <- scmp.obj@sig.genes@sig.genes[[1]]
+  gene.list <- scmp.obj@sig.genes@sig.genes[[2]]
+  cat(length(gene.list))
+  
+  # Load backgound
+  background.vector <- readRDS(paste0("/supp_data/Analysis_Public_Data/", rep_i, "/", rep_i, "background.RDS"))
+
   # Perform enrichmnet
   target.path = go_enrichment(
-      scmp.obj = scmp.obj,
-      rep = rep_i, age = age, sex = sex,
-      path = paste0(root, "->", str_remove(path2, pattern = " ")),
+      background = background.vector,
+      rep = rep_i, 
+      age = age, 
+      sex = sex,
+      path = paste0(str_split_1(names(scmp.obj@sig.genes@sig.genes)[[1]], "vs")[[1]]),
       gene_list = gene.list,
-      ont = "BP", pAdjustMethod = "BH",
-      nterms = 10, sig.level = 0.05
+      ont = "BP",
+      pAdjustMethod = "BH",
+      nterms = 10,
+      sig.level = 0.05
   )
+  target.path$dot
+
   
   return(target.path)
 })
