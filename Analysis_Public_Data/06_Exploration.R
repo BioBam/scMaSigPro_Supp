@@ -41,14 +41,14 @@ scMaSigPro.list <- lapply(rep_vec, function(rep_i) {
 })
 
 # Run Go and Extract important gene
-scmp_results <- lapply(rep_vec, function(rep_i) {
+scmp_results <- lapply(rep_vec[1], function(rep_i) {
     rep_i ="rep1"
   # Step-1: Add Annotation for donors
   if (rep_i == "rep1") {
     individual <- "Donor-1"
     age <- "35"
     sex <- "Male"
-    rsq <- 0.7
+    rsq <- 0.6
     num <- 10
     path1_name <-"MPP_to_GMP"
     path2_name <-"MPP_to_CLP"
@@ -69,7 +69,7 @@ scmp_results <- lapply(rep_vec, function(rep_i) {
     path1_name <-"EMP_to_ProgMk"
     path2_name <-"EMP_to_ProgEryth"
     root = "LMPP"
-    rsq <- 0.4
+    rsq <- 0.5
     num <- 10
   }
 
@@ -125,3 +125,7 @@ ggsave(combined.bar,
        filename = paste0("Figures/SuppData/05_Real_Data-GO_dot.png"),
        dpi = 150, height = 8, width = 20
 )
+
+
+plotTrend(scMaSigPro.list$rep1,
+          feature_id = "UBXN10",significant = F, logs = F)

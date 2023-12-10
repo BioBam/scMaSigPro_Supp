@@ -32,7 +32,7 @@ scmp.ob.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirP
 })
 
 # Run ScMaSigPro
-scmp.prs.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPath) {
+scmp.prs.list <- lapply(rep_vec[1], function(rep_i, inPath = dirPath, outPath = dirPath) {
     
     #rep_i <- "rep1"
     
@@ -48,18 +48,18 @@ scmp.prs.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dir
     } else if (rep_i == "rep2") {
         individual <- "Donor-2"
         age <- "28"
-        tail = F
-        drop =  0.7
-        split = F
-        bin.method = "Doane"
+        tail = T
+        drop =  0.5
+        split = T
+        bin.method = "Sturges"
         sex <- "Female"
     } else if (rep_i == "rep3") {
         individual <- "Donor-3"
         age <- "19"
-        tail = F
-        drop =  0.7
+        tail = T
+        drop =  1
         split = F
-        bin.method = "Doane"
+        bin.method = "Sturges"
         sex <- "Female"
     }
     
@@ -97,10 +97,13 @@ scmp.prs.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dir
     family = gaussian(), #MASS::negative.binomial(30),
     offset = F
   )
-  length(scmp.obj@profile@non.flat)
 
-  if(length(scmp.obj@profile@non.flat) == 0){
-      return(NULL)
+  if(length(scmp.obj@profile@non.flat) < 100){
+      return(list(
+          scmpObj = scmp.obj,
+          polyGlm = polyGlm,
+          binPlot = binPlot
+      ))
   }else{
   # Run Tstep
   scmp.obj <- sc.t.fit(
@@ -113,12 +116,12 @@ scmp.prs.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dir
     scmp.obj,
     paste0(outPath, rep_i, "/", "scMaSigPro_Processed_", rep_i, ".RDS")
   )
-
   return(list(
-    scmpObj = scmp.obj,
-    polyGlm = polyGlm,
-    binPlot = binPlot
+      scmpObj = scmp.obj,
+      polyGlm = polyGlm,
+      binPlot = binPlot
   ))
+
 }
 })
 

@@ -33,31 +33,31 @@ object.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPa
 
 
 # Create ScMaSigPro Input
-for (rep_i in c(rep_vec)){
+for (rep_i in c(rep_vec)[1]){
     
     if (rep_i == "rep1") {
-        path1_name <-"MPP_to_GMP"
-        path2_name <-"MPP_to_CLP"
-        root_pp = c("Y_26")
-        path1_pp = c("Y_2", "Y_8", "Y_9", "Y_17", "Y_26", "Y_31", "Y_34", "Y_35", "Y_38", "Y_41", "Y_58", "Y_69", "Y_76", "Y_85", "Y_87", "Y_95", "Y_116", "Y_121", "Y_133", "Y_137", "Y_146", "Y_199", "Y_210")
-        path2_pp = c("Y_6", "Y_14", "Y_26", "Y_47", "Y_52", "Y_54", "Y_55", "Y_78", "Y_107", "Y_117", "Y_134", "Y_147", "Y_148", "Y_178", "Y_184", "Y_203", "Y_218")
+        path1_name <-"EMP_EarlyErythrocyte"
+        path2_name <-"EMP_ProgMk"
+        root_pp = c("Y_39")
+        path1_pp = c("Y_39", "Y_62", "Y_85", "Y_144", "Y_160", "Y_167", "Y_168")
+        path2_pp = c("Y_2", "Y_3", "Y_39", "Y_43", "Y_97")
         individual <- "Donor-1"
         age <- "35"
         sex <- "Male"
     } else if (rep_i == "rep2") {
-        path1_name <-"EMP_to_ProgEryth"
-        path2_name <-"EMP_to_ProgMk"
-        root_pp = c("Y_49")
-        path1_pp <- c("Y_49", "Y_74", "Y_92", "Y_113", "Y_143", "Y_154", "Y_194")
-        path2_pp =  c("Y_28", "Y_42", "Y_49", "Y_65", "Y_136")
+        path1_name <-"HSC_GMP"
+        path2_name <-"HSC_CLP"
+        root_pp = c("Y_58")
+        path1_pp <- c("Y_5", "Y_14", "Y_19", "Y_20", "Y_23", "Y_40", "Y_43", "Y_49", "Y_51", "Y_53", "Y_58", "Y_65", "Y_86", "Y_89", "Y_97", "Y_101", "Y_114", "Y_127", "Y_147", "Y_156", "Y_164", "Y_176", "Y_183", "Y_185", "Y_190", "Y_195", "Y_205")
+        path2_pp =  c("Y_4", "Y_11", "Y_22", "Y_58", "Y_77", "Y_107", "Y_117", "Y_121", "Y_168", "Y_171", "Y_192", "Y_203", "Y_207", "Y_216")
         age <- "28"
         sex <- "Female"
     } else if (rep_i == "rep3") {
-        path1_name <-"EMP_to_ProgMk"
-        path2_name <-"EMP_to_ProgEryth"
-        root_pp = c("Y_109")
-        path1_pp = c("Y_6", "Y_27", "Y_30", "Y_56", "Y_72", "Y_82", "Y_86", "Y_90", "Y_104", "Y_108", "Y_109", "Y_113", "Y_129", "Y_139", "Y_142", "Y_162", "Y_176", "Y_200", "Y_204", "Y_224", "Y_248")
-        path2_pp =  c("Y_1", "Y_44", "Y_48", "Y_58", "Y_76", "Y_109", "Y_114", "Y_147", "Y_148", "Y_170", "Y_183", "Y_186", "Y_203", "Y_206", "Y_234", "Y_236", "Y_241")
+        path1_name <-"MPP_ProB"
+        path2_name <-"MPP_pmDC"
+        root_pp = c("Y_20")
+        path1_pp =  c("Y_8", "Y_13", "Y_20", "Y_34", "Y_35", "Y_37", "Y_50", "Y_71", "Y_76", "Y_89", "Y_95", "Y_113", "Y_115", "Y_119", "Y_127", "Y_130", "Y_133", "Y_153", "Y_160", "Y_198", "Y_202", "Y_205", "Y_218", "Y_223")
+        path2_pp =  c("Y_4", "Y_10", "Y_18", "Y_20", "Y_29", "Y_46", "Y_47", "Y_48", "Y_51", "Y_54", "Y_61", "Y_80", "Y_84", "Y_107", "Y_116", "Y_141", "Y_150", "Y_163", "Y_169", "Y_175", "Y_181", "Y_187", "Y_188", "Y_217", "Y_219", "Y_233")
         individual <- "Donor-3"
         age <- "19"
         sex <- "Female"
