@@ -43,7 +43,7 @@ go_enrichment <- function(gene_list, background, rep, age,sex, path,
     gene_symbols <- gene_list[!((gene_list) %in% ensembl_ids)]
     
     # Set up universe
-    universe_vector <- background.vector
+    universe_vector <- background
     universe_vector_ensg <- universe_vector[grep("^ENSG", universe_vector)]
     universe_vector_sym <- universe_vector[!((universe_vector) %in% universe_vector_ensg)]
     

@@ -12,6 +12,7 @@ dirPath <- "/supp_data/Analysis_Public_Data/"
 # Get folder names
 rep_vec <- list.dirs(dirPath, full.names = F, recursive = F)
 rep_vec <- rep_vec[rep_vec != "Azimuth_Human_BoneMarrow"]
+rep_vec <- rep_vec[-3]
 names(rep_vec) <- rep_vec
 
 # Call the required libraries
@@ -33,7 +34,8 @@ object.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPa
 
 
 # Create ScMaSigPro Input
-for (rep_i in c(rep_vec)[1]){
+for (rep_i in c(rep_vec)){
+    #rep_i = "rep3"
     
     if (rep_i == "rep1") {
         path1_name <-"EMP_EarlyErythrocyte"
@@ -45,26 +47,26 @@ for (rep_i in c(rep_vec)[1]){
         age <- "35"
         sex <- "Male"
     } else if (rep_i == "rep2") {
-        path1_name <-"HSC_GMP"
-        path2_name <-"HSC_CLP"
-        root_pp = c("Y_58")
-        path1_pp <- c("Y_5", "Y_14", "Y_19", "Y_20", "Y_23", "Y_40", "Y_43", "Y_49", "Y_51", "Y_53", "Y_58", "Y_65", "Y_86", "Y_89", "Y_97", "Y_101", "Y_114", "Y_127", "Y_147", "Y_156", "Y_164", "Y_176", "Y_183", "Y_185", "Y_190", "Y_195", "Y_205")
-        path2_pp =  c("Y_4", "Y_11", "Y_22", "Y_58", "Y_77", "Y_107", "Y_117", "Y_121", "Y_168", "Y_171", "Y_192", "Y_203", "Y_207", "Y_216")
+        path1_name <-"CLP_pre_mDC"
+        path2_name <-"CLP_pre_pDC"
+        root_pp = c("Y_17")
+        path1_pp <- c("Y_2", "Y_17", "Y_21", "Y_24", "Y_25", "Y_26", "Y_27", "Y_30", "Y_37", "Y_38", "Y_40")
+        path2_pp = c("Y_4", "Y_8", "Y_9", "Y_10", "Y_11", "Y_13", "Y_17", "Y_20", "Y_28", "Y_29", "Y_31", "Y_41")
         age <- "28"
         sex <- "Female"
     } else if (rep_i == "rep3") {
-        path1_name <-"MPP_ProB"
-        path2_name <-"MPP_pmDC"
-        root_pp = c("Y_20")
-        path1_pp =  c("Y_8", "Y_13", "Y_20", "Y_34", "Y_35", "Y_37", "Y_50", "Y_71", "Y_76", "Y_89", "Y_95", "Y_113", "Y_115", "Y_119", "Y_127", "Y_130", "Y_133", "Y_153", "Y_160", "Y_198", "Y_202", "Y_205", "Y_218", "Y_223")
-        path2_pp =  c("Y_4", "Y_10", "Y_18", "Y_20", "Y_29", "Y_46", "Y_47", "Y_48", "Y_51", "Y_54", "Y_61", "Y_80", "Y_84", "Y_107", "Y_116", "Y_141", "Y_150", "Y_163", "Y_169", "Y_175", "Y_181", "Y_187", "Y_188", "Y_217", "Y_219", "Y_233")
+        path1_name <-"HSC_LMPP"
+        path2_name <-"HSC_EMP"
+        root_pp = c("Y_62")
+        path1_pp =  c('Y_4', 'Y_5', 'Y_6', 'Y_11', 'Y_18', 'Y_26', 'Y_29', 'Y_48', 'Y_53', 'Y_56', 'Y_62', 'Y_68', 'Y_79', 'Y_82', 'Y_84', 'Y_89', 'Y_91', 'Y_94', 'Y_98', 'Y_103', 'Y_106')
+        path2_pp =  c('Y_2', 'Y_12', 'Y_14', 'Y_23', 'Y_25', 'Y_30', 'Y_32', 'Y_38', 'Y_42', 'Y_45', 'Y_55', 'Y_62', 'Y_65', 'Y_66', 'Y_67', 'Y_70', 'Y_72', 'Y_76', 'Y_78', 'Y_95', 'Y_96', 'Y_99', 'Y_109')
         individual <- "Donor-3"
         age <- "19"
         sex <- "Female"
     }
     
     ob <- m3_select_path(cdsObj = object.list[[rep_i]],
-                         use_shiny = T, plot_purity = F,
+                         use_shiny = F, plot_purity = F,
                          annotation_col = "cell_type",
                          m3_pp = list(
                              root_pp = root_pp,

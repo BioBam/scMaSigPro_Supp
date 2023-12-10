@@ -24,11 +24,11 @@ dirPath <- "/supp_data/Analysis_Public_Data/"
 # Get folder names
 rep_vec <- list.dirs(dirPath, full.names = F, recursive = F)
 rep_vec <- rep_vec[!(rep_vec %in% c("Azimuth_Human_BoneMarrow", "integrated"))]
-names(rep_vec) <- rep_vec
+names(rep_vec) <- rep_vec[-3]
 
 # Run lapply
 umaps.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPath) {
-    #rep_i = "rep1"
+    #rep_i = "rep3"
     
   # Step-1: Add Annotation for donors
   if (rep_i == "rep1") {
@@ -44,14 +44,14 @@ umaps.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirP
     sex <- "Female"
     graph_prune <- TRUE
     loop <- TRUE
-    root_cell <- "HSC"
+    root_cell <- "LMPP"
   } else if (rep_i == "rep3") {
     individual <- "Donor-3"
     age <- "19"
     sex <- "Female"
     loop <- FALSE
     graph_prune <- TRUE
-    root_cell <- "HSC"
+    root_cell <- "LMPP"
   }
 
   sob <- readRDS(file = paste0(dirPath, rep_i, "/", rep_i, "subSampled.RDS"))
@@ -125,7 +125,7 @@ umaps.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirP
       "| sex:", sex
     ))+ xlab("UMAP-1") + ylab("UMAP-2")
   pseudotime
-
+  cell_type
 
   # Save
   file_name <- paste0(outPath, rep_i, "/", paste(rep_i, "cds.RDS", sep = "_"))

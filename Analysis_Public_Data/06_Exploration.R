@@ -14,6 +14,7 @@ dirPath <- "/supp_data/Analysis_Public_Data/"
 # Get folder names
 rep_vec <- list.dirs(dirPath, full.names = F, recursive = F)
 rep_vec <- rep_vec[rep_vec != "Azimuth_Human_BoneMarrow"]
+rep_vec <- rep_vec[-3]
 names(rep_vec) <- rep_vec
 
 # Call the required libraries
@@ -41,8 +42,8 @@ scMaSigPro.list <- lapply(rep_vec, function(rep_i) {
 })
 
 # Run Go and Extract important gene
-scmp_results <- lapply(rep_vec[1], function(rep_i) {
-    rep_i ="rep1"
+scmp_results <- lapply(rep_vec, function(rep_i) {
+    
   # Step-1: Add Annotation for donors
   if (rep_i == "rep1") {
     individual <- "Donor-1"
@@ -60,7 +61,7 @@ scmp_results <- lapply(rep_vec[1], function(rep_i) {
     sex <- "Female"
     path1_name <-"EMP_to_ProgEryth"
     path2_name <-"EMP_to_ProgMk"
-    rsq <- 0.35
+    rsq <- 0.8
     num <- 10
   } else if (rep_i == "rep3") {
     individual <- "Donor-3"
@@ -69,7 +70,7 @@ scmp_results <- lapply(rep_vec[1], function(rep_i) {
     path1_name <-"EMP_to_ProgMk"
     path2_name <-"EMP_to_ProgEryth"
     root = "LMPP"
-    rsq <- 0.5
+    rsq <- 0.7
     num <- 10
   }
 
@@ -83,7 +84,7 @@ scmp_results <- lapply(rep_vec[1], function(rep_i) {
                         vars = "groups")
   
   # get genes
-  gene.list <- scmp.obj@sig.genes@sig.genes[[2]]
+  gene.list <- scmp.obj@sig.genes@sig.genes[[1]]
   cat(length(gene.list))
   
   # Load backgound
@@ -126,6 +127,6 @@ ggsave(combined.bar,
        dpi = 150, height = 8, width = 20
 )
 
-
-plotTrend(scMaSigPro.list$rep1,
-          feature_id = "UBXN10",significant = F, logs = F)
+# 
+# plotTrend(scMaSigPro.list$rep1,
+#           feature_id = "UBXN10",significant = F, logs = F)

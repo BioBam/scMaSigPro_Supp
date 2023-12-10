@@ -16,17 +16,12 @@ suppressPackageStartupMessages(library(parallel))
 dirPath <- "/supp_data/Analysis_Public_Data/"
 
 # Get folder names
-rep_vec <- list.dirs(dirPath, full.names = F, recursive = F)
+rep_vec <- list.dirs(dirPath, full.names = F, recursive = F)[-3]
 rep_vec <- rep_vec[!(rep_vec %in% c("Azimuth_Human_BoneMarrow", "integrated"))]
 names(rep_vec) <- rep_vec
 
-# Create label map
-select_cells = c("GMP", "Early Eryth", "HSC", "LMPP", "EMP", "Prog Mk", "CLP",
-                    "pre-pDC", "pre-mDC", "pro B")
-
 # Load data
-azimuth.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPath,
-                                           labels_df = labels.df) {
+azimuth.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPath) {
     #rep_i <- "rep3"
   # Step-1: Add Annotation for donors
   if (rep_i == "rep1") {
@@ -38,24 +33,34 @@ azimuth.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = di
     min.dist = 0.1
     n.neighbors = 200
     spread = 10
+    nfeatures = 6000
+    npcs =100
+    select_cells = c("GMP", "Early Eryth", "HSC", "LMPP", "EMP", "Prog Mk", "CLP",
+                     "pre-pDC", "pre-mDC", "pro B")
   } else if (rep_i == "rep2") {
     individual <- "Donor-2"
     age <- "28"
     sex <- "Female"
     dims = c(1:50)
     seed.use = 123
-    min.dist = 0.05
+    min.dist = 0.01
     n.neighbors = 200
-    spread = 20
+    spread = 5
+    npcs = 100
+    nfeatures = 6000
+    select_cells = c("LMPP", "pre-pDC", "pre-mDC","CLP")
   } else if (rep_i == "rep3") {
     individual <- "Donor-3"
     age <- "19"
     sex <- "Female"
     dims = c(1:25)
+    npcs = 100
     seed.use = 123
     min.dist = 0.05
     n.neighbors = 200
+    nfeatures = 6000
     spread = 20
+    select_cells = c("LMPP", "pre-pDC", "pre-mDC","CLP", "pro B")
   }
   # Load seurat object
   sob <- readRDS(file = paste0(inPath, rep_i, "/", rep_i, "_azimuth.RDS"))

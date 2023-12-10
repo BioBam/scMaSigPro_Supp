@@ -12,6 +12,7 @@ dirPath <- "/supp_data/Analysis_Public_Data/"
 # Get folder names
 rep_vec <- list.dirs(dirPath, full.names = F, recursive = F)
 rep_vec <- rep_vec[rep_vec != "Azimuth_Human_BoneMarrow"]
+rep_vec <- rep_vec[-3]
 names(rep_vec) <- rep_vec
 
 # Call the required libraries
@@ -32,9 +33,9 @@ scmp.ob.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirP
 })
 
 # Run ScMaSigPro
-scmp.prs.list <- lapply(rep_vec[1], function(rep_i, inPath = dirPath, outPath = dirPath) {
+scmp.prs.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPath) {
     
-    #rep_i <- "rep1"
+    #rep_i <- "rep3"
     
     # Hard Assignment of the Cells to path
     if (rep_i == "rep1") {
@@ -48,9 +49,9 @@ scmp.prs.list <- lapply(rep_vec[1], function(rep_i, inPath = dirPath, outPath = 
     } else if (rep_i == "rep2") {
         individual <- "Donor-2"
         age <- "28"
-        tail = T
-        drop =  0.5
-        split = T
+        tail = F
+        drop =  1
+        split = F
         bin.method = "Sturges"
         sex <- "Female"
     } else if (rep_i == "rep3") {
