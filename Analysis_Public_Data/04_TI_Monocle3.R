@@ -24,7 +24,8 @@ dirPath <- "/supp_data/Analysis_Public_Data/"
 # Get folder names
 rep_vec <- list.dirs(dirPath, full.names = F, recursive = F)
 rep_vec <- rep_vec[!(rep_vec %in% c("Azimuth_Human_BoneMarrow", "integrated"))]
-names(rep_vec) <- rep_vec[-3]
+names(rep_vec) <- rep_vec
+rep_vec <- rep_vec[3]
 
 # Run lapply
 umaps.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPath) {
@@ -51,7 +52,7 @@ umaps.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirP
     sex <- "Female"
     loop <- FALSE
     graph_prune <- TRUE
-    root_cell <- "LMPP"
+    root_cell <- "HSC"
   }
 
   sob <- readRDS(file = paste0(dirPath, rep_i, "/", rep_i, "subSampled.RDS"))

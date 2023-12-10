@@ -11,9 +11,9 @@ dirPath <- "/supp_data/Analysis_Public_Data/"
 
 # Get folder names
 rep_vec <- list.dirs(dirPath, full.names = F, recursive = F)
-rep_vec <- rep_vec[rep_vec != "Azimuth_Human_BoneMarrow"]
-rep_vec <- rep_vec[-3]
+rep_vec <- rep_vec[!(rep_vec %in% c("Azimuth_Human_BoneMarrow", "integrated"))]
 names(rep_vec) <- rep_vec
+rep_vec <- rep_vec[3]
 
 # Call the required libraries
 suppressPackageStartupMessages(library(Seurat))
@@ -57,7 +57,7 @@ scmp.prs.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dir
     } else if (rep_i == "rep3") {
         individual <- "Donor-3"
         age <- "19"
-        tail = T
+        tail = F
         drop =  1
         split = F
         bin.method = "Sturges"

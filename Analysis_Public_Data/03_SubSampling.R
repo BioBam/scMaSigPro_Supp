@@ -16,9 +16,10 @@ suppressPackageStartupMessages(library(parallel))
 dirPath <- "/supp_data/Analysis_Public_Data/"
 
 # Get folder names
-rep_vec <- list.dirs(dirPath, full.names = F, recursive = F)[-3]
+rep_vec <- list.dirs(dirPath, full.names = F, recursive = F)
 rep_vec <- rep_vec[!(rep_vec %in% c("Azimuth_Human_BoneMarrow", "integrated"))]
 names(rep_vec) <- rep_vec
+rep_vec <- rep_vec[3]
 
 # Load data
 azimuth.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPath) {
@@ -54,13 +55,13 @@ azimuth.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = di
     age <- "19"
     sex <- "Female"
     dims = c(1:25)
-    npcs = 100
-    seed.use = 123
-    min.dist = 0.05
+    min.dist = 0.1
     n.neighbors = 200
+    spread = 10
     nfeatures = 6000
-    spread = 20
-    select_cells = c("LMPP", "pre-pDC", "pre-mDC","CLP", "pro B")
+    npcs =100
+    select_cells = c("GMP", "Early Eryth", "HSC", "LMPP", "EMP", "Prog Mk", "CLP",
+                     "pre-pDC", "pre-mDC", "pro B")
   }
   # Load seurat object
   sob <- readRDS(file = paste0(inPath, rep_i, "/", rep_i, "_azimuth.RDS"))
