@@ -29,8 +29,8 @@ rep_vec <- rep_vec[3]
 
 # Run lapply
 umaps.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPath) {
-    #rep_i = "rep3"
-    
+  # rep_i = "rep3"
+
   # Step-1: Add Annotation for donors
   if (rep_i == "rep1") {
     individual <- "Donor-1"
@@ -56,27 +56,27 @@ umaps.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirP
   }
 
   sob <- readRDS(file = paste0(dirPath, rep_i, "/", rep_i, "subSampled.RDS"))
-  
+
   # Get var features
   var_features <- VariableFeatures(sob)
 
   # Subset
   counts <- sob@assays$RNA$scale.data
-  
+
   # Subset counts
-  counts <- counts[var_features, , drop=FALSE]
+  counts <- counts[var_features, , drop = FALSE]
 
   cell_metadata <- sob@meta.data
-  cell_metadata <- cell_metadata[colnames(counts),]
-  gene_metadata = data.frame(
-      row.names = rownames(sob),
-      gene_short_name = rownames(sob)
+  cell_metadata <- cell_metadata[colnames(counts), ]
+  gene_metadata <- data.frame(
+    row.names = rownames(sob),
+    gene_short_name = rownames(sob)
   )
-  gene_metadata <- gene_metadata[rownames(counts),, drop = F]
+  gene_metadata <- gene_metadata[rownames(counts), , drop = F]
   # Create cds
   cds <- new_cell_data_set(
     expression_data = counts,
-    cell_metadata =cell_metadata,
+    cell_metadata = cell_metadata,
     gene_metadata = gene_metadata
   )
 
@@ -116,7 +116,7 @@ umaps.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirP
     theme(legend.position = "bottom") + ggtitle(paste(
       individual, "| Age:", age,
       "| sex:", sex
-    ))+ xlab("UMAP-1") + ylab("UMAP-2")
+    )) + xlab("UMAP-1") + ylab("UMAP-2")
   cell_type <- plot_cells(cds,
     color_cells_by = "cell_type", cell_size = 1.5,
     label_cell_groups = F
@@ -124,7 +124,7 @@ umaps.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirP
     theme(legend.position = "bottom") + ggtitle(paste(
       individual, "| Age:", age,
       "| sex:", sex
-    ))+ xlab("UMAP-1") + ylab("UMAP-2")
+    )) + xlab("UMAP-1") + ylab("UMAP-2")
   pseudotime
   cell_type
 

@@ -78,20 +78,18 @@ roc_B <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = parameter)) +
     segment.size = 0.5, # Size of the line connecting label and point
     show.legend = FALSE # Prevent the creation of a legend for this aesthetic
   ) +
-    
-    
   geom_point(
-    data = subset(evaluation.frame, TPR > 0.8 & TPR <= 0.85& FPR <= 0.05 & parameter == "ZI"),
+    data = subset(evaluation.frame, TPR > 0.8 & TPR <= 0.85 & FPR <= 0.05 & parameter == "ZI"),
     color = colorConesa(6)[6],
     size = 2.5
   ) +
   geom_label_repel(
-    data = subset(evaluation.frame,  TPR > 0.8 & TPR <= 0.85& FPR <= 0.05 & parameter == "ZI"),
+    data = subset(evaluation.frame, TPR > 0.8 & TPR <= 0.85 & FPR <= 0.05 & parameter == "ZI"),
     aes(
       label = RSQ,
       color = parameter
     ),
-    nudge_x =  -0.01, nudge_y = 0.07, # Adjust these values as needed
+    nudge_x = -0.01, nudge_y = 0.07, # Adjust these values as needed
     size = 4,
     segment.color = colorConesa(6)[6], # Color of the line connecting label and point
     segment.size = 0.5, # Size of the line connecting label and point
@@ -153,12 +151,12 @@ roc_B <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = parameter)) +
     show.legend = FALSE # Prevent the creation of a legend for this aesthetic
   ) +
   geom_point(
-    data = subset(evaluation.frame, TPR >= 0.75 & TPR <= 0.85& FPR < 0.05 & parameter == "len"),
+    data = subset(evaluation.frame, TPR >= 0.75 & TPR <= 0.85 & FPR < 0.05 & parameter == "len"),
     color = colorConesa(3)[1],
     size = 2.5
   ) +
   geom_label_repel(
-    data = subset(evaluation.frame, TPR >= 0.75 & TPR <= 0.85& FPR < 0.05 & parameter == "len"),
+    data = subset(evaluation.frame, TPR >= 0.75 & TPR <= 0.85 & FPR < 0.05 & parameter == "len"),
     aes(
       label = RSQ,
       color = parameter
@@ -196,4 +194,4 @@ roc_B <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = parameter)) +
 
 
 # Save
-saveRDS(object = roc_B,file = paste0(outDir, "MainArticle_FigureB.RDS"))
+saveRDS(object = roc_B, file = paste0(outDir, "MainArticle_FigureB.RDS"))

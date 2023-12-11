@@ -65,64 +65,70 @@ violin.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dir
 
   # Remove Cells
   sob.sub <- subset(sob.raw, subset = nFeature_RNA > 100 & nCount_RNA < 30000 & percent.mt < 10)
-  
+
   # Create Subset Plot
-  violins.raw.nFeature_RNA <- VlnPlot(sob.raw, features = "nFeature_RNA") + theme(legend.position = "none")  + xlab("") +
-      ggtitle(paste(
-          individual, "| Age:", age,
-          "| sex:", sex
-      ), subtitle = "nFeature_RNA")
-  violins.raw.nCount_RNA <- VlnPlot(sob.raw, features = "nCount_RNA") + theme(legend.position = "none")  + xlab("") +
-      ggtitle(paste(
-          individual, "| Age:", age,
-          "| sex:", sex
-      ), subtitle = "nCount_RNA")
-  violins.raw.percent.mt <- VlnPlot(sob.raw, features = "percent.mt") + theme(legend.position = "none")  + xlab("") +
-      ggtitle(paste(
-          individual, "| Age:", age,
-          "| sex:", sex
-      ), subtitle = "percent.mt")
+  violins.raw.nFeature_RNA <- VlnPlot(sob.raw, features = "nFeature_RNA") + theme(legend.position = "none") + xlab("") +
+    ggtitle(paste(
+      individual, "| Age:", age,
+      "| sex:", sex
+    ), subtitle = "nFeature_RNA")
+  violins.raw.nCount_RNA <- VlnPlot(sob.raw, features = "nCount_RNA") + theme(legend.position = "none") + xlab("") +
+    ggtitle(paste(
+      individual, "| Age:", age,
+      "| sex:", sex
+    ), subtitle = "nCount_RNA")
+  violins.raw.percent.mt <- VlnPlot(sob.raw, features = "percent.mt") + theme(legend.position = "none") + xlab("") +
+    ggtitle(paste(
+      individual, "| Age:", age,
+      "| sex:", sex
+    ), subtitle = "percent.mt")
   violins.raw <- ggarrange(violins.raw.nFeature_RNA,
-                           violins.raw.nCount_RNA,
-                           violins.raw.percent.mt,
-                           labels = c("A.", "B.", "C."),
-                           ncol = 3, nrow = 1)
+    violins.raw.nCount_RNA,
+    violins.raw.percent.mt,
+    labels = c("A.", "B.", "C."),
+    ncol = 3, nrow = 1
+  )
   # Create Subset Plot
   violins.sub.nFeature_RNA <- VlnPlot(sob.sub, features = "nFeature_RNA") + theme(legend.position = "none") + xlab("") +
-      ggtitle(paste(
-          individual, "| Age:", age,
-          "| sex:", sex
-      ), subtitle = "nFeature_RNA")
-  violins.sub.nCount_RNA <- VlnPlot(sob.sub, features = "nCount_RNA") + theme(legend.position = "none")  + xlab("") +
-      ggtitle(paste(
-          individual, "| Age:", age,
-          "| sex:", sex
-      ), subtitle = "nCount_RNA")
-  violins.sub.percent.mt <- VlnPlot(sob.sub, features = "percent.mt") + theme(legend.position = "none")  + xlab("") +
-      ggtitle(paste(
-          individual, "| Age:", age,
-          "| sex:", sex
-      ), subtitle = "percent.mt")
+    ggtitle(paste(
+      individual, "| Age:", age,
+      "| sex:", sex
+    ), subtitle = "nFeature_RNA")
+  violins.sub.nCount_RNA <- VlnPlot(sob.sub, features = "nCount_RNA") + theme(legend.position = "none") + xlab("") +
+    ggtitle(paste(
+      individual, "| Age:", age,
+      "| sex:", sex
+    ), subtitle = "nCount_RNA")
+  violins.sub.percent.mt <- VlnPlot(sob.sub, features = "percent.mt") + theme(legend.position = "none") + xlab("") +
+    ggtitle(paste(
+      individual, "| Age:", age,
+      "| sex:", sex
+    ), subtitle = "percent.mt")
   violins.sub <- ggarrange(violins.sub.nFeature_RNA,
-                           violins.sub.nCount_RNA,
-                           violins.sub.percent.mt,
-                           labels = c("D.", "E.", "F."),
-                           ncol = 3, nrow = 1)
+    violins.sub.nCount_RNA,
+    violins.sub.percent.mt,
+    labels = c("D.", "E.", "F."),
+    ncol = 3, nrow = 1
+  )
   # Violin
   violins <- ggarrange(violins.raw,
-                       violins.sub,
-                       ncol = 1, nrow = 2)
+    violins.sub,
+    ncol = 1, nrow = 2
+  )
   # Save
   file_name <- paste(dirPath, rep_i, paste(rep_i, "violin.RDS", sep = "_"), sep = "/")
   saveRDS(
-      object = violins, file = file_name)
-  
+    object = violins, file = file_name
+  )
+
   # Normalize
   sob.prs <- NormalizeData(sob.sub, verbose = F)
 
   # Find Variable features
-  sob.prs <- FindVariableFeatures(sob.prs, selection.method = "dispersion",
-                                  nfeatures = 15000, verbose = F)
+  sob.prs <- FindVariableFeatures(sob.prs,
+    selection.method = "dispersion",
+    nfeatures = 15000, verbose = F
+  )
 
   # Check how many genes are present in the dataset
   indata <- rownames(sob.prs)[rownames(sob.prs) %in% reg.out]
@@ -150,8 +156,9 @@ violin.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dir
   # Save
   file_name <- paste0(dirPath, rep_i, "/", paste0(rep_i, "_prs.RDS"))
   saveRDS(
-    object = sob.prs, file = file_name)
+    object = sob.prs, file = file_name
+  )
 
   # Return UMAP
   return(NULL)
-}, mc.cores = 1)#availableCores())
+}, mc.cores = 1) # availableCores())
