@@ -9,8 +9,6 @@ FQnorm <- function(counts) {
   return(norm)
 }
 
-
-
 # Seurat normCounts
 calcNormCounts <- function(rawCounts, cat, size_fac = 10000) {
   # Base
