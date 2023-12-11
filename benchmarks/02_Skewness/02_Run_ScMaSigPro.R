@@ -77,18 +77,14 @@ for (i in names(dataSets)) {
 
       # Run p-vector
       scmp.obj <- sc.p.vector(
-        scmpObj = scmp.obj, verbose = F, min.obs = 1, parallel = F,
+        scmpObj = scmp.obj, verbose = F, min.na = 1, parallel = F,
         offset = T,
-        logOffset = F,
-        useWeights = T,
-        logWeights = F,
-        useInverseWeights = T,
         max_it = maxit,
         family = fam
       )
 
       # Run-Step-2
-      scmp.obj <- sc.T.fit(
+      scmp.obj <- sc.t.fit(
         parallel = T,
         scmpObj = scmp.obj, verbose = F,
         step.method = "backward"
@@ -101,7 +97,7 @@ for (i in names(dataSets)) {
       cat(paste("\nCompleted for", i))
       # Evaluate
       row_data <- as.data.frame(
-        rowData(scmp.obj@sce)
+        rowData(scmp.obj@sparse)
       )[, c("gene_short_name", "status")]
 
       # Set binary labels
