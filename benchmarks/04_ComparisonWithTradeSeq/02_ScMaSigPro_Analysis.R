@@ -48,7 +48,7 @@ scmp.obj <- sc.set.poly(scmp.obj,
 
 # Run p-vector
 scmp.obj <- sc.p.vector(
-  scmpObj = scmp.obj, verbose = F, 
+  scmpObj = scmp.obj, verbose = F,
   min.na = 1,
   parallel = T,
   # MT.adjust = "fdr",
