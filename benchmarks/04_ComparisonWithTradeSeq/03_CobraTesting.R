@@ -88,6 +88,7 @@ ROC <- ROC + theme_classic(base_size = 15) +
     legend.title = element_text(size = 16),
     legend.text = element_text(size = 14),
     strip.background = element_blank(),
+    axis.text.x = element_text(angle = 45, hjust = 1),
     strip.text = element_blank(),
     panel.grid.major = element_line(linewidth = 0.3, color = "lightgrey", linetype = "dotted"),
     panel.grid.minor = element_line(linewidth = 0.1, color = "lightgrey", linetype = "dotted"),
@@ -98,25 +99,14 @@ ROC <- ROC + theme_classic(base_size = 15) +
   geom_vline(xintercept = 0.05, colour = "lightgrey", linetype = "dotted") +
   geom_vline(xintercept = 0.1, colour = "lightgrey", linetype = "dotted") +
   scale_y_continuous(breaks = unique(c(seq(0.8, 1, 0.05), seq(0, 1, 0.1)))) +
-  scale_x_continuous(breaks = unique(c(c(0.05, 0.01), seq(0.1, 1, 0.1))))
+  scale_x_continuous(breaks = unique(c(c(0.05, 0.01, 0.1), seq(0.2, 1, 0.1))), limits = c(0, 1))
 
 print(ROC)
 
-ggsave(
-  plot = ROC,
-  path = "Figures/MainArticle",
-  dpi = 1000, filename = "Figure1_B.png",
-  width = 6, height = 5
-)
-saveRDS(ROC, file = "Figures/MainArticle/Figure1_B.RDS")
+saveRDS(ROC, file = "Figures/MainArticle/MainArticle_FigureC.RDS")
+
+# Save Truth table with results
+df <- cbind(gt, cobraInput)
+saveRDS(df, file = "/supp_data/benchmarks/04_ComparisonWithTradeSeq/output/Prediction.RDS")
 
 plot_overlap(cobraplot)
-
-TPRvsFDR <- plot_fdrtprcurve(cobraplot, title = "TPR vs FDR")
-TPR <- plot_tpr(cobraplot, title = "TPR")
-FPR <- plot_fpr(cobraplot, title = "FPR")
-#
-# ggsave(filename = paste0(resPath, "ROC.png"), plot = ROC, dpi = 600, width = 7, height = 5)
-# ggsave(filename = paste0(resPath, "TPRvsFDR.png"), plot = TPRvsFDR, dpi = 600, width = 7, height = 5)
-# ggsave(filename = paste0(resPath, "TPR.png"), plot = TPR, dpi = 600, width = 7, height = 5)
-# ggsave(filename = paste0(resPath, "FPR.png"), plot = FPR, dpi = 600, width = 7, height = 5)

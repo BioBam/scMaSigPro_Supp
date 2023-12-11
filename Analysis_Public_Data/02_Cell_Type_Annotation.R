@@ -6,87 +6,36 @@
 
 set.seed(007)
 
-suppressPackageStartupMessages(library(SingleR))
 suppressPackageStartupMessages(library(Seurat))
-suppressPackageStartupMessages(library(celldex))
-suppressPackageStartupMessages(library(SeuratDisk))
-suppressPackageStartupMessages(library(SingleCellExperiment))
-suppressPackageStartupMessages(library(tidyverse))
-
-# Get reference GSE24759 (Novershtern et al. 2011).
-HSPCs <- NovershternHematopoieticData()
+suppressPackageStartupMessages(library(SeuratData))
+suppressPackageStartupMessages(library(Azimuth))
 
 # Prefix
 dirPath <- "/supp_data/Analysis_Public_Data/"
 
 # Get folder names
 rep_vec <- list.dirs(dirPath, full.names = F, recursive = F)
+rep_vec <- rep_vec[!(rep_vec %in% c("Azimuth_Human_BoneMarrow", "integrated"))]
 names(rep_vec) <- rep_vec
 
 # Run lapply
-umaps.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPath) {
+azimuth.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPath) {
   # Load seurat object
-  sob <- LoadH5Seurat(file = paste0(inPath, rep_i, "/", rep_i, "_prs.h5seurat"))
+  sob <- readRDS(paste0(dirPath, rep_i, "/", paste0(rep_i, "_prs.RDS")))
 
-  # Create a single cell experiment object
-  sce <- SingleCellExperiment(list(logcounts = sob@assays$RNA@scale.data))
-
-  # Assign labels
-  pred.sce <- SingleR(
-    test = sce, ref = HSPCs,
-    assay.type.test = "logcounts",
-    labels = HSPCs$label.main
+  sob <- RunAzimuth(
+    query = sob,
+    reference = paste0(inPath, "Azimuth_Human_BoneMarrow")
   )
 
-  # Add the annotations to the seurat object
-  sob@meta.data$main_labels <- pred.sce$labels
-  sob@meta.data$main_label_scores <- pred.sce$scores
-
-  # Keep the annotation with high score
-  sob <- subset(sob, main_labels %in% c("CMPs", "Dendritic cells", "Erythroid cells", "GMPs", "HSCs", "Megakaryocytes", "MEPs", "Monocytes"))
-
-  # Rerun single R with fine labels
-  sce <- SingleCellExperiment(list(logcounts = sob@assays$RNA@scale.data))
-  # Assign fine labels
-  pred.sce <- SingleR(
-    test = sce, ref = HSPCs,
-    assay.type.test = "logcounts",
-    labels = HSPCs$label.fine
-  )
-
-  # Add the annotations to the seurat object
-  sob@meta.data$fine_labels <- pred.sce$labels
-  sob@meta.data$fine_label_scores <- pred.sce$scores
-
-  # Keep the annotation with with Cd34+ cells
-  sob <- subset(sob, fine_labels %in% c(
-    "Common myeloid progenitors", 
-    #"Early B cells",
-    "Erythroid_CD34+ CD71+ GlyA-",
-    "Hematopoietic stem cells_CD133+ CD34dim",
-    "Hematopoietic stem cells_CD38- CD34+",
-    "Megakaryocyte/erythroid progenitors",
-    #"Megakaryocytes", 
-    "Monocytes",
-    "Myeloid Dendritic Cells"#,
-    #"Plasmacytoid Dendritic Cells",
-    #"Pro B cells"
-  ))
-
-  # Keep cells with high scores
-  #sob <- subset(sob, fine_label_scores >= -0.05)
-
-  # Downstream processibg
-  sob <- RunPCA(sob, features = VariableFeatures(object = sob), verbose = F)
-  sob <- FindNeighbors(sob, dims = 1:10, verbose = F)
-  sob <- FindClusters(sob, resolution = 1, verbose = F)
-  sob <- RunUMAP(sob, dims = 1:10, verbose = F)
+  # Add column
+  sob@meta.data$cell_type <- sob@meta.data$predicted.celltype.l2
 
   # Save
-  file_name <- paste(outPath, rep_i, paste(rep_i, "anno.RDS", sep = "_"), sep = "/")
+  file_name <- paste(outPath, rep_i, paste(rep_i, "azimuth.RDS", sep = "_"), sep = "/")
   saveRDS(
-    object = sob, file = file_name)
+    object = sob, file = file_name
+  )
 
-  # Return UMAP
-  return(NULL)
-})
+  return(sob)
+}, mc.cores = availableCores())

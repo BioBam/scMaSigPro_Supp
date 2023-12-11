@@ -17,7 +17,7 @@ helpScriptsDir <- "R_Scripts/helper_function/"
 load(paste0(dirPath, "testTradeSeq.RData"))
 
 # Convert
-scmp.obj <- as_scmp(sim.sce,
+scmp.obj <- as.scmp(sim.sce,
   from = "sce",
   align_pseudotime = F,
   additional_params = list(
@@ -28,7 +28,7 @@ scmp.obj <- as_scmp(sim.sce,
 )
 
 # Compress
-scmp.obj <- squeeze(
+scmp.obj <- sc.squeeze(
   scmpObject = scmp.obj,
   bin_method = "Sturges",
   drop_fac = 0.6,
@@ -39,27 +39,26 @@ scmp.obj <- squeeze(
   drop_trails = F,
   fill_gaps = F
 )
-sc.plot.bins.tile(scmp.obj)
+plotBinTile(scmp.obj)
 
 # Make Design
-scmp.obj <- sc.make.design.matrix(scmp.obj,
+scmp.obj <- sc.set.poly(scmp.obj,
   poly_degree = 1
 )
 
 # Run p-vector
 scmp.obj <- sc.p.vector(
-  scmpObj = scmp.obj, verbose = F, min.obs = 1,
+  scmpObj = scmp.obj, verbose = F,
+  min.na = 1,
   parallel = T,
   # MT.adjust = "fdr",
-  offset = T, useWeights = T,
-  useInverseWeights = T,
+  offset = T,
   logOffset = T,
-  logWeights = F,
   max_it = 1000
 )
 
 # Run-Step-2
-scmp.obj <- sc.T.fit(
+scmp.obj <- sc.t.fit(
   scmpObj = scmp.obj, verbose = T,
   step.method = "backward", parallel = T,
   nvar.correction = F

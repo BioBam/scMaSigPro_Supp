@@ -4,7 +4,7 @@ get_performance_ROCR <- function(r2_sequence, groundTruth, scmpObj, include_infl
   solData <- showSol(scmpObj, view = FALSE, return = TRUE, includeInflu = include_influ)
 
   # Extract the counts
-  bulkCounts <- scmpObj@compress.sce@assays@data@listData$bulk.counts
+  bulkCounts <- as.data.frame(as.matrix(scmpObj@dense@assays@data$bulk.counts))
 
   # Create Prediction frame
   predictionData <- data.frame(features = rownames(bulkCounts))

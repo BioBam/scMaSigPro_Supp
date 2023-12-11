@@ -38,7 +38,7 @@ for (i in names(dataSets)) {
   poly.degree <- 2
   drop_fac <- 1
   maxit <- 100
-  fam <- MASS::negative.binomial(10)
+  fam <- MASS::negative.binomial(20)
 
   cat(paste("\nRunning for Skewness:", i))
 
@@ -49,7 +49,7 @@ for (i in names(dataSets)) {
   tryCatch(
     expr = {
       # Convert
-      scmp.obj <- as_scmp(sim.sce,
+      scmp.obj <- as.scmp(sim.sce,
         from = "sce",
         align_pseudotime = F,
         additional_params = list(
@@ -60,7 +60,7 @@ for (i in names(dataSets)) {
       )
 
       # Compress
-      scmp.obj <- squeeze(
+      scmp.obj <- sc.squeeze(
         scmpObject = scmp.obj,
         bin_method = "Sturges",
         drop_fac = 0.3,
@@ -73,22 +73,20 @@ for (i in names(dataSets)) {
       )
 
       # Make Design
-      scmp.obj <- sc.make.design.matrix(scmp.obj, poly_degree = poly.degree)
+      scmp.obj <- sc.set.poly(scmp.obj, poly_degree = poly.degree)
 
       # Run p-vector
       scmp.obj <- sc.p.vector(
-        scmpObj = scmp.obj, verbose = F, min.obs = 1, parallel = F,
+        scmpObj = scmp.obj, verbose = F, min.na = 1,
+        parallel = F,
         offset = T,
         logOffset = F,
-        useWeights = T,
-        logWeights = F,
-        useInverseWeights = T,
         max_it = maxit,
         family = fam
       )
 
       # Run-Step-2
-      scmp.obj <- sc.T.fit(
+      scmp.obj <- sc.t.fit(
         parallel = T,
         scmpObj = scmp.obj, verbose = F,
         step.method = "backward"
@@ -101,7 +99,7 @@ for (i in names(dataSets)) {
       cat(paste("\nCompleted for", i))
       # Evaluate
       row_data <- as.data.frame(
-        rowData(scmp.obj@sce)
+        rowData(scmp.obj@sparse)
       )[, c("gene_short_name", "status")]
 
       # Set binary labels
@@ -138,6 +136,6 @@ for (i in names(dataSets)) {
 evaluation.frame <- do.call(rbind, eval.list)
 
 # Write
-write.table(evaluation.frame, paste0(outPath2, "02_A_SkewSplit_Performance.Table.tsv"),
+write.table(evaluation.frame, paste0(outPath2, "02_SkewSplit_Performance.Table.tsv"),
   sep = "\t", row.names = F, quote = F
 )

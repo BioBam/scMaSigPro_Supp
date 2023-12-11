@@ -14,7 +14,9 @@ suppressPackageStartupMessages(library(parallel))
 suppressPackageStartupMessages(library(scuttle))
 suppressPackageStartupMessages(library(scater))
 suppressPackageStartupMessages(library(phateR))
+suppressPackageStartupMessages(library(Seurat))
 suppressPackageStartupMessages(library(viridis))
+suppressPackageStartupMessages(library(ggmosaic))
 
 # Set path for retivulate
 Sys.setenv(RETICULATE_PYTHON = "/usr/bin/python3")
@@ -86,13 +88,27 @@ cat(paste("\ntrueSparsity:", trueSparsity))
 gene.info <- add_gene_anno(sim.sce = sim.sce)
 gene.info <- gene.info[mixedsort(gene.info$gene_short_name), ]
 
+# Create Bar
+bar.df <- gene.info[, c("status", "status2")]
+colnames(bar.df) <- c("DE", "Fold_Change")
+bar.df <- as.data.frame(table(bar.df[, c("DE", "Fold_Change")]))
+bar.df <- bar.df[bar.df$Freq != 0, ]
+bar <- ggplot(bar.df, aes(x = DE, y = Freq, fill = Fold_Change)) +
+  geom_bar(stat = "identity", position = "stack") +
+  geom_text(aes(label = Freq), position = position_stack(vjust = 0.5), size = 3) +
+  theme_minimal() +
+  ggtitle("Number of genes in the simulated data",
+    subtitle = "Category-wise distribution"
+  ) +
+  labs(x = "DE", y = "Frequency", fill = "Fold Change") +
+  theme(legend.position = "bottom")
+
 # Update the SCE Simulated Object
 rowData(sim.sce) <- DataFrame(gene.info)
 
 # SaveRDS
 obj.path <- paste0(sce_path, paste0("testTradeSeq.RData"))
 save(sim.sce, file = obj.path)
-
 
 # Compute UMAP Dimensions
 sob <- CreateSeuratObject(
@@ -133,14 +149,18 @@ plt <- ggplot(plt.data) +
   scale_color_viridis(option = "C") +
   ggtitle(
     paste(
-      "Total Sparsity:", totSparsity,
-      "| True Sparsity:", trueSparsity,
-      "| Simulated Sparsity:", simulatedSparsity
+      "Total Sparsity:", totSparsity, "(38 + 22)"
     ),
-    subtitle = paste("Complexity: Different Lengths, Different Skewness")
+    subtitle = paste("Lengths (Path1> Path2), Skewness (Path-1: Start, Path-2: End)")
   ) +
   theme(legend.position = "bottom")
 plt
 
-gene.info <- gene.info[gene.info$status2 != "No_Change", ]
-plot(table(gene.info[, c("status", "status2")]))
+combine <- ggarrange(plt, bar, labels = c("A.", "B."), nrow = 1)
+
+ggsave(
+  plot = combine,
+  path = "Figures/SuppData/",
+  filename = "04_TradeSeq_Sim.png",
+  dpi = 150, width = 10, height = 6
+)
