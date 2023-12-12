@@ -162,13 +162,13 @@ roc_B <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = parameter)) +
   #   segment.size = 0.5, # Size of the line connecting label and point
   #   show.legend = FALSE # Prevent the creation of a legend for this aesthetic
   # ) +
-  # labs(
-  #   title = "ROC Curve: Performance on Simulated Data",
-  #   subtitle = "Varying R-Square",
-  #   x = "False Positive Rate (1-Specificity)",
-  #   y = "True Positive Rate (Sensitivity)",
-  #   color = "Simulated Complexity"
-  # ) +
+  labs(
+    title = "ROC Curve: Performance on Simulated Data",
+    subtitle = "Varying R-Square (0.1 to 0.95)",
+    x = "False Positive Rate (1-Specificity)",
+    y = "True Positive Rate (Sensitivity)",
+    color = "Simulated Complexity"
+  ) +
   theme_classic(base_size = 15) +
   theme(
     legend.box = "vertical",
@@ -179,13 +179,13 @@ roc_B <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = parameter)) +
     panel.grid.major = element_line(linewidth = 0.3, color = "lightgrey", linetype = "dotted"),
     panel.grid.minor = element_line(linewidth = 0.1, color = "lightgrey", linetype = "dotted"),
     # legend.position = "bottom"
-    legend.position = c(0.3, 0.5), legend.justification = c("left", "top")
+    legend.position = c(0.2, 0.5), legend.justification = c("left", "top")
   ) +
   geom_vline(xintercept = 0.01, colour = "lightgrey", linetype = "dotted") + # Highlighted the x-intercept of 0.01
   geom_vline(xintercept = 0.05, colour = "lightgrey", linetype = "dotted") +
   geom_vline(xintercept = 0.1, colour = "lightgrey", linetype = "dotted") +
   geom_hline(yintercept = 0.8, colour = "lightgrey", linetype = "dotted") +
-  guides(color = guide_legend(key_width = unit(5, "cm"), key_height = unit(4, "cm")))
+  guides(color = guide_legend(key_width = unit(5, "cm"),key_height = unit(4, "cm")))
 
 
 roc_B
