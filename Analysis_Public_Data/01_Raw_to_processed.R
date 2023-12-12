@@ -51,7 +51,7 @@ violin.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dir
   )
   # Renaming the features
   filt_mat@Dimnames[[1]] <- str_replace(filt_mat@Dimnames[[1]], "_", "-")
-  
+
   before <- dim(filt_mat)
 
   # Create Raw Seurat Object
@@ -151,7 +151,7 @@ violin.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dir
 
   # Regress Cell Cycle Score
   sob.prs <- ScaleData(sob.prs,
-    #vars.to.regress = c("S.Score", "G2M.Score"),
+    # vars.to.regress = c("S.Score", "G2M.Score"),
     features = rownames(sob.prs), verbose = T,
   )
 
@@ -160,9 +160,11 @@ violin.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dir
   # saveRDS(
   #   object = sob.prs, file = file_name
   # )
-  
+
   after <- dim(sob.prs@assays$RNA$scale.data)
   # Return UMAP
-  return(list(before = before,
-              after = after))
+  return(list(
+    before = before,
+    after = after
+  ))
 }, mc.cores = 24) # availableCores())

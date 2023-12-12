@@ -18,7 +18,6 @@ names(rep_vec) <- rep_vec
 rep_vec <- rep_vec
 
 # Call the required libraries
-suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(scMaSigPro))
 suppressPackageStartupMessages(library(ggpubr))
 
