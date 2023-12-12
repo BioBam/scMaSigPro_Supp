@@ -169,7 +169,7 @@ roc_B <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = parameter)) +
     y = "True Positive Rate (Sensitivity)",
     color = "Simulated Complexity"
   ) +
-  theme_classic(base_size = 15) +
+  theme_classic(base_size = 14) +
   theme(
     legend.box = "vertical",
     legend.direction = "vertical",
