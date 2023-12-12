@@ -165,7 +165,7 @@ combined.bar <- ggarrange(scmp_results$rep1$dot,
 combined.bar
 
 ggsave(combined.bar,
-  filename = paste0("Figures/SuppData/05_Real_Data-GO_dot.png"),
+  filename = paste0("Figures/SuppData/05_Real_Data_GO_dot.png"),
   dpi = 150, height = 8, width = 20
 )
 
