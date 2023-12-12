@@ -6,6 +6,7 @@
 
 library(scMaSigPro)
 library(stringr)
+library(RColorConesa)
 
 set.seed(007)
 
@@ -33,7 +34,7 @@ scMaSigPro.list <- lapply(rep_vec, function(rep_i) {
 })
 
 # Perform hclust
-scmp_cluster_trends <- lapply(rep_vec, function(rep_i) {
+scmp_cluster_trends <- lapply(rep_vec[1], function(rep_i) {
     
     # Step-1: Add Annotation for donors
     if (rep_i == "rep1") {
@@ -65,7 +66,7 @@ scmp_cluster_trends <- lapply(rep_vec, function(rep_i) {
                           significant.intercept = "dummy",
                           vars = "groups"
     )
-    
+    plotIntersect(scmp.obj)
     
     # Create trends
     trends <- plotTrendCluster(scmp.obj,
@@ -92,6 +93,7 @@ ggarrange(scmp_cluster_trends$rep1$trends,
 # Run Go and Extract important gene
 scmp_results <- lapply(names(scmp_cluster_trends), function(rep_i) {
     
+    rep_i ="rep1"
     # get object
     scmp.obj <- scmp_cluster_trends[[rep_i]][["scmp.obj"]]
     
@@ -183,8 +185,8 @@ az_mPDC <- c("ENHO","CLEC10A","RNASE2","PLBD1","FCER1A","IGSF6","MNDA","SAMHD1",
 
 # Plot Markers
 
-plotTrend(scmp_cluster_trends$rep1$scmp.obj,
-  feature_id = "SPX", significant = F, logs = F,
+GP9<- plotTrend(scmp_cluster_trends$rep1$scmp.obj,
+  feature_id = "GP9", significant = F, logs = F,
   pseudoCount = F
 )
 
@@ -197,3 +199,36 @@ plotTrend(scmp_cluster_trends$rep3$scmp.obj,
   feature_id = "GATA1", significant = F, logs = F,
   pseudoCount = F
 )
+
+# Prepare figure for artcile
+GP9 <- GP9 + ggtitle("Glycoprotein IX (GP9), R-Square: 1",
+              "Donor:1 | Age: 35 | Biological Sex: Male") +
+    xlab("Binned Pseudotime") + ylab("Scaled Pesudobulk Expressied") + 
+    theme_classic(base_size = 14) +
+    theme(
+        legend.box = "vertical",
+        legend.direction = "vertical",
+        legend.title = element_text(size = 16),
+        legend.text = element_text(size = 14),
+        axis.text.x = element_text(angle = 45, hjust = 1),
+        panel.grid.major = element_line(linewidth = 0.3, color = "lightgrey", linetype = "dotted"),
+        panel.grid.minor = element_line(linewidth = 0.1, color = "lightgrey", linetype = "dotted"),
+        # legend.position = "bottom"
+        legend.position = c(0.1, 0.8), legend.justification = c("left", "top")
+    ) +
+    guides(color = guide_legend(key_width = unit(5, "cm"), key_height = unit(4, "cm"))) +
+    scale_color_manual(
+        labels = c(
+            "Erythroid Lineage",
+            "Megakaryocyte Lineage"
+            ),
+        values = c(
+            colorConesa(6)[2],
+            colorConesa(6)[1]
+        ),
+    ) 
+
+
+# save
+saveRDS(GP9,
+        file = "Figures/MainArticle/MainArticle_FigureD.RDS")
