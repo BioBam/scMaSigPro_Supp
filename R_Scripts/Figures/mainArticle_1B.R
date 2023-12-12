@@ -185,7 +185,7 @@ roc_B <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = parameter)) +
   geom_vline(xintercept = 0.05, colour = "lightgrey", linetype = "dotted") +
   geom_vline(xintercept = 0.1, colour = "lightgrey", linetype = "dotted") +
   geom_hline(yintercept = 0.8, colour = "lightgrey", linetype = "dotted") +
-  guides(color = guide_legend(key_width = unit(5, "cm"),key_height = unit(4, "cm")))
+  guides(color = guide_legend(key_width = unit(5, "cm"), key_height = unit(4, "cm")))
 
 
 roc_B

@@ -5,6 +5,7 @@
 ##################################
 
 library(scMaSigPro)
+library(stringr)
 
 set.seed(007)
 
@@ -31,54 +32,106 @@ scMaSigPro.list <- lapply(rep_vec, function(rep_i) {
   )
 })
 
+# Perform hclust
+scmp_cluster_trends <- lapply(rep_vec, function(rep_i) {
+    
+    # Step-1: Add Annotation for donors
+    if (rep_i == "rep1") {
+        individual <- "Donor-1"
+        age <- "35"
+        sex <- "Male"
+        rsq = 0.7
+        gene_set_name = "intersect"
+    } else if (rep_i == "rep2") {
+        individual <- "Donor-2"
+        age <- "28"
+        sex <- "Female"
+        rsq = 0.7
+        gene_set_name = "intersect"
+    } else if (rep_i == "rep3") {
+        individual <- "Donor-3"
+        age <- "19"
+        sex <- "Female"
+        rsq = 0.5
+        gene_set_name = "intersect"
+    }
+    
+    # Extract the object
+    scmp.obj <- scMaSigPro.list[[rep_i]]
+    
+    # Add Dummy
+    scmp.obj <- sc.filter(scmp.obj,
+                          rsq = rsq,
+                          significant.intercept = "dummy",
+                          vars = "groups"
+    )
+    
+    
+    # Create trends
+    trends <- plotTrendCluster(scmp.obj,
+                         geneSet = gene_set_name,
+                         cluster_by = "counts",
+                         logs = F, k = 6, result = "plot"
+        )
+    scmp.obj <- plotTrendCluster(scmp.obj,
+                                     geneSet = gene_set_name,
+                                     cluster_by = "counts",
+                                     logs = F, k = 6, result = "return"
+        )
+    
+    # return
+    return(list(trends = trends,
+           scmp.obj = scmp.obj))
+    })
+
+# plot
+ggarrange(scmp_cluster_trends$rep1$trends,
+          scmp_cluster_trends$rep2$trends,
+          scmp_cluster_trends$rep3$trends, nrow = 3)
+
 # Run Go and Extract important gene
-scmp_results <- lapply(rep_vec, function(rep_i) {
-  # rep_i <- "rep3"
+scmp_results <- lapply(names(scmp_cluster_trends), function(rep_i) {
+    
+    # get object
+    scmp.obj <- scmp_cluster_trends[[rep_i]][["scmp.obj"]]
+    
   # Step-1: Add Annotation for donors
   if (rep_i == "rep1") {
     individual <- "Donor-1"
     age <- "35"
     sex <- "Male"
-    rsq <- 0.6
     num <- 10
+    path_name = "EMP_ProgMkv"
+    gene_set_name = "intersect"
+    sel.clus <- c(2,3,4,5,6)
   } else if (rep_i == "rep2") {
     individual <- "Donor-2"
     age <- "28"
-    root <- "HSC"
     sex <- "Female"
-    rsq <- 0.8
     num <- 10
+    path_name = "CLP_pre-mDC"
+    gene_set_name = "intersect"
+    sel.clus <- c(1,3,4)
   } else if (rep_i == "rep3") {
     individual <- "Donor-3"
     age <- "19"
     sex <- "Female"
-    root <- "LMPP"
-    rsq <- 0.8
     num <- 10
+    path_name = "EMP_EarlyErythrocytes"
+    gene_set_name = "intersect"
+    sel.clus <- c(2,3,4,5)
   }
-
-  # Extract the object
-  scmp.obj <- scMaSigPro.list[[rep_i]]
-
-  # Add Dummy
-  scmp.obj <- sc.filter(scmp.obj,
-    rsq = rsq,
-    significant.intercept = "dummy",
-    vars = "groups"
-  )
-
-  if (rep_i == "rep3") {
-    gene.list <- scmp.obj@sig.genes@sig.genes[[2]]
-    path_name <- names(scmp.obj@sig.genes@sig.genes)[2]
-  } else {
-    gene.list <- scmp.obj@sig.genes@sig.genes[[1]]
-    path_name <- paste0(str_split_1(names(scmp.obj@sig.genes@sig.genes)[[1]], "vs")[[1]])
-  }
+    
+    # Create cluster df
+    cluster.df <- data.frame(cluster = scmp.obj@sig.genes@feature.clusters[[gene_set_name]],
+                             gene = names(scmp.obj@sig.genes@feature.clusters[[gene_set_name]]))
+    
   # get genes
-  cat(length(gene.list))
+   gene.list <- cluster.df[cluster.df$cluster %in% sel.clus,][["gene"]]
+   cat(length(gene.list))
 
   # Load backgound
-  background.vector <- readRDS(paste0("/supp_data/Analysis_Public_Data/", rep_i, "/", rep_i, "background.RDS"))
+   background.vector <- readRDS(paste0("/supp_data/Analysis_Public_Data/", rep_i, "/", rep_i, "background.RDS"))
 
   # Perform enrichmnet
   target.path <- go_enrichment(
@@ -94,21 +147,17 @@ scmp_results <- lapply(rep_vec, function(rep_i) {
     sig.level = 0.05
   )
   target.path$dot
-
-
-  return(list(
-    target.path = target.path,
-    scmp.obj = scmp.obj
-  ))
+  
+  return(target.path)
 })
 
 # Set names
 names(scmp_results) <- rep_vec
 
 # Dot
-combined.bar <- ggarrange(scmp_results$rep1$target.path$dot,
-  scmp_results$rep2$target.path$dot,
-  scmp_results$rep3$target.path$dot,
+combined.bar <- ggarrange(scmp_results$rep1$dot,
+                          scmp_results$rep2$dot,
+                          scmp_results$rep3$dot,
   ncol = 3,
   labels = c("A.", "B.", "C.")
 )
@@ -130,48 +179,21 @@ az_proB <- c("CYGB", "UMODL1", "EBF1", "MME", "VPREB1", "DNTT", "IGLL1", "UHRF1"
 az_progMk <- c("CLEC1B", "SPX", "WFDC1", "ANXA3", "CMTM5", "SELP", "RBPMS2", "ARHGAP6", "GP9", "LTBP1")
 az_clp <- c("ACY3", "PRSS2", "C1QTNF4", "SPINK2", "SMIM24", "NREP", "CD34", "DNTT", "FLT3", "SPNS3")
 az_pPDC <- c("SCT", "SHD", "LILRA4", "LILRB4", "PTPRS", "TNNI2", "PLD4", "SPIB", "IRF8", "TNFRSF21")
+az_mPDC <- c("ENHO","CLEC10A","RNASE2","PLBD1","FCER1A","IGSF6","MNDA","SAMHD1","ALDH2","PAK1")
 
-# For rep1
-scmp.ob.rep1 <- scmp_results$rep1$scmp.obj
-scmp.ob.rep2 <- scmp_results$rep2$scmp.obj
-scmp.ob.rep3 <- scmp_results$rep3$scmp.obj
+# Plot Markers
 
-# For ep1
-plotTrend(scmp.ob.rep1,
-  feature_id = "CMTM5", significant = F, logs = F,
+plotTrend(scmp_cluster_trends$rep1$scmp.obj,
+  feature_id = "SPX", significant = F, logs = F,
   pseudoCount = F
 )
 
-plotTrend(scmp.ob.rep2,
-  feature_id = "SCT", significant = F, logs = F,
+plotTrend(scmp_cluster_trends$rep2$scmp.obj,
+  feature_id = "MNDA", significant = F, logs = F,
   pseudoCount = F
 )
 
-plotTrend(scmp.ob.rep3,
+plotTrend(scmp_cluster_trends$rep3$scmp.obj,
   feature_id = "GATA1", significant = F, logs = F,
   pseudoCount = F
-)
-
-
-
-# Perform clustering
-plotTrendCluster(scmp.ob.rep1,
-  geneSet = "EMP_ProgMkvsEMP_EarlyErythrocyte",
-  cluster_by = "counts",
-  logs = F, smoothness = 1,
-  includeInflu = T
-)
-
-plotTrendCluster(scmp.ob.rep2,
-  geneSet = "CLP_pre_pDCvsCLP_pre_mDC",
-  cluster_by = "counts",
-  logs = F, smoothness = 1,
-  includeInflu = T
-)
-
-plotTrendCluster(scmp.ob.rep3,
-  geneSet = "EMP_EarlyErythrocyte",
-  cluster_by = "counts",
-  logs = F, smoothness = 1,
-  includeInflu = T
 )
