@@ -164,18 +164,25 @@ scmp_results <- lapply(names(scmp_cluster_trends), function(rep_i) {
 names(scmp_results) <- rep_vec
 
 # Dot
-combined.bar <- ggarrange(scmp_results$rep1$dot,
+top <- ggarrange(scmp_results$rep1$dot,
                           scmp_results$rep2$dot,
                           scmp_results$rep3$dot,
   ncol = 3,
   labels = c("A.", "B.", "C.")
 )
+bottom <- ggarrange(scmp_results$rep1$ema,
+                 scmp_results$rep2$ema,
+                 scmp_results$rep3$ema,
+                 ncol = 3,
+                 labels = c("D.", "E.", "F.")
+)
 
-combined.bar
-
-ggsave(combined.bar,
+combined <- ggarrange(top,
+                      bottom, nrow = 2)
+combined
+ggsave(combined,
   filename = paste0("Figures/SuppData/05_Real_Data_GO_dot.png"),
-  dpi = 150, height = 8, width = 20
+  dpi = 300, height = 12, width = 16
 )
 
 

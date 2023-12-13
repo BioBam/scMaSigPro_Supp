@@ -105,7 +105,7 @@ go_enrichment <- function(gene_list, background, rep, age, sex, path,
           ont
         )
       ),
-      ema = emapplot(ego_similarity)
+      ema = emapplot(ego_similarity, showCategory = nterms)
     ))
   } else {
     return(NULL)
