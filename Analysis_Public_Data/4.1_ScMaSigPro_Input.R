@@ -13,7 +13,7 @@ dirPath <- "/supp_data/Analysis_Public_Data/"
 rep_vec <- list.dirs(dirPath, full.names = F, recursive = F)
 rep_vec <- rep_vec[!(rep_vec %in% c("Azimuth_Human_BoneMarrow", "integrated"))]
 names(rep_vec) <- rep_vec
-rep_vec <- rep_vec[3]
+rep_vec <- rep_vec
 
 # Call the required libraries
 suppressPackageStartupMessages(library(Seurat))
@@ -54,8 +54,8 @@ for (rep_i in c(rep_vec)) {
     age <- "28"
     sex <- "Female"
   } else if (rep_i == "rep3") {
-    path1_name <- "EMP_ProgMk"
-    path2_name <- "EMP_EarlyErythrocyte"
+    path1_name <- "EMP_EarlyErythrocyte"
+    path2_name <- "EMP_ProgMk"
     root_pp <- c("Y_249")
     path2_pp <- c(
       "Y_1", "Y_23", "Y_25", "Y_27", "Y_50", "Y_57", "Y_61", "Y_63", "Y_70", "Y_71",
@@ -70,7 +70,7 @@ for (rep_i in c(rep_vec)) {
 
   ob <- m3_select_path(
     cdsObj = object.list[[rep_i]],
-    use_shiny = T, plot_purity = F,
+    use_shiny = F, plot_purity = F,
     annotation_col = "cell_type",
     m3_pp = list(
       root_pp = root_pp,
