@@ -4,7 +4,7 @@
 # Year: 2023
 
 suppressPackageStartupMessages(library(SingleCellExperiment))
-suppressPackageStartupMessages(library(tidyverse))
+#suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(RColorConesa))
 suppressPackageStartupMessages(library(reshape2))
 suppressPackageStartupMessages(library(ggpubr))
@@ -95,7 +95,7 @@ bottom <- ggarrange(
   performance.list$len_500.25,
   performance.list$len_1000.2,
   performance.list$len_1500.15,
-  labels = c("E.", "F.", "G.", "G."),
+  labels = c("E.", "F.", "G.", "H."),
   common.legend = T, ncol = 4, nrow = 1,
   legend = "bottom"
 )

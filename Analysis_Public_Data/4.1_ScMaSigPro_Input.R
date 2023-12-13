@@ -18,7 +18,6 @@ rep_vec <- rep_vec[3]
 # Call the required libraries
 suppressPackageStartupMessages(library(Seurat))
 suppressPackageStartupMessages(library(rhdf5))
-suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(assertthat))
 suppressPackageStartupMessages(library(Matrix))
 suppressPackageStartupMessages(library(SeuratData))
