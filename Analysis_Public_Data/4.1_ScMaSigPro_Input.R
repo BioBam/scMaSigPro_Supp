@@ -33,7 +33,7 @@ object.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPa
 
 
 # Create ScMaSigPro Input
-for (rep_i in c(rep_vec)) {
+for (rep_i in c(rep_vec)[3]) {
   # rep_i = "rep3"
 
   if (rep_i == "rep1") {
@@ -54,9 +54,9 @@ for (rep_i in c(rep_vec)) {
     age <- "28"
     sex <- "Female"
   } else if (rep_i == "rep3") {
-    path1_name <- "EMP_EarlyErythrocyte"
-    path2_name <- "EMP_ProgMk"
-    root_pp <- c("Y_249")
+    path1_name <- "HSC_EMP"
+    path2_name <- "HSC_GMP"
+    root_pp <- c("Y_206")
     path2_pp <- c(
       "Y_1", "Y_23", "Y_25", "Y_27", "Y_50", "Y_57", "Y_61", "Y_63", "Y_70", "Y_71",
       "Y_86", "Y_89", "Y_91", "Y_105", "Y_143", "Y_178", "Y_180", "Y_183", "Y_189",
@@ -70,7 +70,7 @@ for (rep_i in c(rep_vec)) {
 
   ob <- m3_select_path(
     cdsObj = object.list[[rep_i]],
-    use_shiny = F, plot_purity = F,
+    use_shiny = T, plot_purity = F,
     annotation_col = "cell_type",
     m3_pp = list(
       root_pp = root_pp,

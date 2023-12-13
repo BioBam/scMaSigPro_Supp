@@ -26,7 +26,7 @@ names(rep_vec) <- rep_vec
 rep_vec <- rep_vec
 
 # Run lapply
-umaps.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPath) {
+umaps.list <- mclapply(rep_vec[3], function(rep_i, inPath = dirPath, outPath = dirPath) {
   # rep_i = "rep3"
 
   # Step-1: Add Annotation for donors

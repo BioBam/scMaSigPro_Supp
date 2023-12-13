@@ -34,7 +34,7 @@ scMaSigPro.list <- lapply(rep_vec, function(rep_i) {
 })
 
 # Perform hclust
-scmp_cluster_trends <- lapply(rep_vec[1], function(rep_i) {
+scmp_cluster_trends <- mclapply(rep_vec, function(rep_i) {
     
     # Step-1: Add Annotation for donors
     if (rep_i == "rep1") {
@@ -53,8 +53,8 @@ scmp_cluster_trends <- lapply(rep_vec[1], function(rep_i) {
         individual <- "Donor-3"
         age <- "19"
         sex <- "Female"
-        rsq = 0.5
-        gene_set_name = "intersect"
+        rsq = 0.7
+        gene_set_name = "HSC_GMPvsHSC_EMP"
     }
     
     # Extract the object
@@ -73,7 +73,11 @@ scmp_cluster_trends <- lapply(rep_vec[1], function(rep_i) {
                          geneSet = gene_set_name,
                          cluster_by = "counts",
                          logs = F, k = 6, result = "plot"
-        )
+        )+ ggtitle(paste(
+            individual, "| Age:", age,
+            "| sex:", sex
+        ))
+    trends
     scmp.obj <- plotTrendCluster(scmp.obj,
                                      geneSet = gene_set_name,
                                      cluster_by = "counts",
@@ -83,17 +87,21 @@ scmp_cluster_trends <- lapply(rep_vec[1], function(rep_i) {
     # return
     return(list(trends = trends,
            scmp.obj = scmp.obj))
-    })
+    }, mc.cores = 16)
 
 # plot
-ggarrange(scmp_cluster_trends$rep1$trends,
+clusters <- ggarrange(scmp_cluster_trends$rep1$trends,
           scmp_cluster_trends$rep2$trends,
           scmp_cluster_trends$rep3$trends, nrow = 3)
+
+ggsave(clusters,
+       filename = paste0("Figures/SuppData/05_Real_Data_clusterTrends.png"),
+       dpi = 150, height = 8, width = 6
+)
 
 # Run Go and Extract important gene
 scmp_results <- lapply(names(scmp_cluster_trends), function(rep_i) {
     
-    rep_i ="rep1"
     # get object
     scmp.obj <- scmp_cluster_trends[[rep_i]][["scmp.obj"]]
     
@@ -119,21 +127,20 @@ scmp_results <- lapply(names(scmp_cluster_trends), function(rep_i) {
     age <- "19"
     sex <- "Female"
     num <- 10
-    path_name = "EMP_EarlyErythrocytes"
-    gene_set_name = "intersect"
-    sel.clus <- c(2,3,4,5)
+    path_name = "EMP_GMP"
+    gene_set_name = "HSC_GMPvsHSC_EMP"
+    sel.clus <- c(1,6)
   }
     
     # Create cluster df
     cluster.df <- data.frame(cluster = scmp.obj@sig.genes@feature.clusters[[gene_set_name]],
                              gene = names(scmp.obj@sig.genes@feature.clusters[[gene_set_name]]))
+    # get genes
+    gene.list <- cluster.df[cluster.df$cluster %in% sel.clus,][["gene"]]
+    cat(length(gene.list))
     
-  # get genes
-   gene.list <- cluster.df[cluster.df$cluster %in% sel.clus,][["gene"]]
-   cat(length(gene.list))
-
-  # Load backgound
-   background.vector <- readRDS(paste0("/supp_data/Analysis_Public_Data/", rep_i, "/", rep_i, "background.RDS"))
+    # Load backgound
+    background.vector <- readRDS(paste0("/supp_data/Analysis_Public_Data/", rep_i, "/", rep_i, "background.RDS"))
 
   # Perform enrichmnet
   target.path <- go_enrichment(

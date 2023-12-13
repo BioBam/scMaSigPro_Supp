@@ -33,7 +33,6 @@ scmp.ob.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirP
 
 # Run ScMaSigPro
 scmp.prs.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPath) {
-  # rep_i <- "rep3"
 
   # Hard Assignment of the Cells to path
   if (rep_i == "rep1") {
@@ -55,7 +54,7 @@ scmp.prs.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dir
   } else if (rep_i == "rep3") {
     individual <- "Donor-3"
     age <- "19"
-    tail <- F
+    tail <- T
     drop <- 1
     split <- F
     bin.method <- "Sturges"
