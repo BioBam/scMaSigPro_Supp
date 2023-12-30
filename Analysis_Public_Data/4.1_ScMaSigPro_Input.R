@@ -13,12 +13,11 @@ dirPath <- "/supp_data/Analysis_Public_Data/"
 rep_vec <- list.dirs(dirPath, full.names = F, recursive = F)
 rep_vec <- rep_vec[!(rep_vec %in% c("Azimuth_Human_BoneMarrow", "integrated"))]
 names(rep_vec) <- rep_vec
-rep_vec <- rep_vec[3]
+rep_vec <- rep_vec
 
 # Call the required libraries
 suppressPackageStartupMessages(library(Seurat))
 suppressPackageStartupMessages(library(rhdf5))
-suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(assertthat))
 suppressPackageStartupMessages(library(Matrix))
 suppressPackageStartupMessages(library(SeuratData))
@@ -34,7 +33,7 @@ object.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPa
 
 
 # Create ScMaSigPro Input
-for (rep_i in c(rep_vec)) {
+for (rep_i in c(rep_vec)[3]) {
   # rep_i = "rep3"
 
   if (rep_i == "rep1") {
@@ -55,9 +54,9 @@ for (rep_i in c(rep_vec)) {
     age <- "28"
     sex <- "Female"
   } else if (rep_i == "rep3") {
-    path1_name <- "EMP_ProgMk"
-    path2_name <- "EMP_EarlyErythrocyte"
-    root_pp <- c("Y_249")
+    path1_name <- "HSC_EMP"
+    path2_name <- "HSC_GMP"
+    root_pp <- c("Y_206")
     path2_pp <- c(
       "Y_1", "Y_23", "Y_25", "Y_27", "Y_50", "Y_57", "Y_61", "Y_63", "Y_70", "Y_71",
       "Y_86", "Y_89", "Y_91", "Y_105", "Y_143", "Y_178", "Y_180", "Y_183", "Y_189",
