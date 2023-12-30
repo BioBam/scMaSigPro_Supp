@@ -4,7 +4,6 @@
 # Year: 2023
 
 suppressPackageStartupMessages(library(SingleCellExperiment))
-#suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(RColorConesa))
 suppressPackageStartupMessages(library(reshape2))
 suppressPackageStartupMessages(library(ggpubr))
@@ -13,7 +12,7 @@ suppressPackageStartupMessages(library(ggpubr))
 outPath <- "Figures/SuppData/"
 
 # Load Plots
-phate.plots <- readRDS("/supp_data/benchmarks/01_Sparsity/simulated/png/01_Zi_60_90.RDS")
+umap.plots <- readRDS("/supp_data/benchmarks/01_Sparsity/simulated/png/01_Zi_60_90.RDS")
 
 # Load Evaluation
 evaluation.frame <- read.table("Tables/01_ZI_Performance.Table.tsv", sep = "\t", header = T)
@@ -81,10 +80,10 @@ names(performance.list) <- paste("zi", unique(long_data$parameter.value), sep = 
 
 # Create
 top <- ggarrange(
-  phate.plots$sparsity_60,
-  phate.plots$sparsity_70,
-  phate.plots$sparsity_80,
-  phate.plots$sparsity_90,
+  umap.plots$sparsity_60,
+  umap.plots$sparsity_70,
+  umap.plots$sparsity_80,
+  umap.plots$sparsity_90,
   labels = c("A.", "B.", "C.", "D."),
   common.legend = T, ncol = 4, nrow = 1,
   legend = "bottom"
@@ -103,7 +102,7 @@ zero_inflation
 
 ggsave(zero_inflation,
   filename = paste0("Figures/SuppData/01_Sim_60_to_90_ZI_Performance.png"),
-  dpi = 150, height = 8, width = 16
+  dpi = 300, height = 8, width = 16
 )
 
 # ROC Curve

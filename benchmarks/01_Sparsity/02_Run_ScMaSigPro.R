@@ -30,16 +30,14 @@ names(dataSets) <- str_remove(
 # Zero-Inflation.evaluation
 eval.list <- list()
 
-# dataSets <- dataSets[names(dataSets) %in% c("90")]
-
 # Set-up a for loop
 for (i in names(dataSets)) {
   # i <- "60"
   # Set variables
-  poly.degree <- 2
+  poly.degree <- 3
   drop_fac <- 1
   maxit <- 100
-  fam <- MASS::negative.binomial(20)
+  fam <- MASS::negative.binomial(10)
   split.bins <- F
 
   cat(paste("\nRunning for sparsity:", i))
@@ -51,24 +49,24 @@ for (i in names(dataSets)) {
   tryCatch(
     expr = {
       # Convert
-      scmp.obj <- as.scmp(sim.sce,
+      scmp.obj <- as_scmp(sim.sce,
         from = "sce",
         align_pseudotime = F,
         additional_params = list(
           labels_exist = TRUE,
-          existing_pseudotime_colname = "Step",
-          existing_path_colname = "Group"
+          exist_ptime_col = "Step",
+          exist_path_col = "Group"
         ), verbose = F
       )
 
       # Compress
       scmp.obj <- sc.squeeze(
-        scmpObject = scmp.obj,
+        scmpObj = scmp.obj,
         bin_method = "Sturges",
         drop_fac = drop_fac,
         verbose = F,
-        cluster_count_by = "sum",
-        split_bins = F,
+        aggregate = "sum",
+        split_bins = FALSE,
         prune_bins = F,
         drop_trails = F,
         fill_gaps = F
@@ -80,9 +78,9 @@ for (i in names(dataSets)) {
       # Run p-vector
       scmp.obj <- sc.p.vector(
         scmpObj = scmp.obj, verbose = F,
-        min.na = 1, parallel = F,
-        offset = T,
-        logOffset = F,
+        min_na = 1, parallel = T,
+        offset = TRUE,
+        log_offset = TRUE,
         max_it = maxit,
         family = fam
       )
@@ -91,7 +89,7 @@ for (i in names(dataSets)) {
       scmp.obj <- sc.t.fit(
         parallel = T,
         scmpObj = scmp.obj, verbose = F,
-        step.method = "backward"
+        selection_method = "backward"
       )
 
       # Save Object
@@ -101,7 +99,7 @@ for (i in names(dataSets)) {
       cat(paste("\nCompleted for", i))
       # Evaluate
       row_data <- as.data.frame(
-        rowData(scmp.obj@sparse)
+        rowData(scmp.obj@Sparse)
       )[, c("gene_short_name", "status")]
 
       # Set binary labels
