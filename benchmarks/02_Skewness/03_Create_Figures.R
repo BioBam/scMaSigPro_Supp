@@ -13,7 +13,7 @@ suppressPackageStartupMessages(library(ggpubr))
 outPath <- "Figures/SuppData/"
 
 # Load Plots
-phate.plots <- readRDS("/supp_data/benchmarks/02_Skewness/simulated/png/01_skew_0_1.RDS")
+umap.plots <- readRDS("/supp_data/benchmarks/02_Skewness/simulated/png/01_skew_0_1.RDS")
 
 # Load Evaluation
 evaluation.frame <- read.table("Tables/02_Skew_Performance.Table.tsv", sep = "\t", header = T)
@@ -141,10 +141,10 @@ names(performance.list.split) <- paste("Skew", unique(long_split_data$parameter.
 
 # Create
 top <- ggarrange(
-  phate.plots$skew_0,
-  phate.plots$skew_0.1,
-  phate.plots$skew_0.9,
-  phate.plots$skew_1,
+  umap.plots$skew_0,
+  umap.plots$skew_0.1,
+  umap.plots$skew_0.9,
+  umap.plots$skew_1,
   labels = c("A.", "B.", "C.", "D."),
   common.legend = T, ncol = 4, nrow = 1,
   legend = "bottom"
@@ -172,5 +172,5 @@ skewness
 
 ggsave(skewness,
   filename = paste0("Figures/SuppData/02_Sim_0_to_1_skew_Performance.png"),
-  dpi = 150, height = 10, width = 16
+  dpi = 300, height = 10, width = 16
 )
