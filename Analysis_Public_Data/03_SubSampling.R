@@ -8,7 +8,7 @@ set.seed(007)
 
 suppressPackageStartupMessages(library(Seurat))
 suppressPackageStartupMessages(library(SeuratDisk))
-suppressPackageStartupMessages(library(tidyverse))
+#suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(ggpubr))
 suppressPackageStartupMessages(library(parallel))
 
@@ -19,11 +19,12 @@ dirPath <- "/supp_data/Analysis_Public_Data/"
 rep_vec <- list.dirs(dirPath, full.names = F, recursive = F)
 rep_vec <- rep_vec[!(rep_vec %in% c("Azimuth_Human_BoneMarrow", "integrated"))]
 names(rep_vec) <- rep_vec
-rep_vec <- rep_vec[3]
+rep_vec <- rep_vec
 
 # Load data
-azimuth.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPath) {
+azimuth.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPath) {
   # rep_i <- "rep3"
+  # inPath = dirPath
   # Step-1: Add Annotation for donors
   if (rep_i == "rep1") {
     individual <- "Donor-1"
@@ -67,22 +68,23 @@ azimuth.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = di
       "pre-pDC", "pre-mDC", "pro B"
     )
   }
-  # Load seurat object
+    print(rep_i)
+  # # Load seurat object
   sob <- readRDS(file = paste0(inPath, rep_i, "/", rep_i, "_azimuth.RDS"))
   saveRDS(rownames(sob), paste0(outPath, rep_i, "/", rep_i, "background.RDS"))
 
-  # Subset
+  # # Subset
   sob.sub <- subset(sob, cell_type %in% select_cells)
 
-  # Find to 15000 Varible features
+  # # Find to 15000 Varible features
   sob.sub <- FindVariableFeatures(sob.sub,
     nfeatures = 6000,
     verbose = F
   )
-  # Compute PCA
+  # # Compute PCA
   sob.sub <- RunPCA(sob.sub, npcs = 100, verbose = F)
-
-  # Compute tsne
+  #
+  # # Compute tsne
   sob.sub <- RunUMAP(sob.sub,
     verbose = T,
     reduction = "pca",
@@ -92,32 +94,58 @@ azimuth.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = di
     n.neighbors = n.neighbors,
     spread = spread
   )
-
-  # Plot
+  #
+  # # Plot
   plt <- DimPlot(sob.sub, group.by = "cell_type", reduction = "umap") + xlab("UMAP-1") + ylab("UMAP-2") + ggtitle(paste(
     individual, "| Age:", age,
     "| sex:", sex
-  )) + theme(legend.position = "bottom", legend.justification = "center")
+  )) + theme(legend.position = "bottom", legend.justification = "center",
+             legend.text = element_text(size = 6))
   plt
+  #
+  # # Compute
+  sob <- RunPCA(sob, verbose = F)
+  sob <- RunUMAP(sob, dim = c(1:10))
+  # Plot
+  plt.all <- DimPlot(sob, group.by = "cell_type", reduction = "umap") + xlab("UMAP-1") + ylab("UMAP-2") + ggtitle(paste(
+      individual, "| Age:", age,
+      "| sex:", sex
+  )) + theme(legend.position = "bottom", legend.justification = "center",
+             legend.text = element_text(size = 6))
+  plt.all
 
   file_name <- paste0(outPath, rep_i, "/", rep_i, "subSampled.RDS")
   saveRDS(sob.sub, file_name)
 
   # Return
-  return(plt)
-}, mc.cores = 16)
+  return(list(plt = plt,
+              plt.all = plt.all))
+})
 names(azimuth.list) <- rep_vec
 
 # Create plot
-top <- ggarrange(azimuth.list$rep1,
-  azimuth.list$rep2,
-  azimuth.list$rep3,
-  labels = c("A.", "B.", "C."), nrow = 1,
+bottom <- ggarrange(azimuth.list$rep1$plt,
+  azimuth.list$rep2$plt,
+  azimuth.list$rep3$plt,
+  labels = c("D.", "E.", "F."), nrow = 1,
   common.legend = F, legend = "bottom"
+)
+bottom
+
+# Create plot
+top <- ggarrange(azimuth.list$rep1$plt.all,
+                    azimuth.list$rep2$plt.all,
+                    azimuth.list$rep3$plt.all,
+                    labels = c("A.", "B.", "C."), nrow = 1,
+                    common.legend = F, legend = "bottom"
 )
 top
 
-ggsave(top,
+combined <- ggarrange(top, bottom,
+                      nrow = 2)
+combined
+
+ggsave(combined,
   filename = paste0("Figures/SuppData/05_Real_Data_SubSampling.png"),
-  dpi = 150, height = 8, width = 12
+  dpi = 150, height = 12, width = 16
 )

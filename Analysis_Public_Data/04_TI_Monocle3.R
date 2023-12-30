@@ -6,11 +6,9 @@
 
 set.seed(007)
 
-suppressPackageStartupMessages(library(SingleR))
 suppressPackageStartupMessages(library(Seurat))
 suppressPackageStartupMessages(library(SeuratDisk))
 suppressPackageStartupMessages(library(SingleCellExperiment))
-suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(ggpubr))
 suppressPackageStartupMessages(library(monocle3))
 suppressPackageStartupMessages(library(parallel))
@@ -25,10 +23,10 @@ dirPath <- "/supp_data/Analysis_Public_Data/"
 rep_vec <- list.dirs(dirPath, full.names = F, recursive = F)
 rep_vec <- rep_vec[!(rep_vec %in% c("Azimuth_Human_BoneMarrow", "integrated"))]
 names(rep_vec) <- rep_vec
-rep_vec <- rep_vec[3]
+rep_vec <- rep_vec
 
 # Run lapply
-umaps.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPath) {
+umaps.list <- mclapply(rep_vec[3], function(rep_i, inPath = dirPath, outPath = dirPath) {
   # rep_i = "rep3"
 
   # Step-1: Add Annotation for donors
@@ -113,7 +111,7 @@ umaps.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirP
 
   # Plot
   pseudotime <- plot_cells(cds, color_cells_by = "pseudotime", cell_size = 1.5) +
-    theme(legend.position = "bottom") + ggtitle(paste(
+    theme(legend.position = "bottom", legend.text = element_text(size = 8)) + ggtitle(paste(
       individual, "| Age:", age,
       "| sex:", sex
     )) + xlab("UMAP-1") + ylab("UMAP-2")
@@ -121,7 +119,7 @@ umaps.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirP
     color_cells_by = "cell_type", cell_size = 1.5,
     label_cell_groups = F
   ) +
-    theme(legend.position = "bottom") + ggtitle(paste(
+    theme(legend.position = "bottom", legend.text = element_text(size = 8)) + ggtitle(paste(
       individual, "| Age:", age,
       "| sex:", sex
     )) + xlab("UMAP-1") + ylab("UMAP-2")
@@ -156,5 +154,5 @@ combined_plot <- ggarrange(top, bottom, nrow = 2)
 combined_plot
 ggsave(combined_plot,
   filename = paste0("Figures/SuppData/05_Real_Data_TI.png"),
-  dpi = 150, height = 8, width = 12
+  dpi = 150, height = 8, width = 14
 )
