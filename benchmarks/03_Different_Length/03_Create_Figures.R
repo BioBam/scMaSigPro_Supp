@@ -4,7 +4,6 @@
 # Year: 2023
 
 suppressPackageStartupMessages(library(SingleCellExperiment))
-#suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(RColorConesa))
 suppressPackageStartupMessages(library(reshape2))
 suppressPackageStartupMessages(library(ggpubr))
@@ -13,7 +12,7 @@ suppressPackageStartupMessages(library(ggpubr))
 outPath <- "Figures/SuppData/"
 
 # Load Plots
-phate.plots <- readRDS("/supp_data/benchmarks/03_Different_Length/simulated/png/03_len_400_1400.RDS")
+umap.plots <- readRDS("/supp_data/benchmarks/03_Different_Length/simulated/png/03_len_400_1400.RDS")
 
 # Load Evaluation
 evaluation.frame <- read.table("Tables/03_Length_Performance.Table.tsv", sep = "\t", header = T)
@@ -82,10 +81,10 @@ names(performance.list) <- paste("len", unique(long_data$parameter.value), sep =
 
 # Create
 top <- ggarrange(
-  phate.plots$len_100_2900,
-  phate.plots$len_500_2500,
-  phate.plots$len_1000_1000,
-  phate.plots$len_1500_1500,
+  umap.plots$len_100_2900,
+  umap.plots$len_500_2500,
+  umap.plots$len_1000_1000,
+  umap.plots$len_1500_1500,
   labels = c("A.", "B.", "C.", "D."),
   common.legend = T, ncol = 4, nrow = 1,
   legend = "bottom"
@@ -103,6 +102,6 @@ Length <- ggarrange(top, bottom, nrow = 2, ncol = 1)
 Length
 
 ggsave(Length,
-  filename = paste0("Figures/SuppData/03_Sim_400_to_1400_length_Performance.png"),
-  dpi = 150, height = 8, width = 16
+  filename = paste0("Figures/SuppData/03_Sim_100_to_1500_length_Performance.png"),
+  dpi = 300, height = 8, width = 16
 )

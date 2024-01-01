@@ -8,7 +8,7 @@ set.seed(007)
 
 suppressPackageStartupMessages(library(Seurat))
 suppressPackageStartupMessages(library(SeuratDisk))
-#suppressPackageStartupMessages(library(tidyverse))
+# suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(ggpubr))
 suppressPackageStartupMessages(library(parallel))
 
@@ -68,7 +68,7 @@ azimuth.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirP
       "pre-pDC", "pre-mDC", "pro B"
     )
   }
-    print(rep_i)
+  print(rep_i)
   # # Load seurat object
   sob <- readRDS(file = paste0(inPath, rep_i, "/", rep_i, "_azimuth.RDS"))
   saveRDS(rownames(sob), paste0(outPath, rep_i, "/", rep_i, "background.RDS"))
@@ -99,8 +99,10 @@ azimuth.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirP
   plt <- DimPlot(sob.sub, group.by = "cell_type", reduction = "umap") + xlab("UMAP-1") + ylab("UMAP-2") + ggtitle(paste(
     individual, "| Age:", age,
     "| sex:", sex
-  )) + theme(legend.position = "bottom", legend.justification = "center",
-             legend.text = element_text(size = 6))
+  )) + theme(
+    legend.position = "bottom", legend.justification = "center",
+    legend.text = element_text(size = 6)
+  )
   plt
   #
   # # Compute
@@ -108,18 +110,22 @@ azimuth.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirP
   sob <- RunUMAP(sob, dim = c(1:10))
   # Plot
   plt.all <- DimPlot(sob, group.by = "cell_type", reduction = "umap") + xlab("UMAP-1") + ylab("UMAP-2") + ggtitle(paste(
-      individual, "| Age:", age,
-      "| sex:", sex
-  )) + theme(legend.position = "bottom", legend.justification = "center",
-             legend.text = element_text(size = 6))
+    individual, "| Age:", age,
+    "| sex:", sex
+  )) + theme(
+    legend.position = "bottom", legend.justification = "center",
+    legend.text = element_text(size = 6)
+  )
   plt.all
 
   file_name <- paste0(outPath, rep_i, "/", rep_i, "subSampled.RDS")
   saveRDS(sob.sub, file_name)
 
   # Return
-  return(list(plt = plt,
-              plt.all = plt.all))
+  return(list(
+    plt = plt,
+    plt.all = plt.all
+  ))
 })
 names(azimuth.list) <- rep_vec
 
@@ -134,15 +140,16 @@ bottom
 
 # Create plot
 top <- ggarrange(azimuth.list$rep1$plt.all,
-                    azimuth.list$rep2$plt.all,
-                    azimuth.list$rep3$plt.all,
-                    labels = c("A.", "B.", "C."), nrow = 1,
-                    common.legend = F, legend = "bottom"
+  azimuth.list$rep2$plt.all,
+  azimuth.list$rep3$plt.all,
+  labels = c("A.", "B.", "C."), nrow = 1,
+  common.legend = F, legend = "bottom"
 )
 top
 
 combined <- ggarrange(top, bottom,
-                      nrow = 2)
+  nrow = 2
+)
 combined
 
 ggsave(combined,

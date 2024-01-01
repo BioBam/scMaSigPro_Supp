@@ -13,7 +13,6 @@ suppressPackageStartupMessages(library(ggpubr))
 suppressPackageStartupMessages(library(parallel))
 suppressPackageStartupMessages(library(scuttle))
 suppressPackageStartupMessages(library(scater))
-suppressPackageStartupMessages(library(phateR))
 suppressPackageStartupMessages(library(viridis))
 
 # Set path for retivulate

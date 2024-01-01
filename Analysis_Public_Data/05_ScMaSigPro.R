@@ -33,7 +33,6 @@ scmp.ob.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirP
 
 # Run ScMaSigPro
 scmp.prs.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPath) {
-
   # Hard Assignment of the Cells to path
   if (rep_i == "rep1") {
     individual <- "Donor-1"
@@ -136,6 +135,6 @@ compress <- ggarrange(scmp.prs.list$rep1$binPlot,
 compress
 
 ggsave(compress,
-       filename = paste0("Figures/SuppData/05_Real_Data_Bins.png"),
-       dpi = 150, height = 8, width = 6
+  filename = paste0("Figures/SuppData/05_Real_Data_Bins.png"),
+  dpi = 150, height = 8, width = 6
 )

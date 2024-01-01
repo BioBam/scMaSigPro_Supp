@@ -77,7 +77,7 @@ for (i in names(dataSets)) {
 
       # Run p-vector
       scmp.obj <- sc.p.vector(
-        scmpObj = scmp.obj, verbose = F, 
+        scmpObj = scmp.obj, verbose = F,
         min_na = 1,
         parallel = T,
         offset = T,
