@@ -157,7 +157,7 @@ ggsave(
   plot = ground.truth, filename = paste0(
     "Figures/SuppData/supp_fig_2_Sim_and_Ground_Truth.png"
   ),
-  dpi = 600, width = 12, height = 5
+  dpi = 300, width = 12, height = 5
 )
 
 #
