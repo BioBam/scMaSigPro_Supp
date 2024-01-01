@@ -151,10 +151,11 @@ gt.true <- ggarrange(similar.change.de, opposite.change.de, one.change.de, no.ch
 )
 
 ground.truth <- ggarrange(plt.sim, gt.true, labels = c("A.", ""))
+ground.truth
 
 ggsave(
   plot = ground.truth, filename = paste0(
-    "Figures/SuppData/supp_fig_1_Sim_and_Ground_Truth.png"
+    "Figures/SuppData/supp_fig_2_Sim_and_Ground_Truth.png"
   ),
   dpi = 600, width = 12, height = 5
 )

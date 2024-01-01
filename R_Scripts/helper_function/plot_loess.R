@@ -114,10 +114,7 @@ plot_loess_fit <- function(sce_obj, gene_name, log = F,
   }
 
   # Additional Formatting
-  loess_plot <- loess_plot + scale_color_viridis(
-    option = "D", discrete = T,
-    direction = -1
-  ) # scale_color_brewer(palette = "Dark2")
+  loess_plot <- loess_plot + scale_color_brewer(palette = "Dark2")
   loess_plot <- loess_plot +
     scale_x_continuous(
       breaks = round(seq(
