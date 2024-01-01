@@ -17,23 +17,23 @@ helpScriptsDir <- "R_Scripts/helper_function/"
 load(paste0(dirPath, "testTradeSeq.RData"))
 
 # Convert
-scmp.obj <- as.scmp(sim.sce,
+scmp.obj <- as_scmp(sim.sce,
   from = "sce",
   align_pseudotime = F,
   additional_params = list(
     labels_exist = TRUE,
-    existing_pseudotime_colname = "Step",
-    existing_path_colname = "Group"
+    exist_ptime_col = "Step",
+    exist_path_col = "Group"
   ), verbose = F
 )
 
 # Compress
 scmp.obj <- sc.squeeze(
-  scmpObject = scmp.obj,
+  scmpObj = scmp.obj,
   bin_method = "Sturges",
   drop_fac = 0.6,
   verbose = F,
-  cluster_count_by = "sum",
+  aggregate = "sum",
   split_bins = F,
   prune_bins = F,
   drop_trails = F,
@@ -43,25 +43,25 @@ plotBinTile(scmp.obj)
 
 # Make Design
 scmp.obj <- sc.set.poly(scmp.obj,
-  poly_degree = 1
+  poly_degree = 2
 )
 
 # Run p-vector
 scmp.obj <- sc.p.vector(
   scmpObj = scmp.obj, verbose = F,
-  min.na = 1,
+  min_na = 1,
   parallel = T,
-  # MT.adjust = "fdr",
   offset = T,
-  logOffset = T,
+  log_offset = TRUE,
   max_it = 1000
 )
 
 # Run-Step-2
 scmp.obj <- sc.t.fit(
   scmpObj = scmp.obj, verbose = T,
-  step.method = "backward", parallel = T,
-  nvar.correction = F
+  selection_method = "backward",
+  parallel = T,
+  nvar_correction = F
 )
 
 # Get sol
