@@ -26,9 +26,11 @@ upset(
   sets = c("TS_pattern", "TS_diffEnd", "scmp_0.6", "ground_Truth"),
   main.bar.color = "#56B4E9", matrix.color = "#56B449",
   sets.bar.color = "#D55E00", order.by = "freq",
-  text.scale = 3,
+  text.scale = 2,
   number.angles = T,
-  keep.order = FALSE, show.numbers = TRUE, point.size = 3
+  scale.intersections = "log2",
+  keep.order = FALSE,
+  show.numbers = TRUE, point.size = 3
 )
 
 # False Negative by all
@@ -137,5 +139,5 @@ predictions.bar
 ggsave(
   plot = predictions.bar,
   filename = "Figures/SuppData/04_tradeSeq_bars.png",
-  dpi = 150, width = 10, height = 8
+  dpi = 300, width = 10, height = 8
 )
