@@ -172,7 +172,7 @@ mbm <- microbenchmark(
 
 # Process the results
 data <- summary(mbm) %>% as.data.frame()
-data$min_mean <- paste(round(data$mean/60, 3), "minutes")
+data$min_mean <- paste(round(data$mean/60, digits = 1), "minutes")
 
 compareBar_Time <- ggplot(data, aes(x = expr, y = mean, fill = expr)) +
   geom_bar(stat = "identity") +
