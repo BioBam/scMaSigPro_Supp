@@ -14,7 +14,7 @@ dir.create(resPath, showWarnings = F)
 helpScriptsDir <- "R_Scripts/helper_function/"
 
 # Load custom function
-source(paste0(helpScriptsDir, "FQnorm.R"))
+source(paste0(helpScriptsDir, "calcNormCounts.R"))
 
 # ReadData
 load(paste0(inPath, "testTradeSeq.RData"))
@@ -46,7 +46,7 @@ lineage_table$Lineage2 <- ifelse(lineage_table$Group == "Path2", 1, 0)
 lineage_table <- lineage_table[, c("Lineage1", "Lineage2")]
 
 # Evaluate K
-# Choosing lowest AIC i.e. 5
+#Choosing lowest AIC i.e. 5
 # icMat <- evaluateK(counts = normCounts,
 #                    pseudotime = pseudotime_table,
 #                    cellWeights = lineage_table,
