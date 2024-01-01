@@ -13,14 +13,8 @@ suppressPackageStartupMessages(library(ggpubr))
 suppressPackageStartupMessages(library(parallel))
 suppressPackageStartupMessages(library(scuttle))
 suppressPackageStartupMessages(library(scater))
-suppressPackageStartupMessages(library(phateR))
 suppressPackageStartupMessages(library(viridis))
 suppressPackageStartupMessages(library(Seurat))
-
-# Set path for retivulate
-Sys.setenv(RETICULATE_PYTHON = "/usr/bin/python3")
-suppressPackageStartupMessages(library(reticulate))
-use_python("/usr/bin/python3", required = TRUE)
 
 # Set paths
 paramEstimates <- readRDS("/supp_data/benchmarks/00_Parameter_Estimation/output/setty_et_al_d1_splatEstimates.RDS")
@@ -83,7 +77,7 @@ parameter.list <- mclapply(names(zi), function(dropout_shape, params_groups = pa
   # Get Variables
   total_sparsity <- str_remove(pattern = "sparsity_", dropout_shape)
   dropout_shape_value <- zi[[dropout_shape]]
-
+  
   # Simulate Object
   sim.sce <- splatSimulate(
     params = params_groups,
@@ -100,6 +94,8 @@ parameter.list <- mclapply(names(zi), function(dropout_shape, params_groups = pa
   # Add gene Info
   gene.info <- add_gene_anno(sim.sce = sim.sce)
   gene.info <- gene.info[mixedsort(gene.info$gene_short_name), ]
+  
+  #print(nrow(gene.info[((gene.info[["DEFacPath1"]] != 1 | gene.info[["DEFacPath2"]] != 1) & gene.info[["BaseGeneMean"]] >= 1), , drop=FALSE]))
 
   # Update the SCE Simulated Object
   rowData(sim.sce) <- DataFrame(gene.info)
@@ -132,16 +128,7 @@ parameter.list <- mclapply(names(zi), function(dropout_shape, params_groups = pa
   sob <- ScaleData(sob, verbose = F)
   sob <- RunPCA(sob, features = VariableFeatures(object = sob), verbose = F)
   sob <- RunUMAP(sob, dims = 1:10, verbose = F)
-
-  # keep_cols <- colSums(phateIn > 0) > 10
-  # phateIn <- phateIn[, keep_cols]
-  # phate_dim <- phate(phateIn,
-  #   ndim = 2, verbose = F,
-  #   knn = 100,
-  #   decay = 100,
-  #   t = 50
-  # )
-
+  
   # Create Plotting frame for PHATE
   plt.data <- data.frame(
     UMAP_1 = sob@reductions[["umap"]]@cell.embeddings[, 1],
@@ -150,14 +137,6 @@ parameter.list <- mclapply(names(zi), function(dropout_shape, params_groups = pa
     Path = sim.sce@colData$Group
   )
 
-  # Create Plotting frame for PHATE
-  # plt.data <- data.frame(
-  #   PHATE_1 = phate_dim$embedding[, 1],
-  #   PHATE_2 = phate_dim$embedding[, 2],
-  #   Simulated_Steps = sim.sce@colData$Step,
-  #   Path = sim.sce@colData$Group
-  # )
-  #
   # Plot PHATE dimensions
   plt <- ggplot(plt.data) +
     geom_point(
