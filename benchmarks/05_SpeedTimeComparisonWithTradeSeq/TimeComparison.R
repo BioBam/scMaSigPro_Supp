@@ -18,7 +18,7 @@ resPath <- "../scMaSigPro_supp_data/benchmarks/05_SpeedTimeComparisonWithTradeSe
 helpScriptsDir <- "R_Scripts/helper_function/"
 
 # Load custom function
-source(paste0(helpScriptsDir, "FQnorm.R"))
+source(paste0(helpScriptsDir, "calcNormCounts.R"))
 
 # ReadData
 load(paste0(dirPath, "testTradeSeq.RData"))
@@ -73,18 +73,18 @@ scmp.obj <- as_scmp(sim.sce,
   align_pseudotime = T,
   additional_params = list(
     labels_exist = TRUE,
-    existing_pseudotime_colname = "Step",
-    existing_path_colname = "Group"
+    exist_ptime_col = "Step",
+    exist_path_col = "Group"
   ), verbose = F
 )
 
 # Squeeze
-scmp.obj <- squeeze(
-  scmpObject = scmp.obj,
+scmp.obj <- sc.squeeze(
+  scmpObj = scmp.obj,
   bin_method = "Sturges",
   drop_fac = 0.5,
   verbose = F,
-  cluster_count_by = "sum",
+  aggregate = "sum",
   split_bins = F,
   prune_bins = F,
   drop_trails = F,
@@ -92,7 +92,7 @@ scmp.obj <- squeeze(
 )
 
 # Make Design
-scmp.obj <- sc.make.design.matrix(scmp.obj,
+scmp.obj <- sc.set.poly(scmp.obj,
   poly_degree = 2
 )
 
@@ -120,6 +120,7 @@ mbm <- microbenchmark(
       pseudotime = pseudotime_table,
       cellWeights = lineage_table,
       parallel = T,
+      
       nknots = 4, verbose = FALSE
     )
     gc()
@@ -131,21 +132,18 @@ mbm <- microbenchmark(
   "ScMaSigPro_1_CPU" = {
     # Run p-vector
     scmp.obj <- sc.p.vector(
-      scmpObj = scmp.obj, verbose = T, min.obs = 1,
+      scmpObj = scmp.obj, verbose = T, 
+      min_na = 1,
       parallel = F,
-      MT.adjust = "fdr",
-      offset = T, useWeights = T,
-      useInverseWeights = F,
-      logOffset = T,
-      globalTheta = T,
+      offset = T,
       max_it = 1000
     )
     gc()
 
     # Run-Step-2
-    scmp.obj <- sc.T.fit(
+    scmp.obj <- sc.t.fit(
       scmpObj = scmp.obj, verbose = F,
-      step.method = "backward", parallel = F,
+      selection_method = "backward", parallel = F,
       offset = T
     )
     gc()
@@ -153,22 +151,19 @@ mbm <- microbenchmark(
   "ScMaSigPro_8_CPU" = {
     # Run p-vector
     scmp.obj <- sc.p.vector(
-      scmpObj = scmp.obj, verbose = F, min.obs = 1,
-      parallel = T,
-      MT.adjust = "fdr",
-      offset = T, useWeights = T,
-      useInverseWeights = F,
-      logOffset = T,
-      globalTheta = T,
-      max_it = 1000
+        scmpObj = scmp.obj, verbose = T, 
+        min_na = 1,
+        parallel = T,
+        offset = T,
+        max_it = 1000
     )
     gc()
 
     # Run-Step-2
-    scmp.obj <- sc.T.fit(
-      scmpObj = scmp.obj, verbose = F,
-      step.method = "backward", parallel = T,
-      offset = T
+    scmp.obj <- sc.t.fit(
+        scmpObj = scmp.obj, verbose = F,
+        selection_method = "backward", parallel = T,
+        offset = T
     )
     gc()
   },
@@ -177,15 +172,23 @@ mbm <- microbenchmark(
 
 # Process the results
 data <- summary(mbm) %>% as.data.frame()
+data$min_mean <- paste(round(data$mean/60, 3), "minutes")
 
 compareBar_Time <- ggplot(data, aes(x = expr, y = mean, fill = expr)) +
   geom_bar(stat = "identity") +
+    scale_y_continuous(
+        breaks = seq(0, 120, 20),
+        limits = c(0, 120)
+    )+
   labs(
     title = "Execution Times for a bifurcating trajectory",
     subtitle = "Number of Cells: 1500; Number of Genes: 1000",
     x = "Method",
     y = "Time (seconds)"
   ) +
+    geom_text(aes(label = min_mean), position = position_dodge(width = 0.9), 
+              size = 3,
+              vjust = 0.5, hjust = -0.1) +
   coord_flip() +
   scale_fill_viridis(
     discrete = TRUE, name = "Custom Legend Title",
@@ -195,9 +198,11 @@ compareBar_Time <- ggplot(data, aes(x = expr, y = mean, fill = expr)) +
   theme_minimal(base_size = 20) +
   theme(legend.position = "none", legend.justification = "left", legend.box.just = "left")
 
+compareBar_Time
+
 # Save
 ggsave(
   plot = compareBar_Time,
-  filename = paste0("Figures/SuppData/04_CompareBarTime.png"),
-  dpi = 1200, width = 10
+  filename = paste0("Figures/SuppData/04_tradeSeq_Time.png"),
+  dpi = 300, width = 10
 )
