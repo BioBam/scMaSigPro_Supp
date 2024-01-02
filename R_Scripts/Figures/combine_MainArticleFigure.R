@@ -11,5 +11,5 @@ combine
 ggsave(
   plot = combine, filename = "Figure1_BCD.png",
   path = "Figures/MainArticle/",
-  width = 16, dpi = 300, height = 5
+  width = 16, dpi = 600, height = 5
 )
