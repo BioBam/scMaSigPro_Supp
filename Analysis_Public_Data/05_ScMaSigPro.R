@@ -139,5 +139,5 @@ compress
 
 ggsave(compress,
   filename = paste0("Figures/SuppData/05_Real_Data_Bins.png"),
-  dpi = 150, height = 8, width = 6
+  dpi = 600, height = 6, width = 6
 )
