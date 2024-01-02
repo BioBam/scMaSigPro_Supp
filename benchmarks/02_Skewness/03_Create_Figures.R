@@ -63,16 +63,16 @@ performance.list <- lapply(unique(long_data$parameter.value), function(skew) {
   # Add Annotation
   if (skew == 0.1) {
     performance.plot <- performance.plot +
-      annotate("rect", xmin = 0.5, xmax = 0.7, ymin = 0, ymax = 1, alpha = 0.3, fill = "lightgrey")
+      annotate("rect", xmin = 0.45, xmax = 0.65, ymin = 0, ymax = 1, alpha = 0.3, fill = "lightgrey")
   } else if (skew == 0) {
     performance.plot <- performance.plot +
-      annotate("rect", xmin = 0.5, xmax = 0.7, ymin = 0, ymax = 1, alpha = 0.3, fill = "lightgrey")
+      annotate("rect", xmin = 0.45, xmax = 0.65, ymin = 0, ymax = 1, alpha = 0.3, fill = "lightgrey")
   } else if (skew == 1) {
     performance.plot <- performance.plot +
-      annotate("rect", xmin = 0.6, xmax = 0.8, ymin = 0, ymax = 1, alpha = 0.3, fill = "lightgrey")
+      annotate("rect", xmin = 0.4, xmax = 0.6, ymin = 0, ymax = 1, alpha = 0.3, fill = "lightgrey")
   } else if (skew == 0.9) {
     performance.plot <- performance.plot +
-      annotate("rect", xmin = 0.8, xmax = 1, ymin = 0, ymax = 1, alpha = 0.3, fill = "lightgrey")
+      annotate("rect", xmin = 0.4, xmax = 0.6, ymin = 0, ymax = 1, alpha = 0.3, fill = "lightgrey")
   }
 
   # Return
@@ -121,16 +121,16 @@ performance.list.split <- lapply(unique(long_split_data$parameter.value), functi
   # Add Annotation
   if (skew == 0.1) {
     performance.plot <- performance.plot +
-      annotate("rect", xmin = 0.45, xmax = 0.65, ymin = 0, ymax = 1, alpha = 0.3, fill = "lightgrey")
+      annotate("rect", xmin = 0.1, xmax = 0.3, ymin = 0, ymax = 1, alpha = 0.3, fill = "lightgrey")
   } else if (skew == 0) {
     performance.plot <- performance.plot +
-      annotate("rect", xmin = 0.45, xmax = 0.65, ymin = 0, ymax = 1, alpha = 0.3, fill = "lightgrey")
+      annotate("rect", xmin = 0.1, xmax = 0.3, ymin = 0, ymax = 1, alpha = 0.3, fill = "lightgrey")
   } else if (skew == 1) {
     performance.plot <- performance.plot +
-      annotate("rect", xmin = 0.55, xmax = 0.75, ymin = 0, ymax = 1, alpha = 0.3, fill = "lightgrey")
+      annotate("rect", xmin = 0.1, xmax = 0.3, ymin = 0, ymax = 1, alpha = 0.3, fill = "lightgrey")
   } else if (skew == 0.9) {
     performance.plot <- performance.plot +
-      annotate("rect", xmin = 0.5, xmax = 0.7, ymin = 0, ymax = 1, alpha = 0.3, fill = "lightgrey")
+      annotate("rect", xmin = 0.1, xmax = 0.3, ymin = 0, ymax = 1, alpha = 0.3, fill = "lightgrey")
   }
 
 
@@ -172,5 +172,5 @@ skewness
 
 ggsave(skewness,
   filename = paste0("Figures/SuppData/02_Sim_0_to_1_skew_Performance.png"),
-  dpi = 300, height = 10, width = 16
+  dpi = 600, height = 10, width = 16
 )

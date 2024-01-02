@@ -35,7 +35,7 @@ eval.list <- list()
 # Set-up a for loop
 for (i in names(dataSets)) {
   # Set variables
-  poly.degree <- 3
+  poly.degree <- 2
   drop_fac <- 1
   maxit <- 100
   fam <- MASS::negative.binomial(10)
