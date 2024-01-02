@@ -105,7 +105,17 @@ go_enrichment <- function(gene_list, background, rep, age, sex, path,
           ont
         )
       ),
-      ema = emapplot(ego_similarity, showCategory = nterms)
+      ema = emapplot(ego_similarity, showCategory = nterms) + ggtitle(
+        subtitle = paste(
+          "Donor:", rep, "| Age:", age,
+          "| Sex:", sex
+        ),
+        paste(
+          "Path: ", path,
+          "| Ontology: ",
+          ont
+        )
+      )
     ))
   } else {
     return(NULL)

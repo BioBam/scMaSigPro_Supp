@@ -77,7 +77,7 @@ parameter.list <- mclapply(names(zi), function(dropout_shape, params_groups = pa
   # Get Variables
   total_sparsity <- str_remove(pattern = "sparsity_", dropout_shape)
   dropout_shape_value <- zi[[dropout_shape]]
-  
+
   # Simulate Object
   sim.sce <- splatSimulate(
     params = params_groups,
@@ -94,8 +94,8 @@ parameter.list <- mclapply(names(zi), function(dropout_shape, params_groups = pa
   # Add gene Info
   gene.info <- add_gene_anno(sim.sce = sim.sce)
   gene.info <- gene.info[mixedsort(gene.info$gene_short_name), ]
-  
-  #print(nrow(gene.info[((gene.info[["DEFacPath1"]] != 1 | gene.info[["DEFacPath2"]] != 1) & gene.info[["BaseGeneMean"]] >= 1), , drop=FALSE]))
+
+  # print(nrow(gene.info[((gene.info[["DEFacPath1"]] != 1 | gene.info[["DEFacPath2"]] != 1) & gene.info[["BaseGeneMean"]] >= 1), , drop=FALSE]))
 
   # Update the SCE Simulated Object
   rowData(sim.sce) <- DataFrame(gene.info)
@@ -128,7 +128,7 @@ parameter.list <- mclapply(names(zi), function(dropout_shape, params_groups = pa
   sob <- ScaleData(sob, verbose = F)
   sob <- RunPCA(sob, features = VariableFeatures(object = sob), verbose = F)
   sob <- RunUMAP(sob, dims = 1:10, verbose = F)
-  
+
   # Create Plotting frame for PHATE
   plt.data <- data.frame(
     UMAP_1 = sob@reductions[["umap"]]@cell.embeddings[, 1],

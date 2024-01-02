@@ -40,9 +40,11 @@ skew_split_table <- skew_split_table[skew_split_table$parameter.value == 0.1, , 
 len_table <- len_table[len_table$parameter.value == 1000.2000, , drop = FALSE]
 
 # Combine frame
-evaluation.frame <- rbind(len_table, 
-                          #skew_table, 
-                          skew_split_table, zi_table)
+evaluation.frame <- rbind(
+  len_table,
+  # skew_table,
+  skew_split_table, zi_table
+)
 
 # ROC Curve (Figure-1B)
 roc_B <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = parameter)) +
@@ -50,13 +52,13 @@ roc_B <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = parameter)) +
   scale_color_manual(
     labels = c(
       "Different Lengths: 1000 & 2000",
-      #"Skew: nCells Start >> nCells",
+      # "Skew: nCells Start >> nCells",
       "Skew: nCells Start >> nCells (BinSplit)",
       "Zero-Inflation of 60%"
     ),
     values = c(
       colorConesa(6)[6],
-      #colorConesa(6)[4],
+      # colorConesa(6)[4],
       colorConesa(6)[2],
       colorConesa(6)[1]
     ),

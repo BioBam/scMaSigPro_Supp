@@ -120,7 +120,6 @@ mbm <- microbenchmark(
       pseudotime = pseudotime_table,
       cellWeights = lineage_table,
       parallel = T,
-      
       nknots = 4, verbose = FALSE
     )
     gc()
@@ -132,7 +131,7 @@ mbm <- microbenchmark(
   "ScMaSigPro_1_CPU" = {
     # Run p-vector
     scmp.obj <- sc.p.vector(
-      scmpObj = scmp.obj, verbose = T, 
+      scmpObj = scmp.obj, verbose = T,
       min_na = 1,
       parallel = F,
       offset = T,
@@ -151,19 +150,19 @@ mbm <- microbenchmark(
   "ScMaSigPro_8_CPU" = {
     # Run p-vector
     scmp.obj <- sc.p.vector(
-        scmpObj = scmp.obj, verbose = T, 
-        min_na = 1,
-        parallel = T,
-        offset = T,
-        max_it = 1000
+      scmpObj = scmp.obj, verbose = T,
+      min_na = 1,
+      parallel = T,
+      offset = T,
+      max_it = 1000
     )
     gc()
 
     # Run-Step-2
     scmp.obj <- sc.t.fit(
-        scmpObj = scmp.obj, verbose = F,
-        selection_method = "backward", parallel = T,
-        offset = T
+      scmpObj = scmp.obj, verbose = F,
+      selection_method = "backward", parallel = T,
+      offset = T
     )
     gc()
   },
@@ -172,23 +171,25 @@ mbm <- microbenchmark(
 
 # Process the results
 data <- summary(mbm) %>% as.data.frame()
-data$min_mean <- paste(round(data$mean/60, digits = 1), "minutes")
+data$min_mean <- paste(round(data$mean / 60, digits = 1), "minutes")
 
 compareBar_Time <- ggplot(data, aes(x = expr, y = mean, fill = expr)) +
   geom_bar(stat = "identity") +
-    scale_y_continuous(
-        breaks = seq(0, 120, 20),
-        limits = c(0, 120)
-    )+
+  scale_y_continuous(
+    breaks = seq(0, 120, 20),
+    limits = c(0, 120)
+  ) +
   labs(
     title = "Execution Times for a bifurcating trajectory",
     subtitle = "Number of Cells: 1500; Number of Genes: 1000",
     x = "Method",
     y = "Time (seconds)"
   ) +
-    geom_text(aes(label = min_mean), position = position_dodge(width = 0.9), 
-              size = 3,
-              vjust = 0.5, hjust = -0.1) +
+  geom_text(aes(label = min_mean),
+    position = position_dodge(width = 0.9),
+    size = 3,
+    vjust = 0.5, hjust = -0.1
+  ) +
   coord_flip() +
   scale_fill_viridis(
     discrete = TRUE, name = "Custom Legend Title",

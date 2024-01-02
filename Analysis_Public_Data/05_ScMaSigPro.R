@@ -108,7 +108,7 @@ scmp.prs.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dir
     # Run Tstep
     scmp.obj <- sc.t.fit(
       scmpObj = scmp.obj, verbose = T, parallel = T,
-       selection_method = "backward"
+      selection_method = "backward"
     )
 
     # # Saving

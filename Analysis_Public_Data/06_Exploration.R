@@ -41,19 +41,19 @@ scmp_cluster_trends <- mclapply(rep_vec, function(rep_i) {
     age <- "35"
     sex <- "Male"
     rsq <- 0.7
-    gene_set_name <- "intersect"
+    gene_set_name <- "union"
   } else if (rep_i == "rep2") {
     individual <- "Donor-2"
     age <- "28"
     sex <- "Female"
     rsq <- 0.7
-    gene_set_name <- "intersect"
+    gene_set_name <- "union"
   } else if (rep_i == "rep3") {
     individual <- "Donor-3"
     age <- "19"
     sex <- "Female"
     rsq <- 0.7
-    gene_set_name <- "HSC_GMPvsHSC_EMP"
+    gene_set_name <- "union"
   }
 
   # Extract the object
@@ -62,7 +62,7 @@ scmp_cluster_trends <- mclapply(rep_vec, function(rep_i) {
   # Add Dummy
   scmp.obj <- sc.filter(scmp.obj,
     rsq = rsq,
-    intercept= "dummy",
+    intercept = "dummy",
     vars = "groups"
   )
   plotIntersect(scmp.obj)
@@ -72,13 +72,14 @@ scmp_cluster_trends <- mclapply(rep_vec, function(rep_i) {
     geneSet = gene_set_name,
     cluster_by = "counts",
     k = 6
-  ) 
-  
+  )
+
   # Plot trend
   trends <- plotTrendCluster(scmp.obj,
-                   summary_mode = "median",
-                   significant = F,
-                   parallel = T)+ ggtitle(paste(
+    summary_mode = "median",
+    significant = F,
+    parallel = T
+  ) + ggtitle(paste(
     individual, "| Age:", age,
     "| sex:", sex
   ))
@@ -96,6 +97,7 @@ clusters <- ggarrange(scmp_cluster_trends$rep1$trends,
   scmp_cluster_trends$rep3$trends,
   nrow = 3
 )
+clusters
 
 ggsave(clusters,
   filename = paste0("Figures/SuppData/05_Real_Data_clusterTrends.png"),
@@ -104,8 +106,7 @@ ggsave(clusters,
 
 # Run Go and Extract important gene
 scmp_results <- lapply(names(scmp_cluster_trends), function(rep_i) {
- 
-     # get object
+  # get object
   scmp.obj <- scmp_cluster_trends[[rep_i]][["scmp.obj"]]
 
   # Step-1: Add Annotation for donors
@@ -116,7 +117,7 @@ scmp_results <- lapply(names(scmp_cluster_trends), function(rep_i) {
     num <- 10
     path_name <- "EMP_ProgMkv"
     gene_set_name <- "intersect"
-    sel.clus <- c(2, 3, 6)
+    sel.clus <- c(2, 3)
   } else if (rep_i == "rep2") {
     individual <- "Donor-2"
     age <- "28"
@@ -124,7 +125,7 @@ scmp_results <- lapply(names(scmp_cluster_trends), function(rep_i) {
     num <- 10
     path_name <- "CLP_pre-mDC"
     gene_set_name <- "intersect"
-    sel.clus <- c(1, 4)
+    sel.clus <- c(1)
   } else if (rep_i == "rep3") {
     individual <- "Donor-3"
     age <- "19"
@@ -132,12 +133,14 @@ scmp_results <- lapply(names(scmp_cluster_trends), function(rep_i) {
     num <- 10
     path_name <- "EMP_GMP"
     gene_set_name <- "HSC_GMPvsHSC_EMP"
-    sel.clus <- c(1, 3, 4)
+    sel.clus <- c(1, 3)
   }
 
   # Create cluster df
-  cluster.df <- data.frame(cluster = unlist(scmp.obj@Significant@clusters),
-                                gene = names(unlist(scmp.obj@Significant@clusters)))
+  cluster.df <- data.frame(
+    cluster = unlist(scmp.obj@Significant@clusters),
+    gene = names(unlist(scmp.obj@Significant@clusters))
+  )
   # get genes
   gene.list <- cluster.df[cluster.df$cluster %in% sel.clus, ][["gene"]]
   cat(length(gene.list))
@@ -159,6 +162,7 @@ scmp_results <- lapply(names(scmp_cluster_trends), function(rep_i) {
     sig.level = 0.05
   )
   target.path$dot
+  target.path$ema
 
   return(target.path)
 })
@@ -170,24 +174,25 @@ names(scmp_results) <- rep_vec
 top <- ggarrange(scmp_results$rep1$dot,
   scmp_results$rep2$dot,
   scmp_results$rep3$dot,
-  ncol = 3,
-  labels = c("A.", "B.", "C.")
+  ncol = 1, nrow = 3,
+  labels = c("A.", "C.", "E.")
 )
 bottom <- ggarrange(scmp_results$rep1$ema,
   scmp_results$rep2$ema,
   scmp_results$rep3$ema,
-  ncol = 3,
-  labels = c("D.", "E.", "F.")
+  ncol = 1, nrow = 3,
+  labels = c("B.", "D.", "F.")
 )
 
 combined <- ggarrange(top,
   bottom,
-  nrow = 2
+  ncol = 2
 )
 combined
+
 ggsave(combined,
   filename = paste0("Figures/SuppData/05_Real_Data_GO_dot.png"),
-  dpi = 300, height = 12, width = 16
+  dpi = 300, height = 16, width = 16
 )
 
 
@@ -248,7 +253,6 @@ GP9 <- GP9 + ggtitle(
       colorConesa(6)[1]
     ),
   )
-
 
 # save
 saveRDS(GP9,
