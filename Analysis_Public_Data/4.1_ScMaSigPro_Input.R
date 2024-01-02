@@ -33,7 +33,7 @@ object.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPa
 
 
 # Create ScMaSigPro Input
-for (rep_i in c(rep_vec)[3]) {
+for (rep_i in c(rep_vec)) {
   # rep_i = "rep3"
 
   if (rep_i == "rep1") {
@@ -69,9 +69,9 @@ for (rep_i in c(rep_vec)[3]) {
   }
 
   ob <- m3_select_path(
-    cdsObj = object.list[[rep_i]],
-    use_shiny = T, plot_purity = F,
-    annotation_col = "cell_type",
+    cds = object.list[[rep_i]],
+    use_shiny = F, plot_purity = F,
+    anno_col = "cell_type",
     m3_pp = list(
       root_pp = root_pp,
       path1_pp = path1_pp,
@@ -80,6 +80,8 @@ for (rep_i in c(rep_vec)[3]) {
       path2_name = path2_name
     )
   )
+  
+  View(ob)
 
   saveRDS(
     ob,

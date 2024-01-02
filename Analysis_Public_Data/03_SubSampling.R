@@ -154,5 +154,5 @@ combined
 
 ggsave(combined,
   filename = paste0("Figures/SuppData/05_Real_Data_SubSampling.png"),
-  dpi = 150, height = 12, width = 16
+  dpi = 300, height = 12, width = 16
 )

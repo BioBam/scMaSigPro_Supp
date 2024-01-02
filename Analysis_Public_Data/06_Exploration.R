@@ -62,33 +62,33 @@ scmp_cluster_trends <- mclapply(rep_vec, function(rep_i) {
   # Add Dummy
   scmp.obj <- sc.filter(scmp.obj,
     rsq = rsq,
-    significant.intercept = "dummy",
+    intercept= "dummy",
     vars = "groups"
   )
   plotIntersect(scmp.obj)
 
   # Create trends
-  trends <- plotTrendCluster(scmp.obj,
+  scmp.obj <- sc.cluster.trend(scmp.obj,
     geneSet = gene_set_name,
     cluster_by = "counts",
-    logs = F, k = 6, result = "plot"
-  ) + ggtitle(paste(
+    k = 6
+  ) 
+  
+  # Plot trend
+  trends <- plotTrendCluster(scmp.obj,
+                   summary_mode = "median",
+                   significant = F,
+                   parallel = T)+ ggtitle(paste(
     individual, "| Age:", age,
     "| sex:", sex
   ))
-  trends
-  scmp.obj <- plotTrendCluster(scmp.obj,
-    geneSet = gene_set_name,
-    cluster_by = "counts",
-    logs = F, k = 6, result = "return"
-  )
 
   # return
   return(list(
     trends = trends,
     scmp.obj = scmp.obj
   ))
-}, mc.cores = 16)
+}, mc.cores = 1)
 
 # plot
 clusters <- ggarrange(scmp_cluster_trends$rep1$trends,
@@ -99,12 +99,13 @@ clusters <- ggarrange(scmp_cluster_trends$rep1$trends,
 
 ggsave(clusters,
   filename = paste0("Figures/SuppData/05_Real_Data_clusterTrends.png"),
-  dpi = 150, height = 8, width = 6
+  dpi = 600, height = 8, width = 6
 )
 
 # Run Go and Extract important gene
 scmp_results <- lapply(names(scmp_cluster_trends), function(rep_i) {
-  # get object
+ 
+     # get object
   scmp.obj <- scmp_cluster_trends[[rep_i]][["scmp.obj"]]
 
   # Step-1: Add Annotation for donors
@@ -115,7 +116,7 @@ scmp_results <- lapply(names(scmp_cluster_trends), function(rep_i) {
     num <- 10
     path_name <- "EMP_ProgMkv"
     gene_set_name <- "intersect"
-    sel.clus <- c(2, 3, 4, 5, 6)
+    sel.clus <- c(2, 3, 6)
   } else if (rep_i == "rep2") {
     individual <- "Donor-2"
     age <- "28"
@@ -123,7 +124,7 @@ scmp_results <- lapply(names(scmp_cluster_trends), function(rep_i) {
     num <- 10
     path_name <- "CLP_pre-mDC"
     gene_set_name <- "intersect"
-    sel.clus <- c(1, 3, 4)
+    sel.clus <- c(1, 4)
   } else if (rep_i == "rep3") {
     individual <- "Donor-3"
     age <- "19"
@@ -131,14 +132,12 @@ scmp_results <- lapply(names(scmp_cluster_trends), function(rep_i) {
     num <- 10
     path_name <- "EMP_GMP"
     gene_set_name <- "HSC_GMPvsHSC_EMP"
-    sel.clus <- c(1, 6)
+    sel.clus <- c(1, 3, 4)
   }
 
   # Create cluster df
-  cluster.df <- data.frame(
-    cluster = scmp.obj@sig.genes@feature.clusters[[gene_set_name]],
-    gene = names(scmp.obj@sig.genes@feature.clusters[[gene_set_name]])
-  )
+  cluster.df <- data.frame(cluster = unlist(scmp.obj@Significant@clusters),
+                                gene = names(unlist(scmp.obj@Significant@clusters)))
   # get genes
   gene.list <- cluster.df[cluster.df$cluster %in% sel.clus, ][["gene"]]
   cat(length(gene.list))

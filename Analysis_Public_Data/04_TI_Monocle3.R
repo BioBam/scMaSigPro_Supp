@@ -26,7 +26,7 @@ names(rep_vec) <- rep_vec
 rep_vec <- rep_vec
 
 # Run lapply
-umaps.list <- mclapply(rep_vec[3], function(rep_i, inPath = dirPath, outPath = dirPath) {
+umaps.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPath) {
   # rep_i = "rep3"
 
   # Step-1: Add Annotation for donors
@@ -154,5 +154,5 @@ combined_plot <- ggarrange(top, bottom, nrow = 2)
 combined_plot
 ggsave(combined_plot,
   filename = paste0("Figures/SuppData/05_Real_Data_TI.png"),
-  dpi = 150, height = 8, width = 14
+  dpi = 300, height = 8, width = 14
 )

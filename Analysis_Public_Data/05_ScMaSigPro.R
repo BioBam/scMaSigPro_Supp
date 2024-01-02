@@ -29,7 +29,10 @@ suppressPackageStartupMessages(library(scMaSigPro))
 # Load object
 scmp.ob.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPath) {
   sob <- readRDS(file = paste0(inPath, rep_i, "/scMaSigPro_Input_.RDS"))
+  return(sob)
 })
+
+View(scmp.ob.list$rep1)
 
 # Run ScMaSigPro
 scmp.prs.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPath) {
@@ -69,7 +72,7 @@ scmp.prs.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dir
     bin_method = bin.method,
     drop_fac = drop,
     split_bins = split,
-    bin_pseudotime_colname = "bPseudotime"
+    bin_ptime_col = "bPseudotime"
   )
   binPlot <- plotBinTile(scmp.obj) + ggtitle(paste(
     individual, "| Age:", age,
@@ -90,12 +93,12 @@ scmp.prs.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dir
     scmpObj = scmp.obj,
     verbose = T,
     max_it = 10000,
-    logOffset = F,
+    log_offset = F,
     family = gaussian(), # MASS::negative.binomial(30),
     offset = F
   )
 
-  if (length(scmp.obj@profile@non.flat) < 100) {
+  if (length(scmp.obj@Profile@non_flat) < 100) {
     return(list(
       scmpObj = scmp.obj,
       polyGlm = polyGlm,
@@ -105,7 +108,7 @@ scmp.prs.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dir
     # Run Tstep
     scmp.obj <- sc.t.fit(
       scmpObj = scmp.obj, verbose = T, parallel = T,
-      step.method = "backward"
+       selection_method = "backward"
     )
 
     # # Saving
