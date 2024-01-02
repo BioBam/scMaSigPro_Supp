@@ -66,13 +66,13 @@ performance.list <- lapply(unique(long_data$parameter.value), function(skew) {
       annotate("rect", xmin = 0.45, xmax = 0.65, ymin = 0, ymax = 1, alpha = 0.3, fill = "lightgrey")
   } else if (skew == 0) {
     performance.plot <- performance.plot +
-      annotate("rect", xmin = 0.45, xmax = 0.65, ymin = 0, ymax = 1, alpha = 0.3, fill = "lightgrey")
+      annotate("rect", xmin = 0.5, xmax = 0.7, ymin = 0, ymax = 1, alpha = 0.3, fill = "lightgrey")
   } else if (skew == 1) {
     performance.plot <- performance.plot +
-      annotate("rect", xmin = 0.4, xmax = 0.6, ymin = 0, ymax = 1, alpha = 0.3, fill = "lightgrey")
+      annotate("rect", xmin = 0.7, xmax = 0.9, ymin = 0, ymax = 1, alpha = 0.3, fill = "lightgrey")
   } else if (skew == 0.9) {
     performance.plot <- performance.plot +
-      annotate("rect", xmin = 0.4, xmax = 0.6, ymin = 0, ymax = 1, alpha = 0.3, fill = "lightgrey")
+      annotate("rect", xmin = 0.6, xmax = 0.8, ymin = 0, ymax = 1, alpha = 0.3, fill = "lightgrey")
   }
 
   # Return
