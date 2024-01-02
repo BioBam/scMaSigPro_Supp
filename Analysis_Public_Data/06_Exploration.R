@@ -20,8 +20,14 @@ names(rep_vec) <- rep_vec
 rep_vec <- rep_vec
 
 # Call the required libraries
+suppressPackageStartupMessages(library(parallelly))
+suppressPackageStartupMessages(library(parallel))
 suppressPackageStartupMessages(library(scMaSigPro))
 suppressPackageStartupMessages(library(ggpubr))
+suppressPackageStartupMessages(library(xlsx))
+
+# Set xlsx
+excelFile <- "Tables/Additional_Table_2_Mechanistic_Analysis_Results.xlsx"
 
 # Load Enrichment Helper
 source("R_Scripts/helper_function/go_enrichment.R")
@@ -104,6 +110,9 @@ ggsave(clusters,
   dpi = 600, height = 8, width = 6
 )
 
+# Create Dummy xlsx
+write.xlsx(as.data.frame(matrix(data = NA)), excelFile, sheetName = "dummy")
+
 # Run Go and Extract important gene
 scmp_results <- lapply(names(scmp_cluster_trends), function(rep_i) {
   # get object
@@ -141,8 +150,21 @@ scmp_results <- lapply(names(scmp_cluster_trends), function(rep_i) {
     cluster = unlist(scmp.obj@Significant@clusters),
     gene = names(unlist(scmp.obj@Significant@clusters))
   )
+  
+  # All Clusters
+  workbook <- loadWorkbook(excelFile)
+  newSheet <- createSheet(workbook, sheetName = paste("All_Clusters", rep_i, sep = "_"))
+  addDataFrame(cluster.df, newSheet, row.names = F)
+  saveWorkbook(workbook, excelFile)
+  
   # get genes
   gene.list <- cluster.df[cluster.df$cluster %in% sel.clus, ][["gene"]]
+  
+  workbook <- loadWorkbook(excelFile)
+  newSheet <- createSheet(workbook, sheetName = paste("Gene_list_GO_input", rep_i, sep = "_"))
+  addDataFrame(as.data.frame(gene.list), newSheet, row.names = F)
+  saveWorkbook(workbook, excelFile)
+  
   cat(length(gene.list))
 
   # Load backgound
@@ -163,6 +185,12 @@ scmp_results <- lapply(names(scmp_cluster_trends), function(rep_i) {
   )
   target.path$dot
   target.path$ema
+  
+  # Add go results
+  workbook <- loadWorkbook(excelFile)
+  newSheet <- createSheet(workbook, sheetName = paste("GO_BP_Results", rep_i, sep = "_"))
+  addDataFrame(as.data.frame(target.path$ego@result), newSheet, row.names = F)
+  saveWorkbook(workbook, excelFile)
 
   return(target.path)
 })
