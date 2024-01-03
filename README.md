@@ -24,4 +24,34 @@ Comparison
     +--01_ComparisonWithTradeSeq: Rscripts to compare with tradeSeq.
     |
     +--02_SpeedTimeComparisonWithTradeSeq: Time Comparison with tradeSeq.
+    
+Analysis_Public_Data
+    |
+    +--01_Raw_to_processed.r: Raw counts to processed counts.
+    |
+    +--02_Cell_Type_Annotation.R: Cell Type inference with Azimuth.
+    |
+    +--03_SubSampling: SubSampling based on cell types.
+    |
+    +--04_TI_Monocle3.R: Trajectory inference with monocle3.
+    |
+    +--04.1_ScMaSigPro_Input.R: Selection of branhcing paths.
+    |
+    +--05_scMaSigPro.R: ScMaSigPro Analysis.
+    |
+    +--06_Exploration.R: GO enrichment.
+    
+Figures
+    |
+    +--MainArtcile
+    |
+    +--SuppData
+
+Rscripts
+    |
+    +--Figures: Rscripts to generate figures.
+    |
+    +--helper_function: Additional function.
 ```
+
+
