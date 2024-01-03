@@ -42,7 +42,6 @@ scMaSigPro.list <- lapply(rep_vec, function(rep_i) {
 
 # Perform hclust
 scmp_cluster_trends <- mclapply(rep_vec, function(rep_i) {
-    
   # Step-1: Add Annotation for donors
   if (rep_i == "rep1") {
     individual <- "Donor-1"
@@ -117,7 +116,6 @@ write.xlsx(as.data.frame(matrix(data = NA)), excelFile, sheetName = "dummy")
 
 # Run Go and Extract important gene
 scmp_results <- lapply(names(scmp_cluster_trends), function(rep_i) {
-       
   # get object
   scmp.obj <- scmp_cluster_trends[[rep_i]][["scmp.obj"]]
 
@@ -153,21 +151,21 @@ scmp_results <- lapply(names(scmp_cluster_trends), function(rep_i) {
     cluster = unlist(scmp.obj@Significant@clusters),
     gene = names(unlist(scmp.obj@Significant@clusters))
   )
-  
+
   # All Clusters
   workbook <- loadWorkbook(excelFile)
   newSheet <- createSheet(workbook, sheetName = paste("All_Clusters", rep_i, sep = "_"))
   addDataFrame(cluster.df, newSheet, row.names = F)
   saveWorkbook(workbook, excelFile)
-  
+
   # get genes
   gene.list <- cluster.df[cluster.df$cluster %in% sel.clus, ][["gene"]]
-  
+
   workbook <- loadWorkbook(excelFile)
   newSheet <- createSheet(workbook, sheetName = paste("Gene_list_GO_input", rep_i, sep = "_"))
   addDataFrame(as.data.frame(gene.list), newSheet, row.names = F)
   saveWorkbook(workbook, excelFile)
-  
+
   cat(length(gene.list))
 
   # Load backgound
@@ -188,7 +186,7 @@ scmp_results <- lapply(names(scmp_cluster_trends), function(rep_i) {
   )
   target.path$dot
   target.path$ema
-  
+
   # Add go results
   workbook <- loadWorkbook(excelFile)
   newSheet <- createSheet(workbook, sheetName = paste("GO_BP_Results", rep_i, sep = "_"))
