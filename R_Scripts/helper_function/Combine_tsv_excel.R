@@ -5,6 +5,7 @@ all_tabs <- list.files("Tables", pattern = "Performance",
 
 # Set xlsx
 excelFile <- "Tables/Additional_Table_1_All_Performance_Measures_Results.xlsx"
+file.remove(excelFile)
 write.xlsx(as.data.frame(matrix(data = NA)), excelFile, sheetName = "dummy")
 
 for(filePath in all_tabs) {

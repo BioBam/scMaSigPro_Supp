@@ -28,6 +28,7 @@ suppressPackageStartupMessages(library(xlsx))
 
 # Set xlsx
 excelFile <- "Tables/Additional_Table_2_Mechanistic_Analysis_Results.xlsx"
+file.remove(excelFile)
 
 # Load Enrichment Helper
 source("R_Scripts/helper_function/go_enrichment.R")
@@ -41,6 +42,7 @@ scMaSigPro.list <- lapply(rep_vec, function(rep_i) {
 
 # Perform hclust
 scmp_cluster_trends <- mclapply(rep_vec, function(rep_i) {
+    
   # Step-1: Add Annotation for donors
   if (rep_i == "rep1") {
     individual <- "Donor-1"
@@ -115,6 +117,7 @@ write.xlsx(as.data.frame(matrix(data = NA)), excelFile, sheetName = "dummy")
 
 # Run Go and Extract important gene
 scmp_results <- lapply(names(scmp_cluster_trends), function(rep_i) {
+       
   # get object
   scmp.obj <- scmp_cluster_trends[[rep_i]][["scmp.obj"]]
 
