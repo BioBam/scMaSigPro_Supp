@@ -2,14 +2,16 @@
 # Author: Priyansh Srivastava
 # Year: 2023
 
+set.seed(007)
+
 # Load libraries
 suppressPackageStartupMessages(library(SingleCellExperiment))
 suppressPackageStartupMessages(library(tradeSeq))
 suppressPackageStartupMessages(library(gtools))
 
 # Set paths
-inPath <- "/supp_data/benchmarks/04_ComparisonWithTradeSeq/simulated/sce/"
-resPath <- "/supp_data/benchmarks/04_ComparisonWithTradeSeq/output/"
+inPath <- "/supp_data/ComparisonWithTradeSeq/simulated/sce/"
+resPath <- "/supp_data/ComparisonWithTradeSeq/output/"
 dir.create(resPath, showWarnings = F)
 helpScriptsDir <- "R_Scripts/helper_function/"
 

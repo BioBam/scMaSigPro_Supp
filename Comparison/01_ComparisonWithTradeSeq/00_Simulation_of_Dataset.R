@@ -13,19 +13,12 @@ suppressPackageStartupMessages(library(ggpubr))
 suppressPackageStartupMessages(library(parallel))
 suppressPackageStartupMessages(library(scuttle))
 suppressPackageStartupMessages(library(scater))
-suppressPackageStartupMessages(library(phateR))
 suppressPackageStartupMessages(library(Seurat))
 suppressPackageStartupMessages(library(viridis))
-suppressPackageStartupMessages(library(ggmosaic))
-
-# Set path for retivulate
-Sys.setenv(RETICULATE_PYTHON = "/usr/bin/python3")
-suppressPackageStartupMessages(library(reticulate))
-use_python("/usr/bin/python3", required = TRUE)
 
 # Set paths
 paramEstimates <- readRDS("/supp_data/benchmarks/00_Parameter_Estimation/output/setty_et_al_d1_splatEstimates.RDS")
-outDir <- "/supp_data/benchmarks/04_ComparisonWithTradeSeq/simulated/"
+outDir <- "/supp_data/ComparisonWithTradeSeq/simulated/"
 helpScriptsDir <- "R_Scripts/helper_function/"
 imgPath <- paste0(outDir, "png/")
 sce_path <- paste0(outDir, "sce/")
@@ -161,6 +154,6 @@ combine <- ggarrange(plt, bar, labels = c("A.", "B."), nrow = 1)
 ggsave(
   plot = combine,
   path = "Figures/SuppData/",
-  filename = "04_TradeSeq_Sim.png",
-  dpi = 150, width = 10, height = 6
+  filename = "04_tradeSeq_Sim.png",
+  dpi = 600, width = 10, height = 6
 )
