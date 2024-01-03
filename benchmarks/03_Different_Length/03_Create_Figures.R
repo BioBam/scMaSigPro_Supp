@@ -12,7 +12,7 @@ suppressPackageStartupMessages(library(ggpubr))
 outPath <- "Figures/SuppData/"
 
 # Load Plots
-umap.plots <- readRDS("/supp_data/benchmarks/03_Different_Length/simulated/png/03_len_400_1400.RDS")
+umap.plots <- readRDS("/supp_data/benchmarks/03_Different_Length/simulated/png/03_len_100_1500.RDS")
 
 # Load Evaluation
 evaluation.frame <- read.table("Tables/03_Length_Performance.Table.tsv", sep = "\t", header = T)
@@ -103,5 +103,5 @@ Length
 
 ggsave(Length,
   filename = paste0("Figures/SuppData/03_Sim_100_to_1500_length_Performance.png"),
-  dpi = 300, height = 8, width = 16
+  dpi = 600, height = 8, width = 16
 )

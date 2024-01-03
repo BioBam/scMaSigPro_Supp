@@ -15,11 +15,6 @@ suppressPackageStartupMessages(library(scuttle))
 suppressPackageStartupMessages(library(scater))
 suppressPackageStartupMessages(library(viridis))
 
-# Set path for retivulate
-Sys.setenv(RETICULATE_PYTHON = "/usr/bin/python3")
-suppressPackageStartupMessages(library(reticulate))
-use_python("/usr/bin/python3", required = TRUE)
-
 # Set paths
 paramEstimates <- readRDS("/supp_data/benchmarks/00_Parameter_Estimation/output/setty_et_al_d1_splatEstimates.RDS")
 outDir <- "/supp_data/benchmarks/03_Different_Length/simulated/"
@@ -180,4 +175,4 @@ plots <- lapply(parameter.list, function(i) {
 })
 
 # Save
-saveRDS(plots, paste0(imgPath, "03_len_400_1400.RDS"))
+saveRDS(plots, paste0(imgPath, "03_len_100_1500.RDS"))

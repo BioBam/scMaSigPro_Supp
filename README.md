@@ -17,5 +17,5 @@ benchmarks
     |
     +--02_Skewness: Evaluation of datasets with heterogeneous distribution of cells along the branching paths.
     |
-    +--03_
+    +--03_Different_length: Evaluation of datasets with different lengths of the branching paths.
 ```
