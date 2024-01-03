@@ -3,10 +3,10 @@ library(UpSetR)
 library(ggpubr)
 
 # Load the gene.info and the predictions
-prediction.df <- readRDS("/supp_data/benchmarks/04_ComparisonWithTradeSeq/output/Prediction.RDS")
+prediction.df <- readRDS("/supp_data/ComparisonWithTradeSeq/output/Prediction.RDS")
 prediction.df$gene <- rownames(prediction.df)
 colnames(prediction.df) <- c("ground_Truth", "TS_pattern", "TS_diffEnd", "scmp_0.6", "gene")
-load("/supp_data/benchmarks/04_ComparisonWithTradeSeq/simulated/sce/testTradeSeq.RData")
+load("/supp_data/ComparisonWithTradeSeq/simulated/sce/testTradeSeq.RData")
 gene.info <- rowData(sim.sce) %>% as.data.frame()
 gene.info <- gene.info[, c("gene_short_name", "status", "status2")]
 colnames(gene.info) <- c("gene", "DE", "foldChange")
@@ -139,5 +139,5 @@ predictions.bar
 ggsave(
   plot = predictions.bar,
   filename = "Figures/SuppData/04_tradeSeq_bars.png",
-  dpi = 300, width = 10, height = 8
+  dpi = 600, width = 10, height = 8
 )

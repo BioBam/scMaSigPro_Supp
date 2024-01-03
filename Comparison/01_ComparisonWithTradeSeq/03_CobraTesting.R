@@ -4,8 +4,8 @@ suppressPackageStartupMessages(library(SingleCellExperiment))
 suppressPackageStartupMessages(library(RColorConesa))
 
 # Set Path
-dirPath <- "/supp_data/benchmarks/04_ComparisonWithTradeSeq/simulated/sce/"
-resPath <- "/supp_data/benchmarks/04_ComparisonWithTradeSeq/output/"
+dirPath <- "/supp_data/ComparisonWithTradeSeq/simulated/sce/"
+resPath <- "/supp_data/ComparisonWithTradeSeq/output/"
 helpScriptsDir <- "R_Scripts/helper_function/"
 
 # Read TradeSeq Data
@@ -106,6 +106,6 @@ saveRDS(ROC, file = "Figures/MainArticle/MainArticle_FigureC.RDS")
 
 # Save Truth table with results
 df <- cbind(gt, cobraInput)
-saveRDS(df, file = "/supp_data/benchmarks/04_ComparisonWithTradeSeq/output/Prediction.RDS")
+saveRDS(df, file = "/supp_data/ComparisonWithTradeSeq/output/Prediction.RDS")
 
 plot_overlap(cobraplot)

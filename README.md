@@ -18,4 +18,10 @@ benchmarks
     +--02_Skewness: Evaluation of datasets with heterogeneous distribution of cells along the branching paths.
     |
     +--03_Different_length: Evaluation of datasets with different lengths of the branching paths.
+
+Comparison
+    |
+    +--01_ComparisonWithTradeSeq: Rscripts to compare with tradeSeq.
+    |
+    +--02_SpeedTimeComparisonWithTradeSeq: Time Comparison with tradeSeq.
 ```

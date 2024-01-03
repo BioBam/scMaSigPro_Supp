@@ -13,8 +13,8 @@ suppressPackageStartupMessages(library(viridis))
 suppressPackageStartupMessages(library(pryr))
 
 # Set paths
-dirPath <- "../scMaSigPro_supp_data/benchmarks/04_ComparisonWithTradeSeq/simulated/sce/"
-resPath <- "../scMaSigPro_supp_data/benchmarks/05_SpeedTimeComparisonWithTradeSeq/output/"
+dirPath <- "../scMaSigPro_supp_data/ComparisonWithTradeSeq/sce/"
+resPath <- "../scMaSigPro_supp_data/ComparisonWithTradeSeq/output/"
 helpScriptsDir <- "R_Scripts/helper_function/"
 
 # Load custom function
