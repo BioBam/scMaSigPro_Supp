@@ -29,7 +29,7 @@ sob[["percent.mt"]] <- PercentageFeatureSet(sob, pattern = "^MT-")
 sob <- subset(sob, subset = nFeature_RNA > 200 & nFeature_RNA < 3000 & percent.mt < 5)
 
 # Convert to matrix for splatter
-cr_counts_matrix <- as.matrix(sob@assays$RNA@counts)
+cr_counts_matrix <- as.matrix(sob@assays$RNA$counts)
 
 # Estimate parameters
 set.seed(2023)

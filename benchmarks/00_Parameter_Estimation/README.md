@@ -1,0 +1,1 @@
+### Rscript to estimate parameters for simulation from the [Setty et al, 2019](https://www.nature.com/articles/s41587-019-0068-4).
