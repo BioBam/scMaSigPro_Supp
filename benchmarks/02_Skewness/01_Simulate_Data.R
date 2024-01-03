@@ -13,13 +13,7 @@ suppressPackageStartupMessages(library(ggpubr))
 suppressPackageStartupMessages(library(parallel))
 suppressPackageStartupMessages(library(scuttle))
 suppressPackageStartupMessages(library(scater))
-suppressPackageStartupMessages(library(phateR))
 suppressPackageStartupMessages(library(viridis))
-
-# Set path for retivulate
-Sys.setenv(RETICULATE_PYTHON = "/usr/bin/python3")
-suppressPackageStartupMessages(library(reticulate))
-use_python("/usr/bin/python3", required = TRUE)
 
 # Set paths
 paramEstimates <- readRDS("/supp_data/benchmarks/00_Parameter_Estimation/output/setty_et_al_d1_splatEstimates.RDS")
