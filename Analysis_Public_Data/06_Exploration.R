@@ -42,6 +42,8 @@ scMaSigPro.list <- lapply(rep_vec, function(rep_i) {
 
 # Perform hclust
 scmp_cluster_trends <- mclapply(rep_vec, function(rep_i) {
+    
+    #rep_i = "rep1"
   # Step-1: Add Annotation for donors
   if (rep_i == "rep1") {
     individual <- "Donor-1"
@@ -116,6 +118,8 @@ write.xlsx(as.data.frame(matrix(data = NA)), excelFile, sheetName = "dummy")
 
 # Run Go and Extract important gene
 scmp_results <- lapply(names(scmp_cluster_trends), function(rep_i) {
+    
+    #rep_i = "rep1"
   # get object
   scmp.obj <- scmp_cluster_trends[[rep_i]][["scmp.obj"]]
 
@@ -224,36 +228,7 @@ ggsave(combined,
   dpi = 300, height = 16, width = 16
 )
 
-
-# Check and Plot markers
-az_emp <- c("MYCT1", "CRHBP", "NPR3", "AVP", "GATA2", "HPGDS", "CYTL1", "CRYGD", "IGSF10", "PBX1")
-az_gmp <- c("SERPINB10", "RNASE3", "MS4A3", "PRTN3", "ELANE", "AZU1", "CTSG", "RNASE2", "RETN", "NPW")
-az_earlyE <- c("CNRIP1", "GATA2", "ITGA2B", "TFR2", "GATA1", "KLF1", "CYTL1", "MAP7", "FSCN1", "APOC1")
-az_hsc <- c("CRHBP", "AVP", "MYCT1", "BEX1", "NPR3", "CRYGD", "MSRB3", "CD34", "NPDC1", "MLLT3")
-az_proB <- c("CYGB", "UMODL1", "EBF1", "MME", "VPREB1", "DNTT", "IGLL1", "UHRF1", "BLNK", "AGPS")
-az_progMk <- c("CLEC1B", "SPX", "WFDC1", "ANXA3", "CMTM5", "SELP", "RBPMS2", "ARHGAP6", "GP9", "LTBP1")
-az_clp <- c("ACY3", "PRSS2", "C1QTNF4", "SPINK2", "SMIM24", "NREP", "CD34", "DNTT", "FLT3", "SPNS3")
-az_pPDC <- c("SCT", "SHD", "LILRA4", "LILRB4", "PTPRS", "TNNI2", "PLD4", "SPIB", "IRF8", "TNFRSF21")
-az_mPDC <- c("ENHO", "CLEC10A", "RNASE2", "PLBD1", "FCER1A", "IGSF6", "MNDA", "SAMHD1", "ALDH2", "PAK1")
-
-# Plot Markers
-
-GP9 <- plotTrend(scmp_cluster_trends$rep1$scmp.obj,
-  feature_id = "GP9", significant = F, logs = F,
-  pseudoCount = F
-)
-
-plotTrend(scmp_cluster_trends$rep2$scmp.obj,
-  feature_id = "MNDA", significant = F, logs = F,
-  pseudoCount = F
-)
-
-plotTrend(scmp_cluster_trends$rep3$scmp.obj,
-  feature_id = "GATA1", significant = F, logs = F,
-  pseudoCount = F
-)
-
-# Prepare figure for artcile
+# Prepare figure for Main Article
 GP9 <- GP9 + ggtitle(
   "Glycoprotein IX (GP9), R-Square: 1",
   "Donor:1 | Age: 35 | Biological Sex: Male"
@@ -286,4 +261,128 @@ GP9 <- GP9 + ggtitle(
 # save
 saveRDS(GP9,
   file = "Figures/MainArticle/MainArticle_FigureD.RDS"
+)
+
+
+################################################################################
+############################ Saving Markers ####################################
+################################################################################
+
+# Check and Plot markers
+az_emp <- c("MYCT1", "CRHBP", "NPR3", "AVP", "GATA2", "HPGDS", "CYTL1", "CRYGD", "IGSF10", "PBX1")
+az_gmp <- c("SERPINB10", "RNASE3", "MS4A3", "PRTN3", "ELANE", "AZU1", "CTSG", "RNASE2", "RETN", "NPW")
+az_earlyE <- c("CNRIP1", "GATA2", "ITGA2B", "TFR2", "GATA1", "KLF1", "CYTL1", "MAP7", "FSCN1", "APOC1")
+az_hsc <- c("CRHBP", "AVP", "MYCT1", "BEX1", "NPR3", "CRYGD", "MSRB3", "CD34", "NPDC1", "MLLT3")
+az_proB <- c("CYGB", "UMODL1", "EBF1", "MME", "VPREB1", "DNTT", "IGLL1", "UHRF1", "BLNK", "AGPS")
+az_progMk <- c("CLEC1B", "SPX", "WFDC1", "ANXA3", "CMTM5", "SELP", "RBPMS2", "ARHGAP6", "GP9", "LTBP1")
+az_clp <- c("ACY3", "PRSS2", "C1QTNF4", "SPINK2", "SMIM24", "NREP", "CD34", "DNTT", "FLT3", "SPNS3")
+az_pPDC <- c("SCT", "SHD", "LILRA4", "LILRB4", "PTPRS", "TNNI2", "PLD4", "SPIB", "IRF8", "TNFRSF21")
+az_mPDC <- c("ENHO", "CLEC10A", "RNASE2", "PLBD1", "FCER1A", "IGSF6", "MNDA", "SAMHD1", "ALDH2", "PAK1")
+
+# Create Markers of the genes each of the donor
+donor_1_list <- list(EMP_ProgMk = az_progMk, EMP_EarlyErythrocyte = az_earlyE)
+donor_2_list <- list(CLP_pre_pDC = az_pPDC, CLP_pre_mDC = az_mPDC)
+donor_3_list <- list(HSC_GMP = az_gmp, HSC_EMP = az_emp)
+
+donor_1_markers <- list()
+donor_2_markers <- list()
+donor_3_markers <- list()
+
+# Get markers
+for (name in names(donor_1_list)){
+    marker_vector <- donor_1_list[[name]]
+    detect <- unique(unlist(scmp_cluster_trends$rep1$scmp.obj@Significant@genes))
+    detect_markers <- intersect(marker_vector, detect) 
+    donor_1_markers[[name]] <-detect_markers
+}
+for (name in names(donor_2_list)){
+    marker_vector <- donor_2_list[[name]]
+    detect <- unique(unlist(scmp_cluster_trends$rep2$scmp.obj@Significant@genes))
+    detect_markers <- intersect(marker_vector, detect) 
+    donor_2_markers[[name]] <-detect_markers
+}
+for (name in names(donor_3_list)){
+    marker_vector <- donor_3_list[[name]]
+    detect <- unique(unlist(scmp_cluster_trends$rep3$scmp.obj@Significant@genes))
+    detect_markers <- intersect(marker_vector, detect) 
+    donor_3_markers[[name]] <-detect_markers
+}
+
+# Create vectors and  sample 4 genes randomly
+donor_1_markers <- sample(unlist(donor_1_markers), 4)
+donor_2_markers <- sample(unlist(donor_2_markers), 4)
+donor_3_markers <- sample(unlist(donor_3_markers), 4)
+
+# Plot the genes
+donor1.plots <- ggarrange(
+    plotTrend(scmp_cluster_trends$rep1$scmp.obj,
+              feature_id = donor_1_markers[1], significant = F, logs = F,
+              pseudoCount = F
+    ),
+    plotTrend(scmp_cluster_trends$rep1$scmp.obj,
+              feature_id = donor_1_markers[2], significant = F, logs = F,
+              pseudoCount = F
+    ),
+    plotTrend(scmp_cluster_trends$rep1$scmp.obj,
+              feature_id = donor_1_markers[3], significant = F, logs = F,
+              pseudoCount = F
+    ),
+    plotTrend(scmp_cluster_trends$rep1$scmp.obj,
+              feature_id = donor_1_markers[4], significant = F, logs = F,
+              pseudoCount = F
+    ),
+    labels = c("A.","B.", "C.","D."), common.legend = TRUE,
+    legend = "bottom"
+)
+
+
+donor2.plots <- ggarrange(
+    plotTrend(scmp_cluster_trends$rep2$scmp.obj,
+              feature_id = donor_2_markers[1], significant = F, logs = F,
+              pseudoCount = F
+    ),
+    plotTrend(scmp_cluster_trends$rep2$scmp.obj,
+              feature_id = donor_2_markers[2], significant = F, logs = F,
+              pseudoCount = F
+    ),
+    plotTrend(scmp_cluster_trends$rep2$scmp.obj,
+              feature_id = donor_2_markers[3], significant = F, logs = F,
+              pseudoCount = F
+    ),
+    plotTrend(scmp_cluster_trends$rep2$scmp.obj,
+              feature_id = donor_2_markers[4], significant = F, logs = F,
+              pseudoCount = F
+    ),
+    labels = c("E.","F.", "G.","H."), common.legend = TRUE, legend = "bottom"
+)
+
+
+donor3.plots <- ggarrange(
+    plotTrend(scmp_cluster_trends$rep3$scmp.obj,
+              feature_id = donor_3_markers[1], significant = F, logs = F,
+              pseudoCount = F
+    ),
+    plotTrend(scmp_cluster_trends$rep3$scmp.obj,
+              feature_id = donor_3_markers[2], significant = F, logs = F,
+              pseudoCount = F
+    ),
+    plotTrend(scmp_cluster_trends$rep3$scmp.obj,
+              feature_id = donor_3_markers[3], significant = F, logs = F,
+              pseudoCount = F
+    ),
+    plotTrend(scmp_cluster_trends$rep3$scmp.obj,
+              feature_id = donor_3_markers[4], significant = F, logs = F,
+              pseudoCount = F
+    ),
+    labels = c("I.","J.", "K.","L."), common.legend = TRUE, legend = "bottom"
+)
+
+
+markers <- ggarrange(donor1.plots,
+          donor2.plots,
+          donor3.plots, nrow = 3)
+
+ggsave(markers,
+       filename = paste0("Figures/SuppData/05_Real_Data_Markers.png"),
+       dpi = 600, height = 16 ,width = 12
 )
