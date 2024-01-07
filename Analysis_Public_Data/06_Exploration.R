@@ -147,7 +147,7 @@ scmp_results <- lapply(names(scmp_cluster_trends), function(rep_i) {
     num <- 10
     path_name <- "EMP_GMP"
     gene_set_name <- "HSC_GMPvsHSC_EMP"
-    sel.clus <- c(1, 3)
+    sel.clus <- c(1, 3, 4)
   }
 
   # Create cluster df
