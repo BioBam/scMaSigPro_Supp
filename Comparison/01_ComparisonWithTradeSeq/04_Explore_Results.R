@@ -3,10 +3,10 @@ library(UpSetR)
 library(ggpubr)
 
 # Load the gene.info and the predictions
-prediction.df <- readRDS("/supp_data/ComparisonWithTradeSeq/output/Prediction.RDS")
+prediction.df <- readRDS("../scMaSigPro_supp_data/ComparisonWithTradeSeq/output/Prediction.RDS")
 prediction.df$gene <- rownames(prediction.df)
 colnames(prediction.df) <- c("ground_Truth", "TS_pattern", "TS_diffEnd", "scmp_0.6", "gene")
-load("/supp_data/ComparisonWithTradeSeq/simulated/sce/testTradeSeq.RData")
+load("../scMaSigPro_supp_data/ComparisonWithTradeSeq/simulated/sce/testTradeSeq.RData")
 gene.info <- rowData(sim.sce) %>% as.data.frame()
 gene.info <- gene.info[, c("gene_short_name", "status", "status2")]
 colnames(gene.info) <- c("gene", "DE", "foldChange")
@@ -21,9 +21,11 @@ data$TS_diffEnd <- ifelse(data$TS_diffEnd <= p_value_threshold, 1, 0)
 data$scmp_0.6 <- ifelse(data$scmp_0.6 <= p_value_threshold, 1, 0)
 
 # Create the UpSet plot
+colnames(data) <- c("GeneName", "TradeSeq_pattern()", "TradeSeq_diffEnd()", "scMaSigPro_R2_0.06", "Ground_Truth",
+                    "DE", "Fold_Change")
 upset(
   data,
-  sets = c("TS_pattern", "TS_diffEnd", "scmp_0.6", "ground_Truth"),
+  sets = c("TradeSeq_pattern()", "TradeSeq_diffEnd()", "scMaSigPro_R2_0.06", "Ground_Truth"),
   main.bar.color = "#56B4E9", matrix.color = "#56B449",
   sets.bar.color = "#D55E00", order.by = "freq",
   text.scale = 2,
