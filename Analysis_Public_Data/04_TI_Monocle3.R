@@ -153,6 +153,6 @@ top <- ggarrange(umaps.list$rep1$cell_type,
 combined_plot <- ggarrange(top, bottom, nrow = 2)
 combined_plot
 ggsave(combined_plot,
-  filename = paste0("Figures/SuppData/05_Real_Data_TI.png"),
+  filename = paste0("/supp_data/Figures/SuppData/05_Real_Data_TI.png"),
   dpi = 300, height = 8, width = 14
 )

@@ -153,6 +153,6 @@ combined <- ggarrange(top, bottom,
 combined
 
 ggsave(combined,
-  filename = paste0("Figures/SuppData/05_Real_Data_SubSampling.png"),
+  filename = paste0("/supp_data/Figures/SuppData/05_Real_Data_SubSampling.png"),
   dpi = 300, height = 12, width = 16
 )

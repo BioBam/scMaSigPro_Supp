@@ -9,13 +9,13 @@ suppressPackageStartupMessages(library(reshape2))
 suppressPackageStartupMessages(library(ggpubr))
 
 # Set Paths relative to project
-outPath <- "Figures/SuppData/"
+outPath <- "/supp_data/Figures/SuppData/"
 
 # Load Plots
 umap.plots <- readRDS("/supp_data/benchmarks/03_Different_Length/simulated/png/03_len_100_1500.RDS")
 
 # Load Evaluation
-evaluation.frame <- read.table("Tables/03_Length_Performance.Table.tsv", sep = "\t", header = T)
+evaluation.frame <- read.table("/supp_data/Tables/03_Length_Performance.Table.tsv", sep = "\t", header = T)
 
 # Plot all values against zero inflation
 long_data <- melt(evaluation.frame, id.vars = c("RSQ", "parameter.value"), measure.vars = c("TPR", "FPR", "Accuracy", "F1_Score")) %>% as.data.frame()
@@ -102,6 +102,6 @@ Length <- ggarrange(top, bottom, nrow = 2, ncol = 1)
 Length
 
 ggsave(Length,
-  filename = paste0("Figures/SuppData/03_Sim_100_to_1500_length_Performance.png"),
+  filename = paste0("/supp_data/Figures/SuppData/03_Sim_100_to_1500_length_Performance.png"),
   dpi = 600, height = 8, width = 16
 )

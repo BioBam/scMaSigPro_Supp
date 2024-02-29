@@ -134,7 +134,7 @@ compare_bin_plot
 
 ggsave(
   plot = compare_bin_plot, filename = paste0(
-    "Figures/SuppData/supp_fig_4_NoGap_NoTails_compression.png"
+    "/supp_data/Figures/SuppData/supp_fig_4_NoGap_NoTails_compression.png"
   ),
   dpi = 600, width = 20, height = 8,
 )
