@@ -106,37 +106,7 @@ rowData(sim.sce) <- DataFrame(add_gene_anno(sim.sce = sim.sce))
 
 ggsave(
   plot = trend_bulk_compare, filename = paste0(
-    "Figures/SuppData/supp_fig_3_trend_compression.png"
+    "/supp_data/Figures/SuppData/supp_fig_3_trend_compression.png"
   ),
   dpi = 600, width = 9
 )
-
-#
-# similar.change.de <- plot_loess_fit(
-#     sce_obj = sim.sce, "Gene14", dfreedom = 1, log = T,
-#     plt_subtitle = "Differentially Expressed"
-# )
-# opposite.change.de <- plot_loess_fit(
-#     sce_obj = sim.sce, "Gene691", dfreedom = 1, log = T,
-#     plt_subtitle = "Differentially Expressed"
-# )
-# one.change.de <- plot_loess_fit(
-#     sce_obj = sim.sce, "Gene67", dfreedom = 1, log = T,
-#     plt_subtitle = "Differentially Expressed"
-# )
-# no.change <- plot_loess_fit(
-#     sce_obj = sim.sce, "Gene1", dfreedom = 1, log = T,
-#     plt_subtitle = "Not-Differentially Expressed"
-# )
-#
-# gt.true <- ggarrange(similar.change.de, opposite.change.de, one.change.de, no.change,
-#                      labels = c("A.", "B.", "C.", "D.")
-# )
-#
-# ggsave(
-#     plot = gt.true, filename = paste0(
-#         imgDir,
-#         "Fig2_What_is_differentially_Expressed.png"
-#     ),
-#     dpi = 600, height = 8, width = 9
-# )

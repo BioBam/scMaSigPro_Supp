@@ -27,7 +27,7 @@ suppressPackageStartupMessages(library(ggpubr))
 suppressPackageStartupMessages(library(xlsx))
 
 # Set xlsx
-excelFile <- "Tables/Additional_Table_2_Mechanistic_Analysis_Results.xlsx"
+excelFile <- "/supp_data/Tables/Additional_Table_2_Mechanistic_Analysis_Results.xlsx"
 file.remove(excelFile)
 
 # Load Enrichment Helper
@@ -109,7 +109,7 @@ clusters <- ggarrange(scmp_cluster_trends$rep1$trends,
 clusters
 
 ggsave(clusters,
-  filename = paste0("Figures/SuppData/05_Real_Data_clusterTrends.png"),
+  filename = paste0("/supp_data/Figures/SuppData/05_Real_Data_clusterTrends.png"),
   dpi = 600, height = 8, width = 6
 )
 
@@ -224,7 +224,7 @@ combined <- ggarrange(top,
 combined
 
 ggsave(combined,
-  filename = paste0("Figures/SuppData/05_Real_Data_GO_dot.png"),
+  filename = paste0("/supp_data/Figures/SuppData/05_Real_Data_GO_dot.png"),
   dpi = 300, height = 16, width = 16
 )
 
@@ -260,7 +260,7 @@ GP9 <- GP9 + ggtitle(
 
 # save
 saveRDS(GP9,
-  file = "Figures/MainArticle/MainArticle_FigureD.RDS"
+  file = "/supp_data/Figures/MainArticle/MainArticle_FigureD.RDS"
 )
 
 
@@ -383,6 +383,6 @@ markers <- ggarrange(donor1.plots,
           donor3.plots, nrow = 3)
 
 ggsave(markers,
-       filename = paste0("Figures/SuppData/05_Real_Data_Markers.png"),
+       filename = paste0("/supp_data/Figures/SuppData/05_Real_Data_Markers.png"),
        dpi = 600, height = 16 ,width = 12
 )

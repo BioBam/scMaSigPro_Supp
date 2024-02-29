@@ -5,13 +5,13 @@
 ##################################
 
 # Load all the tables
-all_tabs <- list.files("Tables",
+all_tabs <- list.files("/supp_data/Tables",
   pattern = "Performance",
   full.names = TRUE
 )
 
 # Set xlsx
-excelFile <- "Tables/Additional_Table_1_All_Performance_Measures_Results.xlsx"
+excelFile <- "/supp_data/Tables/Additional_Table_1_All_Performance_Measures_Results.xlsx"
 file.remove(excelFile)
 write.xlsx(as.data.frame(matrix(data = NA)), excelFile, sheetName = "dummy")
 

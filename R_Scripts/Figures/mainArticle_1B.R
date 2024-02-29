@@ -9,8 +9,8 @@ suppressPackageStartupMessages(library(RColorConesa))
 suppressPackageStartupMessages(library(ggrepel))
 
 # Set Paths relative to project
-dirPath <- "Tables/"
-outDir <- "Figures/MainArticle/"
+dirPath <- "/supp_data/Tables/"
+outDir <- "/supp_data/Figures/MainArticle/"
 helpScriptsDir <- "R_Scripts/helper_function/"
 
 # Load for Zero-Inflation
