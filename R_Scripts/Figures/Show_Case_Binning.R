@@ -47,7 +47,7 @@ general.plot <- ggarrange(step.plot, group.plot)
 
 ggsave(
   plot = general.plot, filename = paste0(
-    "Figures/SuppData/supp_fig_2_general_bifurcation_trajectory.png"
+    "/supp_data/Figures/SuppData/supp_fig_2_general_bifurcation_trajectory.png"
   ),
   dpi = 600, width = 9
 )
@@ -59,7 +59,7 @@ rowData(sim.sce) <- DataFrame(add_gene_anno(sim.sce = sim.sce))
 opposite.change.de <- plot_loess_fit(
   sce_obj = sim.sce, "Gene691", dfreedom = 1, log = T,
   plt_subtitle = "Differentially Expressed"
-)
+) + scale_x_continuous(breaks = seq(0, max(sim.sce@colData$Step), 100))
 
 # Load ScMaSigPro
 library(scMaSigPro)
@@ -69,19 +69,19 @@ scmp.obj <- as_scmp(sim.sce,
   from = "sce",
   additional_params = list(
     labels_exist = TRUE,
-    existing_pseudotime_colname = "Step",
-    existing_path_colname = "Group"
+    exist_ptime_col = "Step",
+    exist_path_col = "Group"
   ), verbose = F
 )
 
 # Compress
-scmp.obj <- squeeze(
-  scmpObject = scmp.obj,
+scmp.obj <- sc.squeeze(
+  scmpObj = scmp.obj,
   bin_method = "Sturges",
-  drop.fac = 1,
+  drop_fac = 1,
   assay_name = "counts",
   verbose = F,
-  cluster_count_by = "sum",
+  aggregate = "sum",
   split_bins = F,
   prune_bins = F,
   drop_trails = T,
@@ -90,11 +90,11 @@ scmp.obj <- squeeze(
 
 # Plot standard gene
 compressed.opposite.change.de <- plot_loess_fit(
-  sce_obj = scmp.obj@compress.sce, "Gene691", dfreedom = 1, log = T,
+  sce_obj = scmp.obj@Dense, "Gene691", dfreedom = 1, log = T,
   plt_subtitle = "Differentially Expressed",
   assay_name = "bulk.counts",
-  time_col = scmp.obj@addParams@bin_pseudotime_colname,
-  path_col = scmp.obj@addParams@path_colname
+  time_col = scmp.obj@Parameters@bin_ptime_col,
+  path_col = scmp.obj@Parameters@path_col
 )
 
 trend_bulk_compare <- ggarrange(opposite.change.de,

@@ -1,5 +1,6 @@
 library(tidyverse)
 library(UpSetR)
+library(SingleCellExperiment)
 library(ggpubr)
 
 # Load the gene.info and the predictions
@@ -22,9 +23,15 @@ data$scmp_0.6 <- ifelse(data$scmp_0.6 <= p_value_threshold, 1, 0)
 
 # Create the UpSet plot
 colnames(data) <- c(
-  "GeneName", "TradeSeq_pattern()", "TradeSeq_diffEnd()", "scMaSigPro_R2_0.06", "Ground_Truth",
-  "DE", "Fold_Change"
+  "GeneName",
+  "Ground_Truth",
+  "TradeSeq_pattern()",
+  "TradeSeq_diffEnd()",
+  "scMaSigPro_R2_0.06",
+  "DE",
+  "Fold_Change"
 )
+
 upset(
   data,
   sets = c("TradeSeq_pattern()", "TradeSeq_diffEnd()", "scMaSigPro_R2_0.06", "Ground_Truth"),
@@ -67,7 +74,7 @@ incorrect_by_scmp <- data[
 # Incorrect by TS Pattern
 incorrect_by_ts_pattern <- data[
   (data$`TradeSeq_pattern()` == 0 &
-    # data$TS_diffEnd == 1 &
+    # data$`TradeSeq_diffEnd()`== 1 &
     data$scMaSigPro_R2_0.06 == 1 &
     data$Ground_Truth == 1), ,
   drop = FALSE
@@ -75,7 +82,7 @@ incorrect_by_ts_pattern <- data[
 
 # Incorrect by diff end
 incorrect_by_ts_diffEnd <- data[
-  ( # data$TS_pattern == 0 &
+  ( # data$`TradeSeq_pattern()` == 0 &
     data$`TradeSeq_diffEnd()` == 0 &
       data$scMaSigPro_R2_0.06 == 1 &
       data$Ground_Truth == 1), ,

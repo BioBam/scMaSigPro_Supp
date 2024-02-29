@@ -32,10 +32,10 @@ scmp.ob.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirP
   return(sob)
 })
 
-View(scmp.ob.list$rep1)
 
 # Run ScMaSigPro
 scmp.prs.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPath) {
+  # rep_i = "rep1"
   # Hard Assignment of the Cells to path
   if (rep_i == "rep1") {
     individual <- "Donor-1"
@@ -94,6 +94,7 @@ scmp.prs.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dir
     verbose = T,
     max_it = 10000,
     log_offset = F,
+    link = "identity",
     family = gaussian(), # MASS::negative.binomial(30),
     offset = F
   )

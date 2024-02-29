@@ -13,8 +13,8 @@ suppressPackageStartupMessages(library(viridis))
 suppressPackageStartupMessages(library(pryr))
 
 # Set paths
-dirPath <- "../scMaSigPro_supp_data/ComparisonWithTradeSeq/sce/"
-resPath <- "../scMaSigPro_supp_data/ComparisonWithTradeSeq/output/"
+dirPath <- "/supp_data/ComparisonWithTradeSeq/simulated/sce/"
+resPath <- "/supp_data/ComparisonWithTradeSeq/output/"
 helpScriptsDir <- "R_Scripts/helper_function/"
 
 # Load custom function
@@ -204,6 +204,6 @@ compareBar_Time
 # Save
 ggsave(
   plot = compareBar_Time,
-  filename = paste0("Figures/SuppData/04_tradeSeq_Time.png"),
+  filename = paste0("/supp_data/Figures/SuppData/04_tradeSeq_Time.png"),
   dpi = 300, width = 10
 )
