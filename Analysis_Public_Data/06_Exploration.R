@@ -42,8 +42,7 @@ scMaSigPro.list <- lapply(rep_vec, function(rep_i) {
 
 # Perform hclust
 scmp_cluster_trends <- mclapply(rep_vec, function(rep_i) {
-    
-    #rep_i = "rep1"
+  # rep_i = "rep1"
   # Step-1: Add Annotation for donors
   if (rep_i == "rep1") {
     individual <- "Donor-1"
@@ -118,8 +117,7 @@ write.xlsx(as.data.frame(matrix(data = NA)), excelFile, sheetName = "dummy")
 
 # Run Go and Extract important gene
 scmp_results <- lapply(names(scmp_cluster_trends), function(rep_i) {
-    
-    #rep_i = "rep1"
+  # rep_i = "rep1"
   # get object
   scmp.obj <- scmp_cluster_trends[[rep_i]][["scmp.obj"]]
 
@@ -289,23 +287,23 @@ donor_2_markers <- list()
 donor_3_markers <- list()
 
 # Get markers
-for (name in names(donor_1_list)){
-    marker_vector <- donor_1_list[[name]]
-    detect <- unique(unlist(scmp_cluster_trends$rep1$scmp.obj@Significant@genes))
-    detect_markers <- intersect(marker_vector, detect) 
-    donor_1_markers[[name]] <-detect_markers
+for (name in names(donor_1_list)) {
+  marker_vector <- donor_1_list[[name]]
+  detect <- unique(unlist(scmp_cluster_trends$rep1$scmp.obj@Significant@genes))
+  detect_markers <- intersect(marker_vector, detect)
+  donor_1_markers[[name]] <- detect_markers
 }
-for (name in names(donor_2_list)){
-    marker_vector <- donor_2_list[[name]]
-    detect <- unique(unlist(scmp_cluster_trends$rep2$scmp.obj@Significant@genes))
-    detect_markers <- intersect(marker_vector, detect) 
-    donor_2_markers[[name]] <-detect_markers
+for (name in names(donor_2_list)) {
+  marker_vector <- donor_2_list[[name]]
+  detect <- unique(unlist(scmp_cluster_trends$rep2$scmp.obj@Significant@genes))
+  detect_markers <- intersect(marker_vector, detect)
+  donor_2_markers[[name]] <- detect_markers
 }
-for (name in names(donor_3_list)){
-    marker_vector <- donor_3_list[[name]]
-    detect <- unique(unlist(scmp_cluster_trends$rep3$scmp.obj@Significant@genes))
-    detect_markers <- intersect(marker_vector, detect) 
-    donor_3_markers[[name]] <-detect_markers
+for (name in names(donor_3_list)) {
+  marker_vector <- donor_3_list[[name]]
+  detect <- unique(unlist(scmp_cluster_trends$rep3$scmp.obj@Significant@genes))
+  detect_markers <- intersect(marker_vector, detect)
+  donor_3_markers[[name]] <- detect_markers
 }
 
 # Create vectors and  sample 4 genes randomly
@@ -315,74 +313,76 @@ donor_3_markers <- sample(unlist(donor_3_markers), 4)
 
 # Plot the genes
 donor1.plots <- ggarrange(
-    plotTrend(scmp_cluster_trends$rep1$scmp.obj,
-              feature_id = donor_1_markers[1], significant = F, logs = F,
-              pseudoCount = F
-    ),
-    plotTrend(scmp_cluster_trends$rep1$scmp.obj,
-              feature_id = donor_1_markers[2], significant = F, logs = F,
-              pseudoCount = F
-    ),
-    plotTrend(scmp_cluster_trends$rep1$scmp.obj,
-              feature_id = donor_1_markers[3], significant = F, logs = F,
-              pseudoCount = F
-    ),
-    plotTrend(scmp_cluster_trends$rep1$scmp.obj,
-              feature_id = donor_1_markers[4], significant = F, logs = F,
-              pseudoCount = F
-    ),
-    labels = c("A.","B.", "C.","D."), common.legend = TRUE,
-    legend = "bottom"
+  plotTrend(scmp_cluster_trends$rep1$scmp.obj,
+    feature_id = donor_1_markers[1], significant = F, logs = F,
+    pseudoCount = F
+  ),
+  plotTrend(scmp_cluster_trends$rep1$scmp.obj,
+    feature_id = donor_1_markers[2], significant = F, logs = F,
+    pseudoCount = F
+  ),
+  plotTrend(scmp_cluster_trends$rep1$scmp.obj,
+    feature_id = donor_1_markers[3], significant = F, logs = F,
+    pseudoCount = F
+  ),
+  plotTrend(scmp_cluster_trends$rep1$scmp.obj,
+    feature_id = donor_1_markers[4], significant = F, logs = F,
+    pseudoCount = F
+  ),
+  labels = c("A.", "B.", "C.", "D."), common.legend = TRUE,
+  legend = "bottom"
 )
 
 
 donor2.plots <- ggarrange(
-    plotTrend(scmp_cluster_trends$rep2$scmp.obj,
-              feature_id = donor_2_markers[1], significant = F, logs = F,
-              pseudoCount = F
-    ),
-    plotTrend(scmp_cluster_trends$rep2$scmp.obj,
-              feature_id = donor_2_markers[2], significant = F, logs = F,
-              pseudoCount = F
-    ),
-    plotTrend(scmp_cluster_trends$rep2$scmp.obj,
-              feature_id = donor_2_markers[3], significant = F, logs = F,
-              pseudoCount = F
-    ),
-    plotTrend(scmp_cluster_trends$rep2$scmp.obj,
-              feature_id = donor_2_markers[4], significant = F, logs = F,
-              pseudoCount = F
-    ),
-    labels = c("E.","F.", "G.","H."), common.legend = TRUE, legend = "bottom"
+  plotTrend(scmp_cluster_trends$rep2$scmp.obj,
+    feature_id = donor_2_markers[1], significant = F, logs = F,
+    pseudoCount = F
+  ),
+  plotTrend(scmp_cluster_trends$rep2$scmp.obj,
+    feature_id = donor_2_markers[2], significant = F, logs = F,
+    pseudoCount = F
+  ),
+  plotTrend(scmp_cluster_trends$rep2$scmp.obj,
+    feature_id = donor_2_markers[3], significant = F, logs = F,
+    pseudoCount = F
+  ),
+  plotTrend(scmp_cluster_trends$rep2$scmp.obj,
+    feature_id = donor_2_markers[4], significant = F, logs = F,
+    pseudoCount = F
+  ),
+  labels = c("E.", "F.", "G.", "H."), common.legend = TRUE, legend = "bottom"
 )
 
 
 donor3.plots <- ggarrange(
-    plotTrend(scmp_cluster_trends$rep3$scmp.obj,
-              feature_id = donor_3_markers[1], significant = F, logs = F,
-              pseudoCount = F
-    ),
-    plotTrend(scmp_cluster_trends$rep3$scmp.obj,
-              feature_id = donor_3_markers[2], significant = F, logs = F,
-              pseudoCount = F
-    ),
-    plotTrend(scmp_cluster_trends$rep3$scmp.obj,
-              feature_id = donor_3_markers[3], significant = F, logs = F,
-              pseudoCount = F
-    ),
-    plotTrend(scmp_cluster_trends$rep3$scmp.obj,
-              feature_id = donor_3_markers[4], significant = F, logs = F,
-              pseudoCount = F
-    ),
-    labels = c("I.","J.", "K.","L."), common.legend = TRUE, legend = "bottom"
+  plotTrend(scmp_cluster_trends$rep3$scmp.obj,
+    feature_id = donor_3_markers[1], significant = F, logs = F,
+    pseudoCount = F
+  ),
+  plotTrend(scmp_cluster_trends$rep3$scmp.obj,
+    feature_id = donor_3_markers[2], significant = F, logs = F,
+    pseudoCount = F
+  ),
+  plotTrend(scmp_cluster_trends$rep3$scmp.obj,
+    feature_id = donor_3_markers[3], significant = F, logs = F,
+    pseudoCount = F
+  ),
+  plotTrend(scmp_cluster_trends$rep3$scmp.obj,
+    feature_id = donor_3_markers[4], significant = F, logs = F,
+    pseudoCount = F
+  ),
+  labels = c("I.", "J.", "K.", "L."), common.legend = TRUE, legend = "bottom"
 )
 
 
 markers <- ggarrange(donor1.plots,
-          donor2.plots,
-          donor3.plots, nrow = 3)
+  donor2.plots,
+  donor3.plots,
+  nrow = 3
+)
 
 ggsave(markers,
-       filename = paste0("/supp_data/Figures/SuppData/05_Real_Data_Markers.png"),
-       dpi = 600, height = 16 ,width = 12
+  filename = paste0("/supp_data/Figures/SuppData/05_Real_Data_Markers.png"),
+  dpi = 600, height = 16, width = 12
 )

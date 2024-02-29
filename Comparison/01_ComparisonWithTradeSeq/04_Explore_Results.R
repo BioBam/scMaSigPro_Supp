@@ -3,10 +3,10 @@ library(UpSetR)
 library(ggpubr)
 
 # Load the gene.info and the predictions
-prediction.df <- readRDS("../scMaSigPro_supp_data/ComparisonWithTradeSeq/output/Prediction.RDS")
+prediction.df <- readRDS("/supp_data/ComparisonWithTradeSeq/output/Prediction.RDS")
 prediction.df$gene <- rownames(prediction.df)
 colnames(prediction.df) <- c("ground_Truth", "TS_pattern", "TS_diffEnd", "scmp_0.6", "gene")
-load("../scMaSigPro_supp_data/ComparisonWithTradeSeq/simulated/sce/testTradeSeq.RData")
+load("/supp_data/ComparisonWithTradeSeq/simulated/sce/testTradeSeq.RData")
 gene.info <- rowData(sim.sce) %>% as.data.frame()
 gene.info <- gene.info[, c("gene_short_name", "status", "status2")]
 colnames(gene.info) <- c("gene", "DE", "foldChange")
@@ -21,8 +21,10 @@ data$TS_diffEnd <- ifelse(data$TS_diffEnd <= p_value_threshold, 1, 0)
 data$scmp_0.6 <- ifelse(data$scmp_0.6 <= p_value_threshold, 1, 0)
 
 # Create the UpSet plot
-colnames(data) <- c("GeneName", "TradeSeq_pattern()", "TradeSeq_diffEnd()", "scMaSigPro_R2_0.06", "Ground_Truth",
-                    "DE", "Fold_Change")
+colnames(data) <- c(
+  "GeneName", "TradeSeq_pattern()", "TradeSeq_diffEnd()", "scMaSigPro_R2_0.06", "Ground_Truth",
+  "DE", "Fold_Change"
+)
 upset(
   data,
   sets = c("TradeSeq_pattern()", "TradeSeq_diffEnd()", "scMaSigPro_R2_0.06", "Ground_Truth"),
@@ -37,46 +39,46 @@ upset(
 
 # False Negative by all
 fn_by_all <- data[
-  (data$TS_pattern == 0 &
-    data$TS_diffEnd == 0 &
-    data$scmp_0.6 == 0 &
-    data$ground_Truth == 1), ,
+  (data$`TradeSeq_pattern()` == 0 &
+    data$`TradeSeq_diffEnd()` == 0 &
+    data$scMaSigPro_R2_0.06 == 0 &
+    data$Ground_Truth == 1), ,
   drop = FALSE
 ]
 
 # False Positive  by all
 fp_by_all <- data[
-  (data$TS_pattern == 1 &
-    data$TS_diffEnd == 1 &
-    data$scmp_0.6 == 1 &
-    data$ground_Truth == 0), ,
+  (data$`TradeSeq_pattern()` == 1 &
+    data$`TradeSeq_diffEnd()` == 1 &
+    data$scMaSigPro_R2_0.06 == 1 &
+    data$Ground_Truth == 0), ,
   drop = FALSE
 ]
 
 # Incorrect by scmp
 incorrect_by_scmp <- data[
-  (data$TS_pattern == 1 &
-    data$TS_diffEnd == 1 &
-    data$scmp_0.6 == 0 &
-    data$ground_Truth == 1), ,
+  (data$`TradeSeq_pattern()` == 1 &
+    data$`TradeSeq_diffEnd()` == 1 &
+    data$scMaSigPro_R2_0.06 == 0 &
+    data$Ground_Truth == 1), ,
   drop = FALSE
 ]
 
 # Incorrect by TS Pattern
 incorrect_by_ts_pattern <- data[
-  (data$TS_pattern == 0 &
+  (data$`TradeSeq_pattern()` == 0 &
     # data$TS_diffEnd == 1 &
-    data$scmp_0.6 == 1 &
-    data$ground_Truth == 1), ,
+    data$scMaSigPro_R2_0.06 == 1 &
+    data$Ground_Truth == 1), ,
   drop = FALSE
 ]
 
 # Incorrect by diff end
 incorrect_by_ts_diffEnd <- data[
   ( # data$TS_pattern == 0 &
-    data$TS_diffEnd == 0 &
-      data$scmp_0.6 == 1 &
-      data$ground_Truth == 1), ,
+    data$`TradeSeq_diffEnd()` == 0 &
+      data$scMaSigPro_R2_0.06 == 1 &
+      data$Ground_Truth == 1), ,
   drop = FALSE
 ]
 
@@ -95,11 +97,11 @@ bar.list <- lapply(names(df.list), function(df.name) {
   df.i <- df.list[[df.name]]
 
   # Calculate
-  bar.df <- as.data.frame(table(df.i[, c("DE", "foldChange")]))
+  bar.df <- as.data.frame(table(df.i[, c("DE", "Fold_Change")]))
   bar.df <- bar.df[bar.df$Freq != 0, ]
 
   # Plot
-  barplot <- ggplot(bar.df, aes(x = DE, y = Freq, fill = foldChange)) +
+  barplot <- ggplot(bar.df, aes(x = DE, y = Freq, fill = Fold_Change)) +
     geom_bar(stat = "identity", position = "stack") +
     geom_text(aes(label = Freq), position = position_stack(vjust = 0.5), size = 5) +
     theme_minimal() +
@@ -140,6 +142,6 @@ predictions.bar
 
 ggsave(
   plot = predictions.bar,
-  filename = "Figures/SuppData/04_tradeSeq_bars.png",
+  filename = "/supp_data/Figures/SuppData/04_tradeSeq_bars.png",
   dpi = 600, width = 10, height = 8
 )

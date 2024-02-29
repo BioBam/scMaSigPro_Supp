@@ -102,7 +102,7 @@ ROC <- ROC + theme_classic(base_size = 14) +
 
 print(ROC)
 
-saveRDS(ROC, file = "Figures/MainArticle/MainArticle_FigureC.RDS")
+saveRDS(ROC, file = "/supp_data/Figures/MainArticle/MainArticle_FigureC.RDS")
 
 # Save Truth table with results
 df <- cbind(gt, cobraInput)

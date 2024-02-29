@@ -4,7 +4,7 @@ This repository contains the supplementary material for the [scMaSigPro: Differe
 
 ## Docker
 
-The docker container to re-run all the analysis can be found on [DockerHub](https://hub.docker.com/repository/docker/spriyansh29/sc_masigpro/general)
+The docker container to re-run all the analysis can be found on [DockerHub](https://hub.docker.com/r/spriyansh29/sc_masigpro)
 
 ## Directory Structure
 1. Directory __'benchmarks':__ Scripts for used to benchmark scMaSigPro can be found in this directory.
@@ -40,12 +40,6 @@ Analysis_Public_Data
     +--05_scMaSigPro.R: ScMaSigPro Analysis.
     |
     +--06_Exploration.R: GO enrichment.
-    
-Figures
-    |
-    +--MainArtcile
-    |
-    +--SuppData
 
 Rscripts
     |

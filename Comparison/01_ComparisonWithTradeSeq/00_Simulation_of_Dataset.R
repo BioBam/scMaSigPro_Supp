@@ -153,7 +153,7 @@ combine <- ggarrange(plt, bar, labels = c("A.", "B."), nrow = 1)
 
 ggsave(
   plot = combine,
-  path = "Figures/SuppData/",
+  path = "/supp_data/Figures/SuppData/",
   filename = "04_tradeSeq_Sim.png",
   dpi = 600, width = 10, height = 6
 )
