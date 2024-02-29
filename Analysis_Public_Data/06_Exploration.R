@@ -226,42 +226,6 @@ ggsave(combined,
   dpi = 300, height = 16, width = 16
 )
 
-# Prepare figure for Main Article
-GP9 <- GP9 + ggtitle(
-  "Glycoprotein IX (GP9), R-Square: 1",
-  "Donor:1 | Age: 35 | Biological Sex: Male"
-) +
-  xlab("Binned Pseudotime") + ylab("Scaled Pesudobulk Expressied") +
-  theme_classic(base_size = 14) +
-  theme(
-    legend.box = "vertical",
-    legend.direction = "vertical",
-    legend.title = element_text(size = 16),
-    legend.text = element_text(size = 14),
-    axis.text.x = element_text(angle = 45, hjust = 1),
-    panel.grid.major = element_line(linewidth = 0.3, color = "lightgrey", linetype = "dotted"),
-    panel.grid.minor = element_line(linewidth = 0.1, color = "lightgrey", linetype = "dotted"),
-    # legend.position = "bottom"
-    legend.position = c(0.1, 0.8), legend.justification = c("left", "top")
-  ) +
-  guides(color = guide_legend(key_width = unit(5, "cm"), key_height = unit(4, "cm"))) +
-  scale_color_manual(
-    labels = c(
-      "Erythroid Lineage",
-      "Megakaryocyte Lineage"
-    ),
-    values = c(
-      colorConesa(6)[2],
-      colorConesa(6)[1]
-    ),
-  )
-
-# save
-saveRDS(GP9,
-  file = "/supp_data/Figures/MainArticle/MainArticle_FigureD.RDS"
-)
-
-
 ################################################################################
 ############################ Saving Markers ####################################
 ################################################################################
@@ -385,4 +349,44 @@ markers <- ggarrange(donor1.plots,
 ggsave(markers,
   filename = paste0("/supp_data/Figures/SuppData/05_Real_Data_Markers.png"),
   dpi = 600, height = 16, width = 12
+)
+
+GP9 <- plotTrend(scmp_cluster_trends$rep1$scmp.obj,
+  feature_id = "GP9", significant = F, logs = F,
+  pseudoCount = F
+)
+
+# Prepare figure for Main Article
+GP9 <- GP9 + ggtitle(
+  "Glycoprotein IX (GP9), R-Square: 1",
+  "Donor:1 | Age: 35 | Biological Sex: Male"
+) +
+  xlab("Binned Pseudotime") + ylab("Scaled Pesudobulk Expressied") +
+  theme_classic(base_size = 14) +
+  theme(
+    legend.box = "vertical",
+    legend.direction = "vertical",
+    legend.title = element_text(size = 16),
+    legend.text = element_text(size = 14),
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    panel.grid.major = element_line(linewidth = 0.3, color = "lightgrey", linetype = "dotted"),
+    panel.grid.minor = element_line(linewidth = 0.1, color = "lightgrey", linetype = "dotted"),
+    # legend.position = "bottom"
+    legend.position = c(0.1, 0.8), legend.justification = c("left", "top")
+  ) +
+  guides(color = guide_legend(key_width = unit(5, "cm"), key_height = unit(4, "cm"))) +
+  scale_color_manual(
+    labels = c(
+      "Erythroid Lineage",
+      "Megakaryocyte Lineage"
+    ),
+    values = c(
+      colorConesa(6)[2],
+      colorConesa(6)[1]
+    ),
+  )
+
+# save
+saveRDS(GP9,
+  file = "/supp_data/Figures/MainArticle/MainArticle_FigureD.RDS"
 )

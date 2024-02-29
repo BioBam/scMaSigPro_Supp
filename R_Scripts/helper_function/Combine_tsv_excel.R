@@ -6,7 +6,7 @@
 
 # Load all the tables
 all_tabs <- list.files("/supp_data/Tables",
-  pattern = "Performance",
+  pattern = "Performance.Table.tsv",
   full.names = TRUE
 )
 
@@ -20,7 +20,7 @@ for (filePath in all_tabs) {
   data <- read.table(filePath, header = T, sep = "\t")
 
   # Set filename
-  sheetName <- str_remove(str_split_i(filePath, pattern = "\\.", i = 1), "Tables/0")
+  sheetName <- str_remove(str_remove(str_split_i(filePath, pattern = "\\.", i = 1), "Tables/0"), "/supp_data/")
 
   # All Clusters
   workbook <- loadWorkbook(excelFile)
