@@ -10,14 +10,14 @@ suppressPackageStartupMessages(library(reshape2))
 suppressPackageStartupMessages(library(ggpubr))
 
 # Set Paths relative to project
-outPath <- "Figures/SuppData/"
+outPath <- "/supp_data/Figures/SuppData/"
 
 # Load Plots
 umap.plots <- readRDS("/supp_data/benchmarks/02_Skewness/simulated/png/01_skew_0_1.RDS")
 
 # Load Evaluation
-evaluation.frame <- read.table("Tables/02_Skew_Performance.Table.tsv", sep = "\t", header = T)
-evaluation.frame.split <- read.table("Tables/02_SkewSplit_Performance.Table.tsv", sep = "\t", header = T)
+evaluation.frame <- read.table("/supp_data/Tables/02_Skew_Performance.Table.tsv", sep = "\t", header = T)
+evaluation.frame.split <- read.table("/supp_data/Tables/02_SkewSplit_Performance.Table.tsv", sep = "\t", header = T)
 
 # Plot all values against zero inflation
 long_data <- melt(evaluation.frame, id.vars = c("RSQ", "parameter.value"), measure.vars = c("TPR", "FPR", "Accuracy", "F1_Score")) %>% as.data.frame()
@@ -171,6 +171,6 @@ skewness <- ggarrange(top, bottom, bottom.2, nrow = 3, ncol = 1)
 skewness
 
 ggsave(skewness,
-  filename = paste0("Figures/SuppData/02_Sim_0_to_1_skew_Performance.png"),
+  filename = paste0("/supp_data/Figures/SuppData/02_Sim_0_to_1_skew_Performance.png"),
   dpi = 600, height = 10, width = 16
 )

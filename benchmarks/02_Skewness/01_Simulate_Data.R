@@ -165,7 +165,7 @@ parameter.frame <- do.call("rbind", parameters)
 
 # Save in text files
 write.table(parameter.frame,
-  file = "Tables/01_skew_Parameter.Table.tsv",
+  file = "/supp_data/Tables/01_skew_Parameter.Table.tsv",
   sep = "\t", quote = F, row.names = F
 )
 

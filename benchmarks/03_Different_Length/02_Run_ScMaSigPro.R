@@ -10,7 +10,7 @@ suppressPackageStartupMessages(library(scMaSigPro))
 # Set Paths relative to project
 inPath <- "/supp_data/benchmarks/03_Different_Length/simulated/sce/"
 outPath <- "/supp_data/benchmarks/03_Different_Length/output/"
-outPath2 <- "Tables/"
+outPath2 <- "/supp_data/Tables/"
 helpScriptsDir <- "R_Scripts/helper_function/"
 
 # Load helper functions

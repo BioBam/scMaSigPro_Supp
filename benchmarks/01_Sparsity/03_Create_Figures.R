@@ -9,13 +9,13 @@ suppressPackageStartupMessages(library(reshape2))
 suppressPackageStartupMessages(library(ggpubr))
 
 # Set Paths relative to project
-outPath <- "Figures/SuppData/"
+outPath <- "/supp_data/Figures/SuppData/"
 
 # Load Plots
 umap.plots <- readRDS("/supp_data/benchmarks/01_Sparsity/simulated/png/01_Zi_60_90.RDS")
 
 # Load Evaluation
-evaluation.frame <- read.table("Tables/01_ZI_Performance.Table.tsv", sep = "\t", header = T)
+evaluation.frame <- read.table("/supp_data/Tables/01_ZI_Performance.Table.tsv", sep = "\t", header = T)
 
 # Plot all values against zero inflation
 long_data <- melt(evaluation.frame, id.vars = c("RSQ", "parameter.value"), measure.vars = c("TPR", "FPR", "Accuracy", "F1_Score")) %>% as.data.frame()
@@ -101,7 +101,7 @@ zero_inflation <- ggarrange(top, bottom, nrow = 2, ncol = 1)
 zero_inflation
 
 ggsave(zero_inflation,
-  filename = paste0("Figures/SuppData/01_Sim_60_to_90_ZI_Performance.png"),
+  filename = paste0("/supp_data/Figures/SuppData/01_Sim_60_to_90_ZI_Performance.png"),
   dpi = 600, height = 8, width = 16
 )
 
@@ -141,6 +141,6 @@ roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = as.factor(paramete
 print(roc)
 
 # ggsave(roc,
-#        filename = paste0("Figures/SuppData/01_Sim_10_to_90_ZI_ROC.png"),
+#        filename = paste0("/supp_data/Figures/SuppData/01_Sim_10_to_90_ZI_ROC.png"),
 #        dpi = 600, height = 8, width = 10
 # )
