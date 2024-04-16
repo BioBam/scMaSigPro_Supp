@@ -31,8 +31,8 @@ sob.raw <- read_h5_hca_develop_to_seurat(
   add_gene_annotations = TRUE,
   project_name = "t_cell_hca_developmental",
   assay_name = "RNA",
-  min_cells = 100,
-  min_features = 100
+  min_cells = 1000,
+  min_features = 500
 )
 
 # Calculate Percentage of Mitochondrial Reads
@@ -60,12 +60,15 @@ keep_cells <- sob.raw@meta.data[!is.na(sob.raw@meta.data$cell_types), "barcode"]
 sob_prs <- subset(sob.raw, barcode %in% keep_cells)
 sob.raw <- NULL
 
-# Identify Variable Feature (Atleast 12000)
+# Identify Variable Feature (Atleast 6000)
 sob_prs <- FindVariableFeatures(
   sob_prs,
   selection.method = "vst",
-  nfeatures = 12000
+  nfeatures = 6000
 )
+
+# Plot Variable Features
+VariableFeaturePlot(sob_prs)
 
 # Scale Data
 sob_prs <- ScaleData(sob_prs)
@@ -73,20 +76,22 @@ sob_prs <- ScaleData(sob_prs)
 # Compute PCA with Variable Features
 sob_prs <- RunPCA(sob_prs,
   features = VariableFeatures(object = sob_prs),
-  npcs = 200, seed.use = 123
+  npcs = 100, seed.use = 123
 )
 
-## Clusters cells using the first 100 dimensions
+## Plot elbow
 ElbowPlot(sob_prs, ndims = 200)
+
+## Get Variance Explained by top 50 components
+mat <- GetAssayData(sob_prs, layer = "RNA", slot = "scale.data")
+pca <- sob_prs[["pca"]]
+total_variance <- sum(matrixStats::rowVars(mat))
+eigValues = (pca@stdev)^2  ## EigenValues
+varExplained = eigValues / total_variance
+sum(varExplained[c(1:50)] * 100)
 
 # Create Graph
 sob_prs <- FindNeighbors(sob_prs, dims = 1:50)
-
-# Compute Clusters
-sob_prs <- FindClusters(sob_prs,
-  resolution = 0.05, random.seed = 123,
-  algorithm = 4
-)
 
 # Save Seurat Object as an H5
 SaveH5Seurat(

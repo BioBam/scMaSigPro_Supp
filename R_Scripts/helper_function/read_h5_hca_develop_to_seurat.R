@@ -131,7 +131,7 @@ read_h5_hca_develop_to_seurat <- function(filename = "HTA08_v01_A06_Science_huma
   sob <- CreateSeuratObject(assay_ob,
     project = project_name,
     assay = assay_name,
-    min.cells = 500, min.features = 500,
+    min.cells = min_cells, min.features = min_features,
     meta.data = cell_metadata
   )
 
