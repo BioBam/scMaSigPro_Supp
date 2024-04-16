@@ -15,12 +15,12 @@ read_h5_hca_develop_to_seurat <- function(filename = "HTA08_v01_A06_Science_huma
   suppressPackageStartupMessages(require(biomaRt))
   suppressPackageStartupMessages(require(Matrix))
   #
-  #   filename <- "HTA08_v01_A06_Science_human_tcells.h5ad"
-  #   filepath <- "/home/priyansh/gitDockers/scMaSigPro_supp_data/Analysis_Public_Data_2"
-  #   project_name <- "HCA_Developmental_tcells"
-  #   assay_name <- "RNA"
-  #   min_cells <- 100
-  #   min_features <- 100
+    filename <- "HTA08_v01_A06_Science_human_tcells.h5ad"
+    filepath <- "/supp_data/Analysis_Public_Data_2"
+    project_name <- "HCA_Developmental_tcells"
+    assay_name <- "RNA"
+    min_cells <- 1000
+    min_features <- 500
 
   # Create filename
   file_path <- paste(filepath, filename, sep = "/")
@@ -83,7 +83,15 @@ read_h5_hca_develop_to_seurat <- function(filename = "HTA08_v01_A06_Science_huma
   cell_metadata <- cell_metadata %>%
     mutate_if(is.character, as.factor)
   rownames(cell_metadata) <- cell_metadata$barcode
-
+  
+  # Load embeddings
+  embeddings <- h5read(file_path, paste0("/obsm"),
+                          compoundAsDataFrame = FALSE)
+  embeddings_2d <- embeddings$X_umap
+  embeddings_2d <- t(embeddings_2d)
+  embeddings_2d <- as.data.frame(embeddings_2d)
+  rownames(embeddings_2d) <- barcodes
+  
   # If Annotations are Requested
   if (add_gene_annotations) {
     # Connect to the Ensembl database
