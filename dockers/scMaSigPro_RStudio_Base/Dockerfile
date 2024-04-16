@@ -105,10 +105,6 @@ RUN Rscript -e "remove.packages('irlba'); \
                 clean = TRUE, dependencies = TRUE, Ncpus = 24, quiet = TRUE)"
 
 # Create Users
-RUN mkdir /home/admin
-RUN mkdir /home/priyansh
-RUN mkdir /home/guest
-RUN mkdir /home/esr
 RUN mkdir /supp_data
 RUN mkdir /additional_data
 
