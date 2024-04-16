@@ -77,34 +77,16 @@ sob_prs <- RunPCA(sob_prs,
 )
 
 ## Clusters cells using the first 100 dimensions
+ElbowPlot(sob_prs, ndims = 200)
 
 # Create Graph
-sob_prs <- FindNeighbors(sob_prs, dims = 1:100)
+sob_prs <- FindNeighbors(sob_prs, dims = 1:50)
 
 # Compute Clusters
 sob_prs <- FindClusters(sob_prs,
   resolution = 0.05, random.seed = 123,
-  algorithm = 2
+  algorithm = 4
 )
-
-# Compute UMAP
-sob_prs <- RunUMAP(sob_prs,
-  dims = 1:5,
-  n.neighbors = 10,
-  min.dist = 0.1
-)
-
-# Compute Tsne
-# We Will also compute tsne wih relatively high perplexity
-sob_prs <- RunTSNE(sob_prs,
-  dims = 1:200,
-  perplexity = 200,
-  tsne.method = "FIt-SNE"
-)
-
-# Plot
-combined_plot <- (DimPlot(sob_prs, reduction = "umap") + DimPlot(sob_prs, reduction = "umap", group.by = "cell_types")) /
-  DimPlot(sob_prs, reduction = "tsne") + DimPlot(sob_prs, reduction = "tsne", group.by = "cell_types")
 
 # Save Seurat Object as an H5
 SaveH5Seurat(
