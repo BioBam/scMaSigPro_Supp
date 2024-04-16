@@ -2,7 +2,7 @@
 FROM rocker/rstudio:4.3
 
 # Build Command
-## $docker build --build-arg GITHUB_TOKEN=PAT_HERE --build-arg -t spriyansh29/sc_masigpro:rstudio_base .
+## docker build --build-arg GITHUB_PAT=PAT_HERE -t spriyansh29/sc_masigpro:rstudio_base .
 
 # Maintainer
 LABEL maintainer = Priyansh Srivastava <spriyansh29@gmail.com>
@@ -26,7 +26,7 @@ RUN apt-get update && apt-get install -y \
     patch \
     libgeos-dev \
     python \
-    python3=3.8.2-0ubuntu2 \
+    python3 \
     python3-pip \
     libxt-dev \
     cmake \
