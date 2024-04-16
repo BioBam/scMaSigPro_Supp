@@ -30,4 +30,4 @@ EXPOSE 8787
 CMD ["/init"]
 
 ## How to Run
-#docker run -p 8003:8787 --rm -e USERID=$(id -u) -v /data/priyansh_data/scMaSigPro_supp_data/:/supp_data -e USER=priyansh -e PASSWORD= spriyansh29/sc_masigpro:supp_amd64_devel
+#docker run -p 8003:8787 --rm -e USERID=$(id -u) -v /data/priyansh_data/scMaSigPro_supp_data/:/supp_data -e USER=priyansh -e PASSWORD="Priyansh@123#" -v /data/priyansh_data/gitDocker_devel/scMaSigPro_Supp/:/priyansh spriyansh29/sc_masigpro:supp_amd64_devel
