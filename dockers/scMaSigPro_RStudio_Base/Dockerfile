@@ -25,7 +25,6 @@ RUN apt-get update && apt-get install -y \
     libcairo2-dev \
     patch \
     libgeos-dev \
-    python \
     python3 \
     python3-pip \
     libxt-dev \
