@@ -31,11 +31,15 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     libfftw3-dev \
     git \
+    pip\
     libqpdf28 \
     qpdf \
     libmagick++-dev && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
+
+# Install Leiden Lang
+RUN pip install leidenalg
 
 # Installation in all in one
 RUN Rscript -e 'install.packages(c("igraph", "terra", "intergraph", "leidenbase", "tidyverse", "BiocManager", "metap", "intergraph", "spdep", "eHOF", "devtools", "doParallel", "MatrixExtra", "ggpubr", "ggrastr", "Cairo", "cellranger", "mutoss", "rvest", "xml2", "lava", "qqconf", "revealjs", "paletteer", "ggpubr", "markdown", "magick", "moments","entropy","venn","mclust","UpSetR", "coop", "styler", "ggupset", "mclust", "ComplexUpset", "RColorConesa", "wesanderson"), repos = "https://cloud.r-project.org/", clean = TRUE, dependencies = TRUE, Ncpus = 24, quiet = TRUE)'
