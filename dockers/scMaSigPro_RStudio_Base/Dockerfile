@@ -102,7 +102,7 @@ RUN Rscript -e "Sys.setenv(GITHUB_PAT = '${GITHUB_PAT}'); \
 # Fix irlba and Matrix
 RUN Rscript -e "remove.packages('irlba'); \
                 install.packages(c('Matrix', 'irlba'), repos = 'https://cloud.r-project.org/', \
-                clean = TRUE, dependencies = TRUE, Ncpus = 24, quiet = TRUE);
+                clean = TRUE, dependencies = TRUE, Ncpus = 24, quiet = TRUE)"
 
 # Create Users
 RUN mkdir /home/admin
