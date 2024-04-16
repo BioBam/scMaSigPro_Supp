@@ -109,6 +109,7 @@ RUN mkdir /supp_data
 RUN mkdir /additional_data
 RUN mkdir /admin
 RUN mkdir /priyansh
+RUN mkdir /priyansh/gitRepos
 RUN mkdir /guest
 RUN mkdir /esr
 
