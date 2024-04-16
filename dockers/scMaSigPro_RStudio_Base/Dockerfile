@@ -25,13 +25,17 @@ RUN apt-get update && apt-get install -y \
     libcairo2-dev \
     patch \
     libgeos-dev \
+    python \
+    python3=3.8.2-0ubuntu2 \
+    python3-pip \
     libxt-dev \
     cmake \
     libgsl-dev \
     build-essential \
     libfftw3-dev \
     git \
-    pip\
+    pip \
+    pip3 \
     libqpdf28 \
     qpdf \
     libmagick++-dev && \
@@ -40,9 +44,11 @@ RUN apt-get update && apt-get install -y \
 
 # Install Leiden Lang
 RUN pip install leidenalg
+RUN pip install phate
+RUN pip install pydiffmap
 
 # Installation in all in one
-RUN Rscript -e 'install.packages(c("igraph", "terra", "intergraph", "leidenbase", "tidyverse", "BiocManager", "metap", "intergraph", "spdep", "eHOF", "devtools", "doParallel", "MatrixExtra", "ggpubr", "ggrastr", "Cairo", "cellranger", "mutoss", "rvest", "xml2", "lava", "qqconf", "revealjs", "paletteer", "ggpubr", "markdown", "magick", "moments","entropy","venn","mclust","UpSetR", "coop", "styler", "ggupset", "mclust", "ComplexUpset", "RColorConesa", "wesanderson"), repos = "https://cloud.r-project.org/", clean = TRUE, dependencies = TRUE, Ncpus = 24, quiet = TRUE)'
+RUN Rscript -e 'install.packages(c("reticulate", "diffusionMap", "igraph", "terra", "intergraph", "leidenbase", "tidyverse", "BiocManager", "metap", "intergraph", "spdep", "eHOF", "devtools", "phateR", "doParallel", "MatrixExtra", "ggpubr", "ggrastr", "Cairo", "cellranger", "mutoss", "rvest", "xml2", "lava", "qqconf", "revealjs", "paletteer", "ggpubr", "markdown", "magick", "moments","entropy","venn","mclust","UpSetR", "coop", "styler", "ggupset", "mclust", "ComplexUpset", "RColorConesa", "wesanderson"), repos = "https://cloud.r-project.org/", clean = TRUE, dependencies = TRUE, Ncpus = 24, quiet = TRUE)'
 
 # BioConductor
 RUN Rscript -e "BiocManager::install('qvalue', update = TRUE, ask = FALSE, Ncpus = 24)" && \
