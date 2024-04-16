@@ -2,7 +2,7 @@
 FROM spriyansh29/sc_masigpro:rstudio_base
 
 # Build Command
-## $docker build --build-arg GITHUB_TOKEN=PAT_HERE --build-arg -t spriyansh29/sc_masigpro:supp_amd64_devel .
+## $docker build --build-arg GITHUB_TOKEN=PAT_HERE -t spriyansh29/sc_masigpro:supp_amd64_devel .
 
 # Maintainer
 LABEL maintainer = Priyansh Srivastava <spriyansh29@gmail.com>
@@ -14,7 +14,7 @@ WORKDIR /priyansh
 ARG GITHUB_PAT
 
 # Pull the latest version
-RUN git clone https://github.com/spriyansh/scMaSigPro_Supp.git
+RUN git clone https://${GITHUB_PAT}@github.com/spriyansh/scMaSigPro_Supp.git
 
 # Change Working directory
 WORKDIR /priyansh/scMaSigPro_Supp
