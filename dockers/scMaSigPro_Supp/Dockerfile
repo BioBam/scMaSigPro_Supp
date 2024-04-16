@@ -8,7 +8,7 @@ FROM spriyansh29/sc_masigpro:rstudio_base
 LABEL maintainer = Priyansh Srivastava <spriyansh29@gmail.com>
 
 # Change Working directory
-WORKDIR /priyansh
+WORKDIR "/priyansh/gitRepos"
 
 # Receive GitHub PAT as a build argument
 ARG GITHUB_PAT
@@ -17,7 +17,7 @@ ARG GITHUB_PAT
 RUN git clone https://${GITHUB_PAT}@github.com/spriyansh/scMaSigPro_Supp.git
 
 # Change Working directory
-WORKDIR /priyansh/scMaSigPro_Supp
+WORKDIR /priyansh/gitRepos/scMaSigPro_Supp
 
 # Expose port 8787 (RStudio runs on this port)
 EXPOSE 8787
