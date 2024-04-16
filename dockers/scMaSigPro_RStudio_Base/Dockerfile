@@ -2,7 +2,7 @@
 FROM rocker/rstudio:4.3
 
 # Build Command
-## $docker build --build-arg GITHUB_TOKEN=PAT_HERE --build-arg -t spriyansh29/rstudio_base .
+## $docker build --build-arg GITHUB_TOKEN=PAT_HERE --build-arg -t spriyansh29/sc_masigpro:rstudio_base .
 
 # Maintainer
 LABEL maintainer = Priyansh Srivastava <spriyansh29@gmail.com>
