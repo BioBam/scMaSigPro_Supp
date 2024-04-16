@@ -34,7 +34,6 @@ RUN apt-get update && apt-get install -y \
     libfftw3-dev \
     git \
     pip \
-    pip3 \
     libqpdf28 \
     qpdf \
     libmagick++-dev && \
