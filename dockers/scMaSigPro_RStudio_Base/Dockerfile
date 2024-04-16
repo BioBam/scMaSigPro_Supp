@@ -107,9 +107,16 @@ RUN Rscript -e "remove.packages('irlba'); \
 # Create Users
 RUN mkdir /supp_data
 RUN mkdir /additional_data
+RUN mkdir /admin
+RUN mkdir /priyansh
+RUN mkdir /guest
+RUN mkdir /esr
 
 # Expose port 8787 (RStudio runs on this port)
 EXPOSE 8787
 
 # Init
 CMD ["/init"]
+
+## How to Run
+#docker run -p 8003:8787 --rm -e USERID=$(id -u) -e USER=admin -e PASSWORD=admin spriyansh29/sc_masigpro:rstudio_base
