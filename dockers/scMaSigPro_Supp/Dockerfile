@@ -17,9 +17,7 @@ RUN Rscript -e 'install.packages(c("microbenchmark", "pryr"), repos = "https://c
 ARG GITHUB_PAT
 
 # Install scMaSigPro
-RUN Rscript -e 'Sys.setenv(GITHUB_PAT = "${GITHUB_PAT}"); \
-                devtools::install_github("BioBam/scMaSigPro", ref = "main", build_vignettes = FALSE, \
-    build_manual = TRUE, upgrade = "never", force = TRUE, quiet = TRUE)'
+RUN Rscript -e 'devtools::install_github("BioBam/scMaSigPro", ref = "main", build_vignettes = FALSE, build_manual = TRUE, upgrade = "never", force = TRUE, quiet = TRUE)'
                 
 # Expose port 8787 (RStudio runs on this port)
 EXPOSE 8787
