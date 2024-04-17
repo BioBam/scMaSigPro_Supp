@@ -46,7 +46,7 @@ RUN pip install phate
 RUN pip install pydiffmap
 
 # Installation in all in one
-RUN Rscript -e 'install.packages(c("reticulate", "diffusionMap", "igraph", "terra", "intergraph", "leidenbase", "tidyverse", "BiocManager", "metap", "intergraph", "spdep", "eHOF", "devtools", "phateR", "doParallel", "MatrixExtra", "ggpubr", "ggrastr", "Cairo", "cellranger", "mutoss", "rvest", "xml2", "lava", "qqconf", "revealjs", "paletteer", "ggpubr", "markdown", "magick", "moments","entropy","venn","mclust","UpSetR", "coop", "styler", "ggupset", "mclust", "ComplexUpset", "RColorConesa", "wesanderson"), repos = "https://cloud.r-project.org/", clean = TRUE, dependencies = TRUE, Ncpus = 24, quiet = TRUE)'
+RUN Rscript -e 'install.packages(c("reticulate", "diffusionMap", "igraph", "terra", "intergraph", "pryr", "microbenchmark","leidenbase", "tidyverse", "BiocManager", "metap", "intergraph", "spdep", "eHOF", "devtools", "phateR", "doParallel", "MatrixExtra", "ggpubr", "ggrastr", "Cairo", "cellranger", "mutoss", "rvest", "xml2", "lava", "qqconf", "revealjs", "paletteer", "ggpubr", "markdown", "magick", "moments","entropy","venn","mclust","UpSetR", "coop", "styler", "ggupset", "mclust", "ComplexUpset", "RColorConesa", "wesanderson"), repos = "https://cloud.r-project.org/", clean = TRUE, dependencies = TRUE, Ncpus = 24, quiet = TRUE)'
 
 # BioConductor
 RUN Rscript -e "BiocManager::install('qvalue', update = TRUE, ask = FALSE, Ncpus = 24)" && \
