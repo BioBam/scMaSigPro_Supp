@@ -36,8 +36,8 @@ source(paste0(helpScriptsDir, "calc_bin_size.R"))
 # Create Base parameters/ Same for All groups
 params.groups <- newSplatParams(
     batch.rmEffect = TRUE, # No Batch affect
-    batchCells = 50000, # 50k Cells
-    nGenes = 10000, # 20k Genes
+    batchCells = 100000, # 50k Cells
+    nGenes = 10000, # 5k Genes
     seed = 2022, # Set seed
     mean.rate = paramEstimates@mean.rate,
     mean.shape = paramEstimates@mean.shape,
@@ -56,9 +56,9 @@ params.groups <- newSplatParams(
     dropout.mid = paramEstimates@dropout.mid,
     out.facScale = paramEstimates@out.facScale,
     out.prob = paramEstimates@out.prob,
-    path.skew = c(0.4, 0.6),
+    path.skew = c(0.5, 0.5),
     dropout.shape = -0.5,
-    path.nSteps = c(25000, 25000)
+    path.nSteps = c(50000, 50000)
 )
 
 # Simulate Object
@@ -100,7 +100,7 @@ bar <- ggplot(bar.df, aes(x = DE, y = Freq, fill = Fold_Change)) +
 rowData(sim.sce) <- DataFrame(gene.info)
 
 # SaveRDS
-obj.path <- paste0(sce_path, paste0("time_50k_cells.RData"))
+obj.path <- paste0(sce_path, paste0("time_100k_cells.RData"))
 save(sim.sce, file = obj.path)
 
 # Compute UMAP Dimensions

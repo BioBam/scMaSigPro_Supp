@@ -2,27 +2,25 @@
 FROM spriyansh29/sc_masigpro:rstudio_base
 
 # Build Command
-## $docker build --build-arg GITHUB_TOKEN=PAT_HERE -t spriyansh29/sc_masigpro:supp_amd64_devel .
+## $docker build --build-arg -t spriyansh29/sc_masigpro:supp_amd64_devel .
 
 # Maintainer
 LABEL maintainer = Priyansh Srivastava <spriyansh29@gmail.com>
 
-# Change Working directory
-WORKDIR "/priyansh"
+# Set WRK
+WORKDIR "/"
+
+# Install 
+RUN Rscript -e 'install.packages(c("microbenchmark", "pryr"), repos = "https://cloud.r-project.org/", clean = TRUE, dependencies = TRUE, Ncpus = 24, quiet = TRUE)'
 
 # Receive GitHub PAT as a build argument
 ARG GITHUB_PAT
 
-# Pull the latest version
-RUN git clone https://${GITHUB_PAT}@github.com/spriyansh/scMaSigPro_Supp.git
-
-# Configure Git
-RUN git config --global user.email "spriyansh29@gmail.com"
-RUN git config --global user.name "spriyansh"
-
-# Set WRK
-WORKDIR "/"
-
+# Install scMaSigPro
+RUN Rscript -e 'Sys.setenv(GITHUB_PAT = "${GITHUB_PAT}""); \
+                devtools::install_github("BioBam/scMaSigPro", ref = "main", build_vignettes = FALSE, \
+    build_manual = TRUE, upgrade = "never", force = TRUE, quiet = TRUE)'
+                
 # Expose port 8787 (RStudio runs on this port)
 EXPOSE 8787
 

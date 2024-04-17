@@ -11,7 +11,6 @@ suppressPackageStartupMessages(library(scMaSigPro))
 suppressPackageStartupMessages(library(microbenchmark))
 suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(viridis))
-suppressPackageStartupMessages(library(pryr))
 
 # Set paths
 dirPath <- "/supp_data/ComparisonWithTradeSeq/simulated/sce/"
@@ -68,57 +67,17 @@ lineage_table$Lineage1 <- ifelse(lineage_table$Group == "Path1", 1, 0)
 lineage_table$Lineage2 <- ifelse(lineage_table$Group == "Path2", 1, 0)
 lineage_table <- lineage_table[, c("Lineage1", "Lineage2")]
 
-# Running scMaSigPro
-scmp.obj <- as_scmp(sim.sce,
-                    from = "sce",
-                    align_pseudotime = T,
-                    additional_params = list(
-                        labels_exist = TRUE,
-                        exist_ptime_col = "Step",
-                        exist_path_col = "Group"
-                    ), verbose = F
-)
-
-# Squeeze
-scmp.obj <- sc.squeeze(
-    scmpObj = scmp.obj,
-    bin_method = "Sturges",
-    drop_fac = 0.5,
-    verbose = F,
-    aggregate = "sum",
-    split_bins = F,
-    prune_bins = F,
-    drop_trails = F,
-    fill_gaps = F
-)
-
-# Make Design
-scmp.obj <- sc.set.poly(scmp.obj,
-                        poly_degree = 2
-)
-
 ## Free up space for Computation
 counts <-NULL
 sim.sce <- NULL
+normCounts <- as(normCounts, "dgCMatrix")
+cell_metadata <-NULL
+gene_metadata <-NULL
+gc()
 
 # Benchmark time
-mbm <- microbenchmark(
-    "TradeSeq_1_CPU" = {
-        # Fit GAM
-        sce.tradeseq <- fitGAM(
-            counts = normCounts,
-            pseudotime = pseudotime_table,
-            cellWeights = lineage_table,
-            parallel = F,
-            nknots = 4, verbose = FALSE
-        )
-        gc()
-        
-        # One of the test
-        patternRes <- patternTest(sce.tradeseq)
-        gc()
-    },
-    "TradeSeq_8_CPU" = {
+mbm_tradeSeq <- microbenchmark(
+    "TradeSeq_24_CPU_50k_cells" = {
         # Fit GAM
         sce.tradeseq <- fitGAM(
             counts = normCounts,
@@ -132,27 +91,56 @@ mbm <- microbenchmark(
         # One of the test
         patternRes <- patternTest(sce.tradeseq)
         gc()
-    },
-    "ScMaSigPro_1_CPU" = {
-        # Run p-vector
-        scmp.obj <- sc.p.vector(
-            scmpObj = scmp.obj, verbose = T,
-            min_na = 1,
-            parallel = F,
-            offset = T,
-            max_it = 1000
-        )
-        gc()
         
-        # Run-Step-2
-        scmp.obj <- sc.t.fit(
-            scmpObj = scmp.obj, verbose = F,
-            selection_method = "backward", parallel = F,
-            offset = T
-        )
+        # Free Memory
+        sce.tradeseq <- NULL
+        patternRes <- NULL
         gc()
     },
-    "ScMaSigPro_8_CPU" = {
+    times = 5
+)
+
+# We will Simulate a BigData here
+load(paste0(dirPath, "time_50k_cells.RData"))
+
+# Running scMaSigPro
+scmp.obj <- as_scmp(sim.sce,
+                    from = "sce",
+                    align_pseudotime = T,
+                    additional_params = list(
+                        labels_exist = TRUE,
+                        exist_ptime_col = "Step",
+                        exist_path_col = "Group"
+                    ), verbose = F
+)
+
+# Release unused memory
+sim.sce <- NULL
+gc()
+
+# Squeeze
+scmp.obj <- sc.squeeze(
+    scmpObj = scmp.obj,
+    bin_method = "Doane",
+    drop_fac = 1,
+    verbose = F,
+    aggregate = "sum",
+    split_bins = F,
+    prune_bins = F,
+    drop_trails = F,
+    fill_gaps = F
+)
+
+plotBinTile(scmp.obj)
+
+# Make Design
+scmp.obj <- sc.set.poly(scmp.obj,
+                        poly_degree = 2
+)
+
+# Benchmark time
+mbm_scMaSigPro <- microbenchmark(
+    "ScMaSigPro_24_CPU_50k_cells" = {
         # Run p-vector
         scmp.obj <- sc.p.vector(
             scmpObj = scmp.obj, verbose = T,
@@ -175,7 +163,7 @@ mbm <- microbenchmark(
 )
 
 # Process the results
-data <- summary(mbm) %>% as.data.frame()
+data <- summary(mbm_scMaSigPro) %>% as.data.frame()
 data$min_mean <- paste(round(data$mean / 60, digits = 1), "minutes")
 
 compareBar_Time <- ggplot(data, aes(x = expr, y = mean, fill = expr)) +

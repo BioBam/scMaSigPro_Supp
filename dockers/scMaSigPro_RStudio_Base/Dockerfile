@@ -84,9 +84,6 @@ RUN Rscript -e "BiocManager::install('qvalue', update = TRUE, ask = FALSE, Ncpus
 # Receive GitHub PAT as a build argument
 ARG GITHUB_PAT
 
-# Receive GitHub PAT as a build argument
-ARG GITHUB_PAT
-
 # Install specific version of Seurat
 RUN Rscript -e "Sys.setenv(GITHUB_PAT = '${GITHUB_PAT}'); \
                 remotes::install_github('satijalab/seurat', 'seurat5', quiet = TRUE, Ncpus = 24)"
