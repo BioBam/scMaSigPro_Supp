@@ -22,25 +22,25 @@ helpScriptsDir <- "R_Scripts/helper_function/"
 source(paste0(helpScriptsDir, "calcNormCounts.R"))
 
 # We will Simulate a BigData here
-load(paste0(dirPath, "testTradeSeq.RData"))
+load(paste0(dirPath, "time_50k_cells.RData"))
 
-# Readuce Dataset
-keepGenes <- sample(rownames(rowData(sim.sce)), size = 1000, replace = F)
-keepCells <- sample(rownames(colData(sim.sce)), size = 1500, replace = F)
-
-# Extract raw counts
-counts <- as.matrix(sim.sce@assays@data@listData$counts)
-cell.metadata <- as.data.frame(colData(sim.sce))
-gene.metadata <- as.data.frame(rowData(sim.sce))
-
-# Subset the counts
-counts.reduced <- counts[keepGenes, keepCells]
-cell.metadata.reduced <- cell.metadata[keepCells, ]
-gene.metadata.reduced <- gene.metadata[keepGenes, ]
-
-sim.sce <- SingleCellExperiment(list(counts = counts.reduced))
-colData(sim.sce) <- DataFrame(cell.metadata.reduced)
-rowData(sim.sce) <- DataFrame(gene.metadata.reduced)
+# # Readuce Dataset
+# keepGenes <- sample(rownames(rowData(sim.sce)), size = 1000, replace = F)
+# keepCells <- sample(rownames(colData(sim.sce)), size = 1500, replace = F)
+# 
+# # Extract raw counts
+# counts <- as.matrix(sim.sce@assays@data@listData$counts)
+# cell.metadata <- as.data.frame(colData(sim.sce))
+# gene.metadata <- as.data.frame(rowData(sim.sce))
+# 
+# # Subset the counts
+# counts.reduced <- counts[keepGenes, keepCells]
+# cell.metadata.reduced <- cell.metadata[keepCells, ]
+# gene.metadata.reduced <- gene.metadata[keepGenes, ]
+# 
+# sim.sce <- SingleCellExperiment(list(counts = counts.reduced))
+# colData(sim.sce) <- DataFrame(cell.metadata.reduced)
+# rowData(sim.sce) <- DataFrame(gene.metadata.reduced)
 
 # Extract counts
 counts <- as.matrix(sim.sce@assays@data@listData$counts)
@@ -96,6 +96,10 @@ scmp.obj <- sc.squeeze(
 scmp.obj <- sc.set.poly(scmp.obj,
                         poly_degree = 2
 )
+
+## Free up space for Computation
+counts <-NULL
+sim.sce <- NULL
 
 # Benchmark time
 mbm <- microbenchmark(
@@ -167,7 +171,7 @@ mbm <- microbenchmark(
         )
         gc()
     },
-    times = 1
+    times = 5
 )
 
 # Process the results

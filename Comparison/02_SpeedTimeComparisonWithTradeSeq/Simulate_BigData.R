@@ -36,8 +36,8 @@ source(paste0(helpScriptsDir, "calc_bin_size.R"))
 # Create Base parameters/ Same for All groups
 params.groups <- newSplatParams(
     batch.rmEffect = TRUE, # No Batch affect
-    batchCells = 100000, # 1 million Cells
-    nGenes = 20000, # 20k Genes
+    batchCells = 50000, # 50k Cells
+    nGenes = 10000, # 20k Genes
     seed = 2022, # Set seed
     mean.rate = paramEstimates@mean.rate,
     mean.shape = paramEstimates@mean.shape,
@@ -58,7 +58,7 @@ params.groups <- newSplatParams(
     out.prob = paramEstimates@out.prob,
     path.skew = c(0.4, 0.6),
     dropout.shape = -0.5,
-    path.nSteps = c(50000, 50000)
+    path.nSteps = c(25000, 25000)
 )
 
 # Simulate Object
@@ -100,7 +100,7 @@ bar <- ggplot(bar.df, aes(x = DE, y = Freq, fill = Fold_Change)) +
 rowData(sim.sce) <- DataFrame(gene.info)
 
 # SaveRDS
-obj.path <- paste0(sce_path, paste0("testTradeSeq.RData"))
+obj.path <- paste0(sce_path, paste0("time_50k_cells.RData"))
 save(sim.sce, file = obj.path)
 
 # Compute UMAP Dimensions
@@ -142,18 +142,9 @@ plt <- ggplot(plt.data) +
     scale_color_viridis(option = "C") +
     ggtitle(
         paste(
-            "Total Sparsity:", totSparsity, "(38 + 22)"
+            "Total Sparsity:", totSparsity, "(", simulatedSparsity,"+", trueSparsity,")"
         ),
-        subtitle = paste("Lengths (Path1> Path2), Skewness (Path-1: Start, Path-2: End)")
+        subtitle = paste("50k Cells")
     ) +
     theme(legend.position = "bottom")
 plt
-
-combine <- ggarrange(plt, bar, labels = c("A.", "B."), nrow = 1)
-
-ggsave(
-    plot = combine,
-    path = "/supp_data/Figures/SuppData/",
-    filename = "04_tradeSeq_Sim.png",
-    dpi = 600, width = 10, height = 6
-)
