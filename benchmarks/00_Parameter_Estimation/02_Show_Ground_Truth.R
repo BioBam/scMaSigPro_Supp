@@ -12,12 +12,14 @@ source("R_Scripts/helper_function/plot_simulations().R")
 source("R_Scripts/helper_function/add_gene_anno().R")
 source("R_Scripts/helper_function/plot_loess.R")
 
-# Create dire
-dir.create("/supp_data/Figures/MainFigures", showWarnings = FALSE, recursive = TRUE)
-dir.create("/supp_data/Figures/SuppFigures", showWarnings = FALSE, recursive = TRUE)
-
 # Load
 paramEstimates <- readRDS("/supp_data/benchmarks/00_Parameter_Estimation/output/setty_et_al_d1_splatEstimates.RDS")
+
+# Create dire
+base_string <- "/supp_data/additionalFigures/"
+
+# Create Mising
+dir.create(base_string, showWarnings = FALSE, recursive = TRUE)
 
 # Create Base parameters/ Same for All groups
 params.groups <- newSplatParams(
@@ -167,17 +169,13 @@ gt.true <- ggarrange(similar.change.de, opposite.change.de, one.change.de, no.ch
 
 # Save
 saveRDS(gt.true,
-  file = "/supp_data/Figures/MainFigures/Figure2_A_D_Sim_and_Ground_Truth.rds"
+  file = paste0(base_string, "Figure2_A_to_D_Ground_Truth.rds")
 )
 
 ground.truth <- ggarrange(plt.sim, gt.true, labels = c("A.", ""))
 ground.truth
 
 ggsave(
-  plot = ground.truth, filename = paste0(
-    "/supp_data/Figures/SuppData/supp_fig_2_Sim_and_Ground_Truth.png"
-  ),
+  plot = ground.truth, filename = paste0(base_string, "supp_fig_2_Sim_and_Ground_Truth.png"),
   dpi = 300, width = 12, height = 5
 )
-
-#

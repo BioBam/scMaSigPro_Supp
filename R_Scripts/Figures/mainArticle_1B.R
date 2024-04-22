@@ -9,21 +9,21 @@ suppressPackageStartupMessages(library(RColorConesa))
 suppressPackageStartupMessages(library(ggrepel))
 
 # Set Paths relative to project
-dirPath <- "/supp_data/Tables/"
-outDir <- "/supp_data/Figures/MainArticle/"
+benchmark_string_base_string <- "/supp_data/benchmarks/"
+figureRds_path <- "/supp_data/additionalFigures/Figure2_E.rds"
 helpScriptsDir <- "R_Scripts/helper_function/"
 
 # Load for Zero-Inflation
-zi_table <- read.table(paste0(dirPath, "01_ZI_Performance.Table.tsv"), header = T)
+zi_table <- read.table(paste0(benchmark_string_base_string, "01_Sparsity/tab/01_ZI_Performance.Table.tsv"), header = T)
 
 # Load skew table with splot parameter
-skew_split_table <- read.table(paste0(dirPath, "02_SkewSplit_Performance.Table.tsv"), header = T)
+skew_split_table <- read.table(paste0(benchmark_string_base_string, "02_Skewness/tab/02_SkewSplit_Performance.Table.tsv"), header = T)
 
 # Load Skew only
-skew_table <- read.table(paste0(dirPath, "02_Skew_Performance.Table.tsv"), header = T)
+skew_table <- read.table(paste0(benchmark_string_base_string, "02_Skewness/tab/02_Skew_Performance.Table.tsv"), header = T)
 
 # Load Length table
-len_table <- read.table(paste0(dirPath, "03_Length_Performance.Table.tsv"), header = T)
+len_table <- read.table(paste0(benchmark_string_base_string, "03_Different_Length/tab/03_Length_Performance.Table.tsv"), header = T)
 
 # Subset tables
 
@@ -195,4 +195,4 @@ roc_B <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = parameter)) +
 roc_B
 
 # Save
-saveRDS(object = roc_B, file = paste0(outDir, "MainArticle_FigureB.RDS"))
+saveRDS(object = roc_B, file = figureRds_path)
