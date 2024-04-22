@@ -10,7 +10,7 @@ suppressPackageStartupMessages(library(scMaSigPro))
 # Set Paths relative to project
 inPath <- "/supp_data/benchmarks/02_Skewness/simulated/sce/"
 outPath <- "/supp_data/benchmarks/02_Skewness/output/"
-outPath2 <- "/supp_data/Tables/"
+tab_path <- "/supp_data/Tables/"
 helpScriptsDir <- "R_Scripts/helper_function/"
 
 # Load helper functions
@@ -19,6 +19,7 @@ source(paste0(helpScriptsDir, "calculate_metrics_binary.R"))
 
 # Create Missing Directory
 dir.create(outPath, showWarnings = F, recursive = T)
+dir.create(tab_path, showWarnings = F, recursive = T)
 
 # Load names of files
 dataSets <- list.files(paste0(inPath))
@@ -135,6 +136,6 @@ for (i in names(dataSets)) {
 evaluation.frame <- do.call(rbind, eval.list)
 
 # Write
-write.table(evaluation.frame, paste0(outPath2, "02_Skew_Performance.Table.tsv"),
+write.table(evaluation.frame, paste0(tab_path, "02_Skew_Performance.Table.tsv"),
   sep = "\t", row.names = F, quote = F
 )

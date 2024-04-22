@@ -21,11 +21,13 @@ outDir <- "/supp_data/benchmarks/03_Different_Length/simulated/"
 helpScriptsDir <- "R_Scripts/helper_function/"
 imgPath <- paste0(outDir, "png/")
 sce_path <- paste0(outDir, "sce/")
+tab_path <- paste0("/supp_data/Tables/")
 
 # Create Directories
 dir.create(outDir, showWarnings = F, recursive = T)
 dir.create(imgPath, recursive = T, showWarnings = F)
 dir.create(sce_path, recursive = T, showWarnings = F)
+dir.create(tab_path, recursive = T, showWarnings = F)
 
 # Load Custom Functions
 source(paste0(helpScriptsDir, "plot_simulations().R"))
@@ -151,7 +153,7 @@ parameter.list <- mclapply(names(len), function(length, params_groups = params.g
     parameters = label_vector,
     plots = plt
   ))
-}, mc.cores = 1)
+}, mc.cores = 20)
 # Set names
 names(parameter.list) <- names(len)
 
@@ -165,7 +167,7 @@ parameter.frame <- do.call("rbind", parameters)
 
 # Save in text files
 write.table(parameter.frame,
-  file = "/supp_data/Tables/03_len_Parameter.Table.tsv",
+  file = paste0(tab_path, "03_len_Parameter.Table.tsv"),
   sep = "\t", quote = F, row.names = F
 )
 

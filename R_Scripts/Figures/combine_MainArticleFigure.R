@@ -13,3 +13,8 @@ ggsave(
   path = "/supp_data/Figures/MainArticle/",
   width = 16, dpi = 400, height = 5
 )
+
+
+# Combine Figure-2
+b <- readRDS("/supp_data/SuppFigures/MainFigures/   Figures/SuppFigures/SuppFigures/Figures/SuppFigures/MainFigures/Figure2_A_D_Sim_and_Ground_Truth.pngMainArticle/MainArticle_FigureB.RDS")
+c <- readRDS("/supp_data/Figures/MainArticle/MainArticle_FigureC.RDS")

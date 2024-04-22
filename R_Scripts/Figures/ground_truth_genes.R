@@ -2,11 +2,19 @@
 suppressPackageStartupMessages(library(SingleCellExperiment))
 suppressPackageStartupMessages(library(splatter))
 suppressPackageStartupMessages(library(ggpubr))
+suppressPackageStartupMessages(library(coop))
+suppressPackageStartupMessages(library(tidyverse))
+suppressPackageStartupMessages(library(reshape2))
+suppressPackageStartupMessages(library(data.table))
 
 # Load Custom Function
 source("R_Scripts/helper_function/plot_simulations().R")
 source("R_Scripts/helper_function/add_gene_anno().R")
 source("R_Scripts/helper_function/plot_loess.R")
+
+# Create dire
+dir.create("/supp_data/Figures/MainFigures", showWarnings = FALSE, recursive = TRUE)
+dir.create("/supp_data/Figures/SuppFigures", showWarnings = FALSE, recursive = TRUE)
 
 # Load
 paramEstimates <- readRDS("/supp_data/benchmarks/00_Parameter_Estimation/output/setty_et_al_d1_splatEstimates.RDS")
@@ -126,28 +134,40 @@ similar.change.de <- plot_loess_fit(
   sce_obj = sim.sce, "Gene659", dfreedom = 1, log = T,
   plt_subtitle = "DE: Similar Change", point.alpha = 0.2,
   point.size = 1, line.size = 1, line.alpha = 1, ci = F,
-) + scale_x_continuous(breaks = (seq(0, 1500, 300)))
+) + scale_x_continuous(breaks = (seq(0, 1500, 300))) + labs(
+  color = "Branching Path", shape = "Branching Path"
+)
 
 opposite.change.de <- plot_loess_fit(
   sce_obj = sim.sce, "Gene798", dfreedom = 1, log = T,
   plt_subtitle = "DE: Opposite Change", point.alpha = 0.2,
   point.size = 1, line.size = 1, line.alpha = 1, ci = F,
-) + scale_x_continuous(breaks = (seq(0, 1500, 300)))
+) + scale_x_continuous(breaks = (seq(0, 1500, 300))) + labs(
+  color = "Branching Path", shape = "Branching Path"
+)
 
 one.change.de <- plot_loess_fit(
   sce_obj = sim.sce, "Gene309", dfreedom = 1, log = T,
   plt_subtitle = "DE: Change in One", point.alpha = 0.2,
   point.size = 1, line.size = 1, line.alpha = 1, ci = F,
-) + scale_x_continuous(breaks = (seq(0, 1500, 300)))
-
+) + scale_x_continuous(breaks = (seq(0, 1500, 300))) + labs(
+  color = "Branching Path", shape = "Branching Path"
+)
 no.change <- plot_loess_fit(
   sce_obj = sim.sce, "Gene336", dfreedom = 1, log = T,
   plt_subtitle = "Not-Differentially Expressed", point.alpha = 0.2,
   point.size = 1, line.size = 1, line.alpha = 1, ci = F,
-) + scale_x_continuous(breaks = (seq(0, 1500, 300)))
+) + scale_x_continuous(breaks = (seq(0, 1500, 300))) + labs(
+  color = "Branching Path", shape = "Branching Path"
+)
 
 gt.true <- ggarrange(similar.change.de, opposite.change.de, one.change.de, no.change,
-  labels = c("B.", "C.", "D.", "E."), common.legend = T, legend = "bottom"
+  labels = c("A.", "B.", "C.", "D."), common.legend = T, legend = "bottom"
+)
+
+# Save
+saveRDS(gt.true,
+  file = "/supp_data/Figures/MainFigures/Figure2_A_D_Sim_and_Ground_Truth.rds"
 )
 
 ground.truth <- ggarrange(plt.sim, gt.true, labels = c("A.", ""))

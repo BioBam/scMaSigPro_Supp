@@ -171,6 +171,6 @@ skewness <- ggarrange(top, bottom, bottom.2, nrow = 3, ncol = 1)
 skewness
 
 ggsave(skewness,
-  filename = paste0("/supp_data/Figures/SuppData/02_Sim_0_to_1_skew_Performance.png"),
+  filename = paste0("/supp_data/Figures/SuppFigures/02_Sim_0_to_1_skew_Performance.png"),
   dpi = 600, height = 10, width = 16
 )

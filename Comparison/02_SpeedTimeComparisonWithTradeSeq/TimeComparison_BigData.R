@@ -1,6 +1,6 @@
 # Title: Evaluation of BigData for SpeedTime Comparison
 # Author: Priyansh Srivastava
-# Year: 2023
+# Year: 2024
 
 # Load libraries
 suppressPackageStartupMessages(library(SingleCellExperiment))
@@ -12,191 +12,178 @@ suppressPackageStartupMessages(library(microbenchmark))
 suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(viridis))
 
+
 # Set paths
 dirPath <- "/supp_data/ComparisonWithTradeSeq/simulated/sce/"
 resPath <- "/supp_data/ComparisonWithTradeSeq/output/"
 helpScriptsDir <- "R_Scripts/helper_function/"
 
-# Load custom function
-source(paste0(helpScriptsDir, "calcNormCounts.R"))
-
 # We will Simulate a BigData here
-load(paste0(dirPath, "time_50k_cells.RData"))
-
-# # Readuce Dataset
-# keepGenes <- sample(rownames(rowData(sim.sce)), size = 1000, replace = F)
-# keepCells <- sample(rownames(colData(sim.sce)), size = 1500, replace = F)
-# 
-# # Extract raw counts
-# counts <- as.matrix(sim.sce@assays@data@listData$counts)
-# cell.metadata <- as.data.frame(colData(sim.sce))
-# gene.metadata <- as.data.frame(rowData(sim.sce))
-# 
-# # Subset the counts
-# counts.reduced <- counts[keepGenes, keepCells]
-# cell.metadata.reduced <- cell.metadata[keepCells, ]
-# gene.metadata.reduced <- gene.metadata[keepGenes, ]
-# 
-# sim.sce <- SingleCellExperiment(list(counts = counts.reduced))
-# colData(sim.sce) <- DataFrame(cell.metadata.reduced)
-# rowData(sim.sce) <- DataFrame(gene.metadata.reduced)
-
-# Extract counts
-counts <- as.matrix(sim.sce@assays@data@listData$counts)
-
-# Perform Quantile Normalization as per-tradeSeq paper
-normCounts <- FQnorm(counts)
-
-# Extract Cell_metadata
-cell_metadata <- as.data.frame(colData(sim.sce))
-
-# Extract Gene_metadata
-gene_metadata <- as.data.frame(rowData(sim.sce))
-
-# Prepare Input
-pseudotime_table <- cell_metadata[, c("Cell", "Step", "Group")]
-lineage_table <- cell_metadata[, c("Cell", "Step", "Group")]
-
-# Add Pseudotime Info
-pseudotime_table$Pseudotime1 <- pseudotime_table$Step
-pseudotime_table$Pseudotime2 <- pseudotime_table$Step
-pseudotime_table <- pseudotime_table[, c("Pseudotime1", "Pseudotime2")]
-
-# Hard Assignmnet for Lineage
-lineage_table$Lineage1 <- ifelse(lineage_table$Group == "Path1", 1, 0)
-lineage_table$Lineage2 <- ifelse(lineage_table$Group == "Path2", 1, 0)
-lineage_table <- lineage_table[, c("Lineage1", "Lineage2")]
-
-## Free up space for Computation
-counts <-NULL
-sim.sce <- NULL
-normCounts <- as(normCounts, "dgCMatrix")
-cell_metadata <-NULL
-gene_metadata <-NULL
-gc()
-
-# Benchmark time
-mbm_tradeSeq <- microbenchmark(
-    "TradeSeq_24_CPU_50k_cells" = {
-        # Fit GAM
-        sce.tradeseq <- fitGAM(
-            counts = normCounts,
-            pseudotime = pseudotime_table,
-            cellWeights = lineage_table,
-            parallel = T,
-            nknots = 4, verbose = FALSE
-        )
-        gc()
-        
-        # One of the test
-        patternRes <- patternTest(sce.tradeseq)
-        gc()
-        
-        # Free Memory
-        sce.tradeseq <- NULL
-        patternRes <- NULL
-        gc()
-    },
-    times = 5
-)
-
-# We will Simulate a BigData here
-load(paste0(dirPath, "time_50k_cells.RData"))
+load(paste0(dirPath, "time_100k_cells.RData"))
 
 # Running scMaSigPro
 scmp.obj <- as_scmp(sim.sce,
-                    from = "sce",
-                    align_pseudotime = T,
-                    additional_params = list(
-                        labels_exist = TRUE,
-                        exist_ptime_col = "Step",
-                        exist_path_col = "Group"
-                    ), verbose = F
+  from = "sce",
+  align_pseudotime = T,
+  additional_params = list(
+    labels_exist = TRUE,
+    exist_ptime_col = "Step",
+    exist_path_col = "Group"
+  ), verbose = F
 )
 
 # Release unused memory
 sim.sce <- NULL
 gc()
 
-# Squeeze
+# Define core vector
+use_cores <- seq(16, 24, 2)
+
+# Corelist
+core_list <- list()
+
+# Compute bins
 scmp.obj <- sc.squeeze(
-    scmpObj = scmp.obj,
-    bin_method = "Doane",
-    drop_fac = 1,
-    verbose = F,
-    aggregate = "sum",
-    split_bins = F,
-    prune_bins = F,
-    drop_trails = F,
-    fill_gaps = F
+  scmpObj = scmp.obj,
+  drop_fac = 200,
+  verbose = F,
+  aggregate = "sum",
+  split_bins = F,
+  prune_bins = F,
+  drop_trails = F,
+  fill_gaps = F
 )
 
-plotBinTile(scmp.obj)
+# Set polynomial
+scmp.obj <- sc.set.poly(scmp.obj, poly_degree = 3)
 
-# Make Design
-scmp.obj <- sc.set.poly(scmp.obj,
-                        poly_degree = 2
-)
+# Run evaluation
+for (ncpu in use_cores) {
+  cat(paste("\nRunning with", ncpu, "cores..."))
 
-# Benchmark time
-mbm_scMaSigPro <- microbenchmark(
-    "ScMaSigPro_24_CPU_50k_cells" = {
-        # Run p-vector
-        scmp.obj <- sc.p.vector(
-            scmpObj = scmp.obj, verbose = T,
-            min_na = 1,
-            parallel = T,
-            offset = T,
-            max_it = 1000
-        )
-        gc()
-        
-        # Run-Step-2
-        scmp.obj <- sc.t.fit(
-            scmpObj = scmp.obj, verbose = F,
-            selection_method = "backward", parallel = T,
-            offset = T
-        )
-        gc()
+
+  mbm_scMaSigPro <- microbenchmark(
+    "scMaSigPro::sc.p.vector()" = {
+      # sc.p.vector
+      scmp.obj <- sc.p.vector(
+        scmpObj = scmp.obj, verbose = T,
+        min_na = 1,
+        parallel = T,
+        offset = T,
+        max_it = 1000,
+        n_cores = ncpu
+      )
+      gc()
+    },
+    "scMaSigPro::sc.t.fit()" = {
+      # sc.t.fit
+      scmp.obj <- sc.t.fit(
+        scmpObj = scmp.obj, verbose = F,
+        selection_method = "backward", parallel = T,
+        offset = T,
+        n_cores = ncpu
+      )
+      gc()
     },
     times = 5
+  )
+
+  # Extract Data
+  core_list[[paste0("nCPUs_", ncpu)]] <- mbm_scMaSigPro
+}
+
+benchmark_data <- bind_rows(lapply(names(core_list), function(cpu_name) {
+  results <- summary(core_list[[cpu_name]])
+  transform(results,
+    expr = as.character(expr), # Ensuring expression names are characters for plotting
+    cpu = cpu_name
+  ) # Adding CPU name for each set of results
+}), .id = "cpu_id") # This adds an ID, but we already have cpu, so it's redundant
+
+
+# Convert time from microseconds to minutes
+benchmark_data$time <- paste(round(benchmark_data$mean / 60, digits = 6), "minutes")
+
+# Convert 'cpu' column to a factor for ordered plotting
+benchmark_data$cpu <- factor(benchmark_data$cpu, levels = unique(benchmark_data$cpu))
+
+# Creating a line plot
+ggplot(benchmark_data, aes(x = cpu, y = log10(median), color = expr, group = expr)) +
+  geom_line() +
+  geom_point() +
+  labs(
+    title = "Median Execution Times Across CPU Configurations",
+    x = "CPU Configuration",
+    y = "Median Execution Time (ms)",
+    color = "Function"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Plotting the violin plot
+ggplot(benchmark_data, aes(x = cpu, y = median, fill = expr)) +
+  geom_violin(trim = FALSE) +
+  labs(
+    title = "Violin Plot of Execution Times by CPU Configuration",
+    x = "CPU Configuration",
+    y = "Median Execution Time (ms)",
+    fill = "Function"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Export Table
+write.table(benchmark_data,
+  file = paste(resPath, "100k_time_evaluation.txt",
+    sep = "/"
+  ),
+  quote = FALSE, row.names = FALSE
 )
+saveRDS(core_list, paste(resPath, "100k_time_evaluation.RDS",
+  sep = "/"
+))
 
-# Process the results
-data <- summary(mbm_scMaSigPro) %>% as.data.frame()
-data$min_mean <- paste(round(data$mean / 60, digits = 1), "minutes")
+#
+# Plotting the data
+ggplot(benchmark_data, aes(x = expr, y = time, fill = cpu)) +
+  geom_bar(stat = "identity", position = position_dodge(width = 0.9), width = 0.85) +
+  labs(x = "Function", y = "Evaluation Time (minutes)", title = "Benchmarking scMaSigPro Functions Across Different CPUs") +
+  theme_minimal() +
+  coord_flip() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) # +
+scale_fill_brewer(palette = "Set2") # Adds color coding for
 
-compareBar_Time <- ggplot(data, aes(x = expr, y = mean, fill = expr)) +
-    geom_bar(stat = "identity") +
-    scale_y_continuous(
-        breaks = seq(0, 120, 20),
-        limits = c(0, 120)
-    ) +
-    labs(
-        title = "Execution Times for a bifurcating trajectory",
-        subtitle = "Number of Cells: 1500; Number of Genes: 1000",
-        x = "Method",
-        y = "Time (seconds)"
-    ) +
-    geom_text(aes(label = min_mean),
-              position = position_dodge(width = 0.9),
-              size = 3,
-              vjust = 0.5, hjust = -0.1
-    ) +
-    coord_flip() +
-    scale_fill_viridis(
-        discrete = TRUE, name = "Custom Legend Title",
-        breaks = c("TradeSeq_1_CPU", "ScMaSigPro_1_CPU", "TradeSeq_8_CPU", "ScMaSigPro_8_CPU"),
-        labels = c("Custom Label 1", "Custom Label 2", "Custom Label 3", "Custom Label 4")
-    ) +
-    theme_minimal(base_size = 20) +
-    theme(legend.position = "none", legend.justification = "left", legend.box.just = "left")
-
-compareBar_Time
-
-# Save
-ggsave(
-    plot = compareBar_Time,
-    filename = paste0("/supp_data/Figures/SuppData/04_tradeSeq_Time.png"),
-    dpi = 300, width = 10
-)
+# compareViolins <- ggplot(data, aes(x = expr, y = mean, fill = expr)) +
+#   geom_bar(stat = "identity") +
+#   scale_y_continuous(
+#     breaks = seq(0, 120, 20),
+#     limits = c(0, 120)
+#   ) +
+#   labs(
+#     title = "Execution Times for a bifurcating trajectory",
+#     subtitle = "Number of Cells: 1500; Number of Genes: 1000",
+#     x = "Method",
+#     y = "Time (seconds)"
+#   ) +
+#   geom_text(aes(label = min_mean),
+#     position = position_dodge(width = 0.9),
+#     size = 3,
+#     vjust = 0.5, hjust = -0.1
+#   ) +
+#   coord_flip() +
+#   scale_fill_viridis(
+#     discrete = TRUE, name = "Custom Legend Title",
+#     breaks = c("TradeSeq_1_CPU", "ScMaSigPro_1_CPU", "TradeSeq_8_CPU", "ScMaSigPro_8_CPU"),
+#     labels = c("Custom Label 1", "Custom Label 2", "Custom Label 3", "Custom Label 4")
+#   ) +
+#   theme_minimal(base_size = 20) +
+#   theme(legend.position = "none", legend.justification = "left", legend.box.just = "left")
+#
+# compareBar_Time
+#
+# # Save
+# ggsave(
+#   plot = compareBar_Time,
+#   filename = paste0("/supp_data/Figures/SuppData/04_tradeSeq_Time.png"),
+#   dpi = 300, width = 10
+# )

@@ -35,37 +35,37 @@ source(paste0(helpScriptsDir, "calc_bin_size.R"))
 
 # Create Base parameters/ Same for All groups
 params.groups <- newSplatParams(
-    batch.rmEffect = TRUE, # No Batch affect
-    batchCells = 100000, # 50k Cells
-    nGenes = 10000, # 5k Genes
-    seed = 2022, # Set seed
-    mean.rate = paramEstimates@mean.rate,
-    mean.shape = paramEstimates@mean.shape,
-    lib.scale = paramEstimates@lib.scale,
-    lib.loc = paramEstimates@lib.loc,
-    bcv.common = paramEstimates@bcv.common,
-    bcv.df = paramEstimates@bcv.df,
-    dropout.type = "experiment",
-    group.prob = c(0.6, 0.4),
-    path.from = c(0, 0),
-    de.prob = 0.3,
-    de.facLoc = 1,
-    path.nonlinearProb = 0.3,
-    path.sigmaFac = 0.5,
-    out.facLoc = paramEstimates@out.facLoc,
-    dropout.mid = paramEstimates@dropout.mid,
-    out.facScale = paramEstimates@out.facScale,
-    out.prob = paramEstimates@out.prob,
-    path.skew = c(0.5, 0.5),
-    dropout.shape = -0.5,
-    path.nSteps = c(50000, 50000)
+  batch.rmEffect = TRUE, # No Batch affect
+  batchCells = 100000, # 50k Cells
+  nGenes = 10000, # 5k Genes
+  seed = 2022, # Set seed
+  mean.rate = paramEstimates@mean.rate,
+  mean.shape = paramEstimates@mean.shape,
+  lib.scale = paramEstimates@lib.scale,
+  lib.loc = paramEstimates@lib.loc,
+  bcv.common = paramEstimates@bcv.common,
+  bcv.df = paramEstimates@bcv.df,
+  dropout.type = "experiment",
+  group.prob = c(0.6, 0.4),
+  path.from = c(0, 0),
+  de.prob = 0.3,
+  de.facLoc = 1,
+  path.nonlinearProb = 0.3,
+  path.sigmaFac = 0.5,
+  out.facLoc = paramEstimates@out.facLoc,
+  dropout.mid = paramEstimates@dropout.mid,
+  out.facScale = paramEstimates@out.facScale,
+  out.prob = paramEstimates@out.prob,
+  path.skew = c(0.5, 0.5),
+  dropout.shape = -0.5,
+  path.nSteps = c(50000, 50000)
 )
 
 # Simulate Object
 sim.sce <- splatSimulate(
-    params = params.groups,
-    method = "paths",
-    verbose = F
+  params = params.groups,
+  method = "paths",
+  verbose = F
 )
 
 # Proportion of true Sparsity
@@ -87,14 +87,14 @@ colnames(bar.df) <- c("DE", "Fold_Change")
 bar.df <- as.data.frame(table(bar.df[, c("DE", "Fold_Change")]))
 bar.df <- bar.df[bar.df$Freq != 0, ]
 bar <- ggplot(bar.df, aes(x = DE, y = Freq, fill = Fold_Change)) +
-    geom_bar(stat = "identity", position = "stack") +
-    geom_text(aes(label = Freq), position = position_stack(vjust = 0.5), size = 3) +
-    theme_minimal() +
-    ggtitle("Number of genes in the simulated data",
-            subtitle = "Category-wise distribution"
-    ) +
-    labs(x = "DE", y = "Frequency", fill = "Fold Change") +
-    theme(legend.position = "bottom")
+  geom_bar(stat = "identity", position = "stack") +
+  geom_text(aes(label = Freq), position = position_stack(vjust = 0.5), size = 3) +
+  theme_minimal() +
+  ggtitle("Number of genes in the simulated data",
+    subtitle = "Category-wise distribution"
+  ) +
+  labs(x = "DE", y = "Frequency", fill = "Fold Change") +
+  theme(legend.position = "bottom")
 
 # Update the SCE Simulated Object
 rowData(sim.sce) <- DataFrame(gene.info)
@@ -105,16 +105,16 @@ save(sim.sce, file = obj.path)
 
 # Compute UMAP Dimensions
 sob <- CreateSeuratObject(
-    counts = sim.sce@assays@data@listData$counts,
-    meta.data = as.data.frame(sim.sce@colData)
+  counts = sim.sce@assays@data@listData$counts,
+  meta.data = as.data.frame(sim.sce@colData)
 )
 sob <- NormalizeData(sob,
-                     normalization.method = "LogNormalize",
-                     scale.factor = 10000, verbose = F
+  normalization.method = "LogNormalize",
+  scale.factor = 10000, verbose = F
 )
 sob <- FindVariableFeatures(sob,
-                            selection.method = "vst", nfeatures = 2000,
-                            verbose = F
+  selection.method = "vst", nfeatures = 2000,
+  verbose = F
 )
 sob <- ScaleData(sob, verbose = F)
 sob <- RunPCA(sob, features = VariableFeatures(object = sob), verbose = F)
@@ -122,29 +122,29 @@ sob <- RunUMAP(sob, dims = 1:10, verbose = F)
 
 # Create Plotting frame for PHATE
 plt.data <- data.frame(
-    UMAP_1 = sob@reductions[["umap"]]@cell.embeddings[, 1],
-    UMAP_2 = sob@reductions[["umap"]]@cell.embeddings[, 2],
-    Simulated_Steps = sim.sce@colData$Step,
-    Path = sim.sce@colData$Group
+  UMAP_1 = sob@reductions[["umap"]]@cell.embeddings[, 1],
+  UMAP_2 = sob@reductions[["umap"]]@cell.embeddings[, 2],
+  Simulated_Steps = sim.sce@colData$Step,
+  Path = sim.sce@colData$Group
 )
 
 plt <- ggplot(plt.data) +
-    geom_point(
-        aes(
-            x = UMAP_1,
-            y = UMAP_2,
-            color = Simulated_Steps,
-            shape = Path
-        ),
-        size = 1.5
-    ) +
-    theme_minimal(base_size = 12) +
-    scale_color_viridis(option = "C") +
-    ggtitle(
-        paste(
-            "Total Sparsity:", totSparsity, "(", simulatedSparsity,"+", trueSparsity,")"
-        ),
-        subtitle = paste("50k Cells")
-    ) +
-    theme(legend.position = "bottom")
+  geom_point(
+    aes(
+      x = UMAP_1,
+      y = UMAP_2,
+      color = Simulated_Steps,
+      shape = Path
+    ),
+    size = 1.5
+  ) +
+  theme_minimal(base_size = 12) +
+  scale_color_viridis(option = "C") +
+  ggtitle(
+    paste(
+      "Total Sparsity:", totSparsity, "(", simulatedSparsity, "+", trueSparsity, ")"
+    ),
+    subtitle = paste("50k Cells")
+  ) +
+  theme(legend.position = "bottom")
 plt

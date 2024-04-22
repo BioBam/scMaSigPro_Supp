@@ -85,5 +85,5 @@ SaveH5Seurat(
   filename = paste(dirPath, "input_seurat_object", sep = "/"),
   overwrite = TRUE, verbose = TRUE
 )
-sob_prs <-NULL
+sob_prs <- NULL
 gc()
