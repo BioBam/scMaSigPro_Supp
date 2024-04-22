@@ -16,18 +16,17 @@ suppressPackageStartupMessages(library(scater))
 suppressPackageStartupMessages(library(viridis))
 
 # Set paths
-paramEstimates <- readRDS("/supp_data/benchmarks/00_Parameter_Estimation/output/setty_et_al_d1_splatEstimates.RDS")
-outDir <- "/supp_data/benchmarks/02_Skewness/simulated/"
+base_string <- "/supp_data/benchmarks/"
+paramEstimates <- readRDS(paste0(base_string, "00_Parameter_Estimation/output/setty_et_al_d1_splatEstimates.RDS"))
+imgPath <- paste0(base_string, "02_Skewness/fig/")
+scePath <- paste0(base_string, "02_Skewness/sim/")
+tabPath <- paste0(base_string, "02_Skewness/tab/")
 helpScriptsDir <- "R_Scripts/helper_function/"
-imgPath <- paste0(outDir, "png/")
-sce_path <- paste0(outDir, "sce/")
-tab_path <- paste0("/supp_data/Tables/")
 
 # Create Directories
-dir.create(outDir, showWarnings = F, recursive = T)
 dir.create(imgPath, recursive = T, showWarnings = F)
-dir.create(sce_path, recursive = T, showWarnings = F)
-dir.create(tab_path, recursive = T, showWarnings = F)
+dir.create(scePath, recursive = T, showWarnings = F)
+dir.create(tabPath, recursive = T, showWarnings = F)
 
 # Load Custom Functions
 source(paste0(helpScriptsDir, "plot_simulations().R"))
@@ -69,7 +68,7 @@ params.groups <- newSplatParams(
 
 # Generate Datasets
 parameter.list <- mclapply(names(skew), function(path_skew, params_groups = params.groups,
-                                                 sce.path = sce_path) {
+                                                 sce.path = scePath) {
   # Get Variables
   total_sparsity <- str_remove(pattern = "Skewness_", path_skew)
   path_skew_value <- skew[[path_skew]]
@@ -167,7 +166,7 @@ parameter.frame <- do.call("rbind", parameters)
 
 # Save in text files
 write.table(parameter.frame,
-  file = paste0(tab_path, "01_skew_Parameter.Table.tsv"),
+  file = paste0(tabPath, "01_skew_Parameter.Table.tsv"),
   sep = "\t", quote = F, row.names = F
 )
 

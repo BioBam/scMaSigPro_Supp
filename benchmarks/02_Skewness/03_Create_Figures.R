@@ -4,20 +4,25 @@
 # Year: 2023
 
 suppressPackageStartupMessages(library(SingleCellExperiment))
-# suppressPackageStartupMessages(library(tidyverse))
+suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(RColorConesa))
 suppressPackageStartupMessages(library(reshape2))
 suppressPackageStartupMessages(library(ggpubr))
 
 # Set Paths relative to project
-outPath <- "/supp_data/Figures/SuppData/"
+base_string <- "/supp_data/benchmarks/"
+outObjectPath <- paste0(base_string, "02_Skewness/out/")
+imgPath <- paste0(base_string, "02_Skewness/fig/")
+scePath <- paste0(base_string, "02_Skewness/sim/")
+tabPath <- paste0(base_string, "02_Skewness/tab/")
+helpScriptsDir <- "R_Scripts/helper_function/"
 
 # Load Plots
-umap.plots <- readRDS("/supp_data/benchmarks/02_Skewness/simulated/png/01_skew_0_1.RDS")
+umap.plots <- readRDS(paste0(imgPath, "01_skew_0_1.RDS"))
 
 # Load Evaluation
-evaluation.frame <- read.table("/supp_data/Tables/02_Skew_Performance.Table.tsv", sep = "\t", header = T)
-evaluation.frame.split <- read.table("/supp_data/Tables/02_SkewSplit_Performance.Table.tsv", sep = "\t", header = T)
+evaluation.frame <- read.table(paste0(tabPath, "02_Skew_Performance.Table.tsv"), sep = "\t", header = T)
+evaluation.frame.split <- read.table(paste0(tabPath, "02_SkewSplit_Performance.Table.tsv"), sep = "\t", header = T)
 
 # Plot all values against zero inflation
 long_data <- melt(evaluation.frame, id.vars = c("RSQ", "parameter.value"), measure.vars = c("TPR", "FPR", "Accuracy", "F1_Score")) %>% as.data.frame()
@@ -171,6 +176,6 @@ skewness <- ggarrange(top, bottom, bottom.2, nrow = 3, ncol = 1)
 skewness
 
 ggsave(skewness,
-  filename = paste0("/supp_data/Figures/SuppFigures/02_Sim_0_to_1_skew_Performance.png"),
+  filename = paste0(imgPath, "02_Sim_0_to_1_skew_Performance.png"),
   dpi = 600, height = 10, width = 16
 )
