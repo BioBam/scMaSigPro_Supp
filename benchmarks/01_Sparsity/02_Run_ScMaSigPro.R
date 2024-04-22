@@ -8,10 +8,10 @@ suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(scMaSigPro))
 
 # Set Paths relative to project
-inPath <- "/supp_data/benchmarks/01_Sparsity/simulated/sce/"
-outPath <- "/supp_data/benchmarks/01_Sparsity/output/"
-tab_path <- "/supp_data/Tables/"
-dir.create(outPath2, showWarnings = FALSE)
+base_string <- "/supp_data/benchmarks/"
+inputObjectPath <- paste0(base_string, "01_Sparsity/sim/")
+outputObjectPath <- paste0(base_string, "01_Sparsity/out/")
+tabPath <- paste0(base_string, "01_Sparsity/tab/")
 helpScriptsDir <- "R_Scripts/helper_function/"
 
 # Load helper functions
@@ -19,11 +19,10 @@ source(paste0(helpScriptsDir, "get_performance_ROCR_.R"))
 source(paste0(helpScriptsDir, "calculate_metrics_binary.R"))
 
 # Create Missing Directory
-dir.create(outPath, showWarnings = F, recursive = T)
-dir.create(tab_path, showWarnings = F, recursive = T)
+dir.create(outputObjectPath, showWarnings = F, recursive = T)
 
 # Load names of files
-dataSets <- list.files(paste0(inPath))
+dataSets <- list.files(paste0(inputObjectPath))
 names(dataSets) <- str_remove(
   str_split_i(dataSets, pattern = "_", i = 2),
   ".RData"
@@ -45,7 +44,7 @@ for (i in names(dataSets)) {
   cat(paste("\nRunning for sparsity:", i))
 
   # Load Data
-  load(file = paste0(inPath, dataSets[i]))
+  load(file = paste0(inputObjectPath, dataSets[i]))
 
   # Evaluate
   tryCatch(
@@ -95,7 +94,7 @@ for (i in names(dataSets)) {
       )
 
       # Save Object
-      save(scmp.obj, file = paste0(outPath, "scmp.obj.zi.", i, ".RData"))
+      save(scmp.obj, file = paste0(outputObjectPath, "scmp.obj.zi.", i, ".RData"))
 
       # Validate
       cat(paste("\nCompleted for", i))
@@ -138,6 +137,6 @@ for (i in names(dataSets)) {
 evaluation.frame <- do.call(rbind, eval.list)
 
 # Write
-write.table(evaluation.frame, paste0(tab_path, "01_ZI_Performance.Table.tsv"),
+write.table(evaluation.frame, paste0(tabPath, "01_ZI_Performance.Table.tsv"),
   sep = "\t", row.names = F, quote = F
 )

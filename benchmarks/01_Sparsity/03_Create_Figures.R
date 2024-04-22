@@ -9,16 +9,24 @@ suppressPackageStartupMessages(library(reshape2))
 suppressPackageStartupMessages(library(ggpubr))
 
 # Set Paths relative to project
-outPath <- "/supp_data/Figures/SuppData/"
+base_string <- "/supp_data/benchmarks/"
+outObjectPath <- paste0(base_string, "01_Sparsity/out/")
+imgPath <- paste0(base_string, "01_Sparsity/fig/")
+scePath <- paste0(base_string, "01_Sparsity/sim/")
+tabPath <- paste0(base_string, "01_Sparsity/tab/")
+helpScriptsDir <- "R_Scripts/helper_function/"
 
 # Load Plots
-umap.plots <- readRDS("/supp_data/benchmarks/01_Sparsity/simulated/png/01_Zi_60_90.RDS")
+umap.plots <- readRDS(paste0(imgPath, "01_Zi_60_90.RDS"))
 
 # Load Evaluation
-evaluation.frame <- read.table("/supp_data/Tables/01_ZI_Performance.Table.tsv", sep = "\t", header = T)
+evaluation.frame <- read.table(paste0(tabPath, "01_ZI_Performance.Table.tsv"), sep = "\t", header = T)
 
 # Plot all values against zero inflation
-long_data <- melt(evaluation.frame, id.vars = c("RSQ", "parameter.value"), measure.vars = c("TPR", "FPR", "Accuracy", "F1_Score")) %>% as.data.frame()
+long_data <- melt(evaluation.frame,
+  id.vars = c("RSQ", "parameter.value"),
+  measure.vars = c("TPR", "FPR", "Accuracy", "F1_Score")
+) %>% as.data.frame()
 
 # Create Plot per parameter
 performance.list <- lapply(unique(long_data$parameter.value), function(zi) {
@@ -103,8 +111,8 @@ zero_inflation <- ggarrange(top, bottom, nrow = 2, ncol = 1)
 zero_inflation
 
 ggsave(zero_inflation,
-  filename = paste0("/supp_data/Figures/SuppFigures/01_Sim_60_to_90_ZI_Performance.png"),
-  dpi = 600, height = 8, width = 16
+  filename = paste0(imgPath, "01_Sim_60_to_90_ZI_Performance.png"),
+  dpi = 600, height = 8, width = 16, create.dir = TRUE
 )
 #
 # # ROC Curve
