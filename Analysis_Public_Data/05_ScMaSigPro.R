@@ -139,6 +139,6 @@ compress <- ggarrange(scmp.prs.list$rep1$binPlot,
 compress
 
 ggsave(compress,
-  filename = paste0("/supp_data/Figures/SuppData/05_Real_Data_Bins.png"),
+  filename = paste0("/supp_data/additionalFigures/05_Real_Data_Bins.png"),
   dpi = 600, height = 6, width = 6
 )

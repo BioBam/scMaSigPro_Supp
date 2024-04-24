@@ -36,7 +36,7 @@ source(paste0(helpScriptsDir, "calc_bin_size.R"))
 # Create Base parameters/ Same for All groups
 params.groups <- newSplatParams(
   batch.rmEffect = TRUE, # No Batch affect
-  batchCells = 100000, # 50k Cells
+  batchCells = 20000, # 50k Cells
   nGenes = 10000, # 5k Genes
   seed = 2022, # Set seed
   mean.rate = paramEstimates@mean.rate,
@@ -58,7 +58,7 @@ params.groups <- newSplatParams(
   out.prob = paramEstimates@out.prob,
   path.skew = c(0.5, 0.5),
   dropout.shape = -0.5,
-  path.nSteps = c(50000, 50000)
+  path.nSteps = c(5000, 5000)
 )
 
 # Simulate Object
@@ -100,7 +100,7 @@ bar <- ggplot(bar.df, aes(x = DE, y = Freq, fill = Fold_Change)) +
 rowData(sim.sce) <- DataFrame(gene.info)
 
 # SaveRDS
-obj.path <- paste0(sce_path, paste0("time_100k_cells.RData"))
+obj.path <- paste0(sce_path, paste0("time_20k_cells.RData"))
 save(sim.sce, file = obj.path)
 
 # Compute UMAP Dimensions
@@ -108,43 +108,3 @@ sob <- CreateSeuratObject(
   counts = sim.sce@assays@data@listData$counts,
   meta.data = as.data.frame(sim.sce@colData)
 )
-sob <- NormalizeData(sob,
-  normalization.method = "LogNormalize",
-  scale.factor = 10000, verbose = F
-)
-sob <- FindVariableFeatures(sob,
-  selection.method = "vst", nfeatures = 2000,
-  verbose = F
-)
-sob <- ScaleData(sob, verbose = F)
-sob <- RunPCA(sob, features = VariableFeatures(object = sob), verbose = F)
-sob <- RunUMAP(sob, dims = 1:10, verbose = F)
-
-# Create Plotting frame for PHATE
-plt.data <- data.frame(
-  UMAP_1 = sob@reductions[["umap"]]@cell.embeddings[, 1],
-  UMAP_2 = sob@reductions[["umap"]]@cell.embeddings[, 2],
-  Simulated_Steps = sim.sce@colData$Step,
-  Path = sim.sce@colData$Group
-)
-
-plt <- ggplot(plt.data) +
-  geom_point(
-    aes(
-      x = UMAP_1,
-      y = UMAP_2,
-      color = Simulated_Steps,
-      shape = Path
-    ),
-    size = 1.5
-  ) +
-  theme_minimal(base_size = 12) +
-  scale_color_viridis(option = "C") +
-  ggtitle(
-    paste(
-      "Total Sparsity:", totSparsity, "(", simulatedSparsity, "+", trueSparsity, ")"
-    ),
-    subtitle = paste("50k Cells")
-  ) +
-  theme(legend.position = "bottom")
-plt

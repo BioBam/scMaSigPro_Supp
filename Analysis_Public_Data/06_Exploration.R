@@ -42,7 +42,7 @@ scMaSigPro.list <- lapply(rep_vec, function(rep_i) {
 
 # Perform hclust
 scmp_cluster_trends <- mclapply(rep_vec, function(rep_i) {
-  rep_i <- "rep1"
+  #rep_i <- "rep1"
   # Step-1: Add Annotation for donors
   if (rep_i == "rep1") {
     individual <- "Donor-1"
@@ -107,9 +107,14 @@ clusters <- ggarrange(scmp_cluster_trends$rep1$trends,
 )
 clusters
 
-ggsave(clusters,
-  filename = paste0("/supp_data/Figures/SuppData/05_Real_Data_clusterTrends.png"),
-  dpi = 600, height = 8, width = 6
+saveRDS(dot,
+  file = paste0("/supp_data/additionalFigures/Figure3_C.rds")
+)
+
+
+saveRDS(clusters,
+       filename = paste0("/supp_data/additionalFigures/05_Real_Data_clusterTrends.png"),
+       dpi = 600, height = 8, width = 6
 )
 
 # Create Dummy xlsx
@@ -117,7 +122,7 @@ write.xlsx(as.data.frame(matrix(data = NA)), excelFile, sheetName = "dummy")
 
 # Run Go and Extract important gene
 scmp_results <- lapply(names(scmp_cluster_trends), function(rep_i) {
-  # rep_i = "rep1"
+  #rep_i = "rep1"
   # get object
   scmp.obj <- scmp_cluster_trends[[rep_i]][["scmp.obj"]]
 
@@ -179,7 +184,7 @@ scmp_results <- lapply(names(scmp_cluster_trends), function(rep_i) {
     rep = rep_i,
     age = age,
     sex = sex,
-    path = path_name,
+    path = "ProgMk",
     gene_list = gene.list,
     ont = "BP",
     pAdjustMethod = "BH",
@@ -361,7 +366,7 @@ GP9 <- GP9 + ggtitle(
   "Glycoprotein IX (GP9), R-Square: 1",
   "Donor:1 | Age: 35 | Biological Sex: Male"
 ) +
-  xlab("Binned Pseudotime") + ylab("Scaled Pesudobulk Expressied") +
+  xlab("Binned Pseudotime") + ylab("Scaled Pesudobulk Expression") +
   theme_classic(base_size = 14) +
   theme(
     legend.box = "vertical",
@@ -388,5 +393,5 @@ GP9 <- GP9 + ggtitle(
 
 # save
 saveRDS(GP9,
-  file = "/supp_data/Figures/MainArticle/MainArticle_FigureD.RDS"
+  file = "/supp_data/additionalFigures/Figure3_A.rds"
 )
