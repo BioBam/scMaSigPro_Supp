@@ -42,7 +42,7 @@ scMaSigPro.list <- lapply(rep_vec, function(rep_i) {
 
 # Perform hclust
 scmp_cluster_trends <- mclapply(rep_vec, function(rep_i) {
-  #rep_i <- "rep1"
+  # rep_i <- "rep1"
   # Step-1: Add Annotation for donors
   if (rep_i == "rep1") {
     individual <- "Donor-1"
@@ -113,8 +113,8 @@ saveRDS(dot,
 
 
 saveRDS(clusters,
-       filename = paste0("/supp_data/additionalFigures/05_Real_Data_clusterTrends.png"),
-       dpi = 600, height = 8, width = 6
+  filename = paste0("/supp_data/additionalFigures/05_Real_Data_clusterTrends.png"),
+  dpi = 600, height = 8, width = 6
 )
 
 # Create Dummy xlsx
@@ -122,7 +122,7 @@ write.xlsx(as.data.frame(matrix(data = NA)), excelFile, sheetName = "dummy")
 
 # Run Go and Extract important gene
 scmp_results <- lapply(names(scmp_cluster_trends), function(rep_i) {
-  #rep_i = "rep1"
+  # rep_i = "rep1"
   # get object
   scmp.obj <- scmp_cluster_trends[[rep_i]][["scmp.obj"]]
 
