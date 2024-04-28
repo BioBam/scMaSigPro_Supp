@@ -4,6 +4,8 @@ suppressPackageStartupMessages(library(splatter))
 suppressPackageStartupMessages(library(ggpubr))
 suppressPackageStartupMessages(library(coop))
 suppressPackageStartupMessages(library(tidyverse))
+suppressPackageStartupMessages(library(viridis))
+suppressPackageStartupMessages(library(Seurat))
 suppressPackageStartupMessages(library(reshape2))
 suppressPackageStartupMessages(library(data.table))
 
@@ -11,7 +13,7 @@ suppressPackageStartupMessages(library(data.table))
 base_string <- "../scMaSigPro_supp_data/"
 base_string_2 <- ""
 rdsPath <- paste0(base_string, "benchmarks/00_Parameter_Estimation/input/")
-imgPath <- paste0(base_string, "benchmarks/00_Parameter_Estimation/img/")
+imgPath <- paste0(base_string, "benchmarks/img/")
 outPath <- paste0(base_string, "benchmarks/00_Parameter_Estimation/output/")
 figPath <- paste0(base_string, "figures/")
 figPath_hd <- paste0(figPath, "hd/")

@@ -4,41 +4,54 @@
 ## Script: ScMaSigPro ############
 ##################################
 
-library(scMaSigPro)
-library(stringr)
-library(RColorConesa)
-
-set.seed(007)
-
-# Prefix
-dirPath <- "/supp_data/Analysis_Public_Data/"
-
-# Get folder names
-rep_vec <- list.dirs(dirPath, full.names = F, recursive = F)
-rep_vec <- rep_vec[!(rep_vec %in% c("Azimuth_Human_BoneMarrow", "integrated"))]
-names(rep_vec) <- rep_vec
-rep_vec <- rep_vec
-
-# Call the required libraries
+suppressPackageStartupMessages(library(tidyverse))
+suppressPackageStartupMessages(library(RColorConesa))
 suppressPackageStartupMessages(library(parallelly))
 suppressPackageStartupMessages(library(parallel))
 suppressPackageStartupMessages(library(scMaSigPro))
 suppressPackageStartupMessages(library(ggpubr))
 suppressPackageStartupMessages(library(xlsx))
 
-# Set xlsx
-excelFile <- "/supp_data/Tables/Additional_Table_2_Mechanistic_Analysis_Results.xlsx"
-file.remove(excelFile)
+set.seed(007)
+
+# Prefix
+base_string <- "../scMaSigPro_supp_data/"
+base_string_2 <- ""
+dirPath <- paste0(base_string, "analysis_public_data/")
+tabPath <- paste0(base_string, "tables/")
+helpScriptsDir <- paste0(base_string_2, "R_Scripts/helper_function/")
+figPath <- paste0(base_string, "figures/")
+figPath_hd <- paste0(figPath, "hd/")
+figPath_lr <- paste0(figPath, "lr/")
 
 # Load Enrichment Helper
 source("R_Scripts/helper_function/go_enrichment.R")
 
+# Create Directory if does not exist
+dir.create(tabPath, showWarnings = FALSE, recursive = TRUE)
+dir.create(figPath, showWarnings = FALSE, recursive = TRUE)
+dir.create(figPath_hd, showWarnings = FALSE, recursive = TRUE)
+dir.create(figPath_lr, showWarnings = FALSE, recursive = TRUE)
+
+# Get folder names
+rep_vec <- list.dirs(dirPath, full.names = F, recursive = F)
+rep_vec <- rep_vec[!(rep_vec %in% c("Azimuth_Human_BoneMarrow", "integrated", "img"))]
+names(rep_vec) <- rep_vec
+rep_vec <- rep_vec
+
+# Set xlsx
+excelFile <- paste0(tabPath, "Additional_Table_2_Mechanistic_Analysis_Results.xlsx")
+if (file.exists(excelFile)) {
+  file.remove(excelFile)
+}
+write.xlsx(as.data.frame(matrix(data = NA)), excelFile, sheetName = "dummy")
+
 # Load
-scMaSigPro.list <- lapply(rep_vec, function(rep_i) {
+scMaSigPro.list <- mclapply(rep_vec, function(rep_i) {
   ob <- readRDS(
-    paste0("/supp_data/Analysis_Public_Data/", rep_i, "/", "scMaSigPro_Processed_", rep_i, ".RDS")
+    paste0(dirPath, rep_i, "/", "scMaSigPro_Processed_", rep_i, ".RDS")
   )
-})
+}, mc.cores = 8)
 
 # Perform hclust
 scmp_cluster_trends <- mclapply(rep_vec, function(rep_i) {
@@ -107,18 +120,18 @@ clusters <- ggarrange(scmp_cluster_trends$rep1$trends,
 )
 clusters
 
-saveRDS(dot,
-  file = paste0("/supp_data/additionalFigures/Figure3_C.rds")
-)
-
-
-saveRDS(clusters,
-  filename = paste0("/supp_data/additionalFigures/05_Real_Data_clusterTrends.png"),
+# Save Figures
+ggsave(clusters,
+  filename = paste0(figPath_hd, "05_Real_Data_clusterTrends.png"),
   dpi = 600, height = 8, width = 6
 )
+ggsave(clusters,
+  filename = paste0(figPath_lr, "05_Real_Data_clusterTrends.png"),
+  dpi = 150, height = 8, width = 6
+)
 
-# Create Dummy xlsx
-write.xlsx(as.data.frame(matrix(data = NA)), excelFile, sheetName = "dummy")
+# Get the trend
+trend <- scmp_cluster_trends$rep1$trends
 
 # Run Go and Extract important gene
 scmp_results <- lapply(names(scmp_cluster_trends), function(rep_i) {
@@ -176,7 +189,7 @@ scmp_results <- lapply(names(scmp_cluster_trends), function(rep_i) {
   cat(length(gene.list))
 
   # Load backgound
-  background.vector <- readRDS(paste0("/supp_data/Analysis_Public_Data/", rep_i, "/", rep_i, "background.RDS"))
+  background.vector <- readRDS(paste0(dirPath, rep_i, "/", rep_i, "background.RDS"))
 
   # Perform enrichmnet
   target.path <- go_enrichment(
@@ -199,7 +212,6 @@ scmp_results <- lapply(names(scmp_cluster_trends), function(rep_i) {
   newSheet <- createSheet(workbook, sheetName = paste("GO_BP_Results", rep_i, sep = "_"))
   addDataFrame(as.data.frame(target.path$ego@result), newSheet, row.names = F)
   saveWorkbook(workbook, excelFile)
-
   return(target.path)
 })
 
@@ -226,9 +238,16 @@ combined <- ggarrange(top,
 )
 combined
 
-ggsave(combined,
-  filename = paste0("/supp_data/Figures/SuppData/05_Real_Data_GO_dot.png"),
-  dpi = 300, height = 16, width = 16
+# Save the plot
+ggsave(
+  plot = combined,
+  filename = paste0(figPath_hd, "05_Real_Data_GO_dot.png"),
+  dpi = 600, height = 16, width = 16
+)
+ggsave(
+  plot = combined,
+  filename = paste0(figPath_lr, "05_Real_Data_GO_dot.png"),
+  dpi = 150, height = 16, width = 16
 )
 
 ################################################################################
@@ -351,10 +370,18 @@ markers <- ggarrange(donor1.plots,
   nrow = 3
 )
 
-ggsave(markers,
-  filename = paste0("/supp_data/Figures/SuppData/05_Real_Data_Markers.png"),
+# Save the plot
+ggsave(
+  plot = markers,
+  filename = paste0(figPath_hd, "05_Real_Data_Markers.png"),
   dpi = 600, height = 16, width = 12
 )
+ggsave(
+  plot = markers,
+  filename = paste0(figPath_lr, "05_Real_Data_Markers.png"),
+  dpi = 150, height = 16, width = 12
+)
+
 
 GP9 <- plotTrend(scmp_cluster_trends$rep1$scmp.obj,
   feature_id = "GP9", significant = F, logs = F,
@@ -391,7 +418,22 @@ GP9 <- GP9 + ggtitle(
     ),
   )
 
-# save
-saveRDS(GP9,
-  file = "/supp_data/additionalFigures/Figure3_A.rds"
+combine <- ggarrange(
+  GP9,
+  trend,
+  nrow = 1, ncol = 2,
+  labels = c("A.", "B.")
+)
+ggsave(
+  plot = combine, filename = "Main_Article_Figure_3.png",
+  path = figPath_hd,
+  width = 18, dpi = 600, height = 5,
+  background = "white"
+)
+
+ggsave(
+  plot = combine, filename = "Main_Article_Figure_3.png",
+  path = figPath_lr,
+  width = 18, dpi = 300, height = 5,
+  background = "white"
 )
