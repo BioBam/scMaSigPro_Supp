@@ -17,16 +17,24 @@ suppressPackageStartupMessages(library(Seurat))
 suppressPackageStartupMessages(library(viridis))
 
 # Set paths
-paramEstimates <- readRDS("/supp_data/benchmarks/00_Parameter_Estimation/output/setty_et_al_d1_splatEstimates.RDS")
-outDir <- "/supp_data/ComparisonWithTradeSeq/simulated/"
-helpScriptsDir <- "R_Scripts/helper_function/"
-imgPath <- paste0(outDir, "png/")
-sce_path <- paste0(outDir, "sce/")
+base_string <- "../scMaSigPro_supp_data/"
+base_string_2 <- ""
+rdsPath <- paste0(base_string, "comparison/sim/")
+figPath <- paste0(base_string, "figures/")
+figPath_hd <- paste0(figPath, "hd/")
+figPath_lr <- paste0(figPath, "lr/")
+tabPath <- paste0(base_string, "tables/")
+helpScriptsDir <- paste0(base_string_2, "R_Scripts/helper_function/")
 
-# Create Directories
-dir.create(outDir, showWarnings = F, recursive = T)
-dir.create(imgPath, recursive = T, showWarnings = F)
-dir.create(sce_path, recursive = T, showWarnings = F)
+# Load Base data
+paramEstimates <- readRDS(paste0(base_string, "benchmarks/00_Parameter_Estimation/output/setty_et_al_d1_splatEstimates.RDS"))
+
+# Create Directory if does not exist
+dir.create(figPath, showWarnings = FALSE, recursive = TRUE)
+dir.create(figPath_hd, showWarnings = FALSE, recursive = TRUE)
+dir.create(figPath_lr, showWarnings = FALSE, recursive = TRUE)
+dir.create(tabPath, showWarnings = FALSE, recursive = TRUE)
+dir.create(rdsPath, showWarnings = FALSE, recursive = TRUE)
 
 # Load Custom Functions
 source(paste0(helpScriptsDir, "plot_simulations().R"))
@@ -99,8 +107,8 @@ bar <- ggplot(bar.df, aes(x = DE, y = Freq, fill = Fold_Change)) +
 # Update the SCE Simulated Object
 rowData(sim.sce) <- DataFrame(gene.info)
 
-# SaveRDS
-obj.path <- paste0(sce_path, paste0("testTradeSeq.RData"))
+# Write object
+obj.path <- paste0(rdsPath, paste0("testTradeSeq.RData"))
 save(sim.sce, file = obj.path)
 
 # Compute UMAP Dimensions
@@ -151,9 +159,14 @@ plt
 
 combine <- ggarrange(plt, bar, labels = c("A.", "B."), nrow = 1)
 
+# Save the plot
 ggsave(
   plot = combine,
-  path = "/supp_data/Figures/SuppData/",
-  filename = "04_tradeSeq_Sim.png",
-  dpi = 600, width = 10, height = 6
+  filename = paste0(figPath_hd, "04_tradeSeq_Sim.png"),
+  dpi = 600, width = 12, height = 6
+)
+ggsave(
+  plot = combine,
+  filename = paste0(figPath_lr, "04_tradeSeq_Sim.png"),
+  dpi = 150, width = 12, height = 6
 )

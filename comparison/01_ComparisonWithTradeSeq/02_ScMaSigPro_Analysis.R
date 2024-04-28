@@ -9,12 +9,26 @@ suppressPackageStartupMessages(library(scMaSigPro))
 suppressPackageStartupMessages(library(gtools))
 
 # Set paths
-dirPath <- "/supp_data/ComparisonWithTradeSeq/simulated/sce/"
-resPath <- "/supp_data/ComparisonWithTradeSeq/output/"
-helpScriptsDir <- "R_Scripts/helper_function/"
+base_string <- "../scMaSigPro_supp_data/"
+base_string_2 <- ""
+rdsPath <- paste0(base_string, "comparison/sim/")
+figPath <- paste0(base_string, "figures/")
+outPath <- paste0(base_string, "comparison/out/")
+figPath_hd <- paste0(figPath, "hd/")
+figPath_lr <- paste0(figPath, "lr/")
+tabPath <- paste0(base_string, "tables/")
+helpScriptsDir <- paste0(base_string_2, "R_Scripts/helper_function/")
 
-# Load result of 60% inflation
-load(paste0(dirPath, "testTradeSeq.RData"))
+# Create Directory if does not exist
+dir.create(figPath, showWarnings = FALSE, recursive = TRUE)
+dir.create(figPath_hd, showWarnings = FALSE, recursive = TRUE)
+dir.create(figPath_lr, showWarnings = FALSE, recursive = TRUE)
+dir.create(tabPath, showWarnings = FALSE, recursive = TRUE)
+dir.create(rdsPath, showWarnings = FALSE, recursive = TRUE)
+dir.create(outPath, showWarnings = FALSE, recursive = TRUE)
+
+# ReadData
+load(paste0(rdsPath, "testTradeSeq.RData"))
 
 # Convert
 scmp.obj <- as_scmp(sim.sce,
@@ -83,7 +97,7 @@ sol <- sol[sol$p_value <= 0.05, ]
 sol.sel <- sol[sol$rsq >= 0.6, c(1, 2), drop = F]
 
 # Load tradeSeq table
-load(paste0(resPath, "TradeSeq_CobraInput.RData"))
+load(paste0(outPath, "TradeSeq_CobraInput.RData"))
 
 # get the genes Not selected
 undetected <- rownames(TradeSeq_Clean)[!(rownames(TradeSeq_Clean) %in% rownames(sol.sel))]
@@ -109,5 +123,5 @@ cobra.dataset <- cbind(TradeSeq_Clean, sol[, 1, drop = F])
 
 # Save Dataframe
 save(cobra.dataset,
-  file = paste0(resPath, "CobraInputObject.RData")
+  file = paste0(outPath, "CobraInputObject.RData")
 )

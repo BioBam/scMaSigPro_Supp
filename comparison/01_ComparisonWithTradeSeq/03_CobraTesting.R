@@ -3,13 +3,27 @@ suppressPackageStartupMessages(library(iCOBRA))
 suppressPackageStartupMessages(library(SingleCellExperiment))
 suppressPackageStartupMessages(library(RColorConesa))
 
-# Set Path
-dirPath <- "/supp_data/ComparisonWithTradeSeq/simulated/sce/"
-resPath <- "/supp_data/ComparisonWithTradeSeq/output/"
-helpScriptsDir <- "R_Scripts/helper_function/"
+# Set paths
+base_string <- "../scMaSigPro_supp_data/"
+base_string_2 <- ""
+rdsPath <- paste0(base_string, "comparison/sim/")
+figPath <- paste0(base_string, "figures/")
+outPath <- paste0(base_string, "comparison/out/")
+figPath_hd <- paste0(figPath, "hd/")
+figPath_lr <- paste0(figPath, "lr/")
+tabPath <- paste0(base_string, "tables/")
+helpScriptsDir <- paste0(base_string_2, "R_Scripts/helper_function/")
+
+# Create Directory if does not exist
+dir.create(figPath, showWarnings = FALSE, recursive = TRUE)
+dir.create(figPath_hd, showWarnings = FALSE, recursive = TRUE)
+dir.create(figPath_lr, showWarnings = FALSE, recursive = TRUE)
+dir.create(tabPath, showWarnings = FALSE, recursive = TRUE)
+dir.create(rdsPath, showWarnings = FALSE, recursive = TRUE)
+dir.create(outPath, showWarnings = FALSE, recursive = TRUE)
 
 # Read TradeSeq Data
-load(paste0(resPath, "CobraInputObject.RData"))
+load(paste0(outPath, "CobraInputObject.RData"))
 
 # Convert all values to numeric
 cobraInput <- as.data.frame(apply(cobra.dataset, 2, FUN = function(x) {
@@ -18,7 +32,7 @@ cobraInput <- as.data.frame(apply(cobra.dataset, 2, FUN = function(x) {
 rownames(cobraInput) <- rownames(cobra.dataset)
 
 # Read Ground truth
-load(paste0(dirPath, "testTradeSeq.RData"))
+load(paste0(rdsPath, "testTradeSeq.RData"))
 
 # Extract Gene counts
 row_data <- as.data.frame(rowData(sim.sce))
@@ -102,10 +116,10 @@ ROC <- ROC + theme_classic(base_size = 14) +
 
 print(ROC)
 
-saveRDS(ROC, file = "/supp_data/additionalFigures/Figure2_F.rds")
+saveRDS(ROC, file = paste0(outPath, "MainFigure_2C.rds"))
 
 # Save Truth table with results
 df <- cbind(gt, cobraInput)
-saveRDS(df, file = "/supp_data/ComparisonWithTradeSeq/output/Prediction.RDS")
+saveRDS(df, file = paste0(outPath, "Prediction.RDS"))
 
 plot_overlap(cobraplot)

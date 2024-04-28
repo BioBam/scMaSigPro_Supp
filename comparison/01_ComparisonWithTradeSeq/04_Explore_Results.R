@@ -3,11 +3,30 @@ library(UpSetR)
 library(SingleCellExperiment)
 library(ggpubr)
 
+# Set paths
+base_string <- "../scMaSigPro_supp_data/"
+base_string_2 <- ""
+rdsPath <- paste0(base_string, "comparison/sim/")
+figPath <- paste0(base_string, "figures/")
+outPath <- paste0(base_string, "comparison/out/")
+figPath_hd <- paste0(figPath, "hd/")
+figPath_lr <- paste0(figPath, "lr/")
+tabPath <- paste0(base_string, "tables/")
+helpScriptsDir <- paste0(base_string_2, "R_Scripts/helper_function/")
+
+# Create Directory if does not exist
+dir.create(figPath, showWarnings = FALSE, recursive = TRUE)
+dir.create(figPath_hd, showWarnings = FALSE, recursive = TRUE)
+dir.create(figPath_lr, showWarnings = FALSE, recursive = TRUE)
+dir.create(tabPath, showWarnings = FALSE, recursive = TRUE)
+dir.create(rdsPath, showWarnings = FALSE, recursive = TRUE)
+dir.create(outPath, showWarnings = FALSE, recursive = TRUE)
+
 # Load the gene.info and the predictions
-prediction.df <- readRDS("/supp_data/ComparisonWithTradeSeq/output/Prediction.RDS")
+prediction.df <- readRDS(paste0(outPath, "Prediction.RDS"))
 prediction.df$gene <- rownames(prediction.df)
 colnames(prediction.df) <- c("ground_Truth", "TS_pattern", "TS_diffEnd", "scmp_0.6", "gene")
-load("/supp_data/ComparisonWithTradeSeq/simulated/sce/testTradeSeq.RData")
+load(paste0(rdsPath, "testTradeSeq.RData"))
 gene.info <- rowData(sim.sce) %>% as.data.frame()
 gene.info <- gene.info[, c("gene_short_name", "status", "status2")]
 colnames(gene.info) <- c("gene", "DE", "foldChange")
@@ -147,8 +166,14 @@ predictions.bar <- ggarrange(bar.list[["fn_by_all"]],
 
 predictions.bar
 
+# Save the plot
 ggsave(
   plot = predictions.bar,
-  filename = "/supp_data/Figures/SuppData/04_tradeSeq_bars.png",
+  filename = paste0(figPath_hd, "04_tradeSeq_bars.png"),
   dpi = 600, width = 10, height = 8
+)
+ggsave(
+  plot = predictions.bar,
+  filename = paste0(figPath_lr, "04_tradeSeq_bars.png"),
+  dpi = 150, width = 10, height = 8
 )
