@@ -8,24 +8,48 @@ suppressPackageStartupMessages(library(SingleCellExperiment))
 suppressPackageStartupMessages(library(RColorConesa))
 suppressPackageStartupMessages(library(ggrepel))
 
-# Set Paths relative to project
-benchmark_string_base_string <- "/supp_data/benchmarks/"
-figureRds_path <- "/supp_data/additionalFigures/Figure2_E.rds"
-helpScriptsDir <- "R_Scripts/helper_function/"
+# Set paths
+base_string <- "../scMaSigPro_supp_data/"
+base_string_2 <- ""
+benchmark_string_base_string <- paste0(base_string, "benchmarks/")
+imgPath <- paste0(benchmark_string_base_string, "img/")
+figPath <- paste0(base_string, "figures/")
+figPath_hd <- paste0(figPath, "hd/")
+figPath_lr <- paste0(figPath, "lr/")
+tabPath <- paste0(base_string, "tables/")
+helpScriptsDir <- paste0(base_string_2, "R_Scripts/helper_function/")
+
+# Create Directory if does not exist
+dir.create(figPath, showWarnings = FALSE, recursive = TRUE)
+dir.create(imgPath, showWarnings = FALSE, recursive = TRUE)
+dir.create(figPath_hd, showWarnings = FALSE, recursive = TRUE)
+dir.create(figPath_lr, showWarnings = FALSE, recursive = TRUE)
+dir.create(tabPath, showWarnings = FALSE, recursive = TRUE)
+dir.create(benchmark_string_base_string, showWarnings = FALSE, recursive = TRUE)
 
 # Load for Zero-Inflation
-zi_table <- read.table(paste0(benchmark_string_base_string, "01_Sparsity/tab/01_ZI_Performance.Table.tsv"), header = T)
+zi_table <- read.table(
+  paste0(tabPath, "01_ZI_Performance.Table.tsv"),
+  header = T, sep = "\t", stringsAsFactors = TRUE
+)
 
 # Load skew table with splot parameter
-skew_split_table <- read.table(paste0(benchmark_string_base_string, "02_Skewness/tab/02_SkewSplit_Performance.Table.tsv"), header = T)
+skew_split_table <- read.table(
+  paste0(tabPath, "02_SkewSplit_Performance.Table.tsv"),
+  header = T, sep = "\t", stringsAsFactors = TRUE
+)
 
 # Load Skew only
-skew_table <- read.table(paste0(benchmark_string_base_string, "02_Skewness/tab/02_Skew_Performance.Table.tsv"), header = T)
+skew_table <- read.table(
+  paste0(tabPath, "02_Skew_Performance.Table.tsv"),
+  header = T, sep = "\t", stringsAsFactors = TRUE
+)
 
 # Load Length table
-len_table <- read.table(paste0(benchmark_string_base_string, "03_Different_Length/tab/03_Length_Performance.Table.tsv"), header = T)
-
-# Subset tables
+len_table <- read.table(
+  paste0(tabPath, "03_Length_Performance.Table.tsv"),
+  header = T, sep = "\t", stringsAsFactors = TRUE
+)
 
 # Zi-at 60
 zi_table <- zi_table[zi_table$parameter.value == 60, , drop = FALSE]
@@ -43,7 +67,8 @@ len_table <- len_table[len_table$parameter.value == 1000.2000, , drop = FALSE]
 evaluation.frame <- rbind(
   len_table,
   # skew_table,
-  skew_split_table, zi_table
+  skew_split_table,
+  zi_table
 )
 
 # ROC Curve (Figure-1B)
@@ -195,4 +220,4 @@ roc_B <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = parameter)) +
 roc_B
 
 # Save
-saveRDS(object = roc_B, file = figureRds_path)
+saveRDS(object = roc_B, file = paste0(imgPath, "MainFigure_2B.rds"))
