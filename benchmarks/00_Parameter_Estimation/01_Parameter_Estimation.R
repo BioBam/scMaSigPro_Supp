@@ -8,9 +8,13 @@ suppressPackageStartupMessages(library(splatter))
 suppressPackageStartupMessages(library(Seurat))
 
 # Set paths
-inPath <- "/supp_data/benchmarks/00_Parameter_Estimation/input/"
-outPath <- "/supp_data/benchmarks/00_Parameter_Estimation/output/"
-helpScriptsDir <- "R_Scripts/helper_function/"
+base_string <- "../scMaSigPro_supp_data/"
+base_string_2 <- ""
+inPath <- paste0(base_string, "benchmarks/00_Parameter_Estimation/input/")
+outPath <- paste0(base_string, "benchmarks/00_Parameter_Estimation/output/")
+helpScriptsDir <- paste0(base_string_2, "R_Scripts/helper_function/")
+
+dir.create(outPath, showWarnings = FALSE, recursive = TRUE)
 
 # Load scripts
 source(paste0(helpScriptsDir, "plot_simulations().R"))

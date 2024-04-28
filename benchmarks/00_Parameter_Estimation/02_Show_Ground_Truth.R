@@ -7,19 +7,34 @@ suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(reshape2))
 suppressPackageStartupMessages(library(data.table))
 
+# Set paths
+base_string <- "../scMaSigPro_supp_data/"
+base_string_2 <- ""
+rdsPath <- paste0(base_string, "benchmarks/00_Parameter_Estimation/input/")
+imgPath <- paste0(base_string, "benchmarks/00_Parameter_Estimation/img/")
+outPath <- paste0(base_string, "benchmarks/00_Parameter_Estimation/output/")
+figPath <- paste0(base_string, "figures/")
+figPath_hd <- paste0(figPath, "hd/")
+figPath_lr <- paste0(figPath, "lr/")
+tabPath <- paste0(base_string, "tables/")
+helpScriptsDir <- paste0(base_string_2, "R_Scripts/helper_function/")
+
+# Create Directory if does not exist
+dir.create(figPath, showWarnings = FALSE, recursive = TRUE)
+dir.create(imgPath, showWarnings = FALSE, recursive = TRUE)
+dir.create(figPath_hd, showWarnings = FALSE, recursive = TRUE)
+dir.create(figPath_lr, showWarnings = FALSE, recursive = TRUE)
+dir.create(tabPath, showWarnings = FALSE, recursive = TRUE)
+dir.create(rdsPath, showWarnings = FALSE, recursive = TRUE)
+dir.create(outPath, showWarnings = FALSE, recursive = TRUE)
+
 # Load Custom Function
-source("R_Scripts/helper_function/plot_simulations().R")
-source("R_Scripts/helper_function/add_gene_anno().R")
-source("R_Scripts/helper_function/plot_loess.R")
+source(paste0(helpScriptsDir, "plot_simulations().R"))
+source(paste0(helpScriptsDir, "add_gene_anno().R"))
+source(paste0(helpScriptsDir, "plot_loess.R"))
 
 # Load
-paramEstimates <- readRDS("/supp_data/benchmarks/00_Parameter_Estimation/output/setty_et_al_d1_splatEstimates.RDS")
-
-# Create dire
-base_string <- "/supp_data/additionalFigures/"
-
-# Create Mising
-dir.create(base_string, showWarnings = FALSE, recursive = TRUE)
+paramEstimates <- readRDS(paste0(base_string, "benchmarks/00_Parameter_Estimation/output/setty_et_al_d1_splatEstimates.RDS"))
 
 # Create Base parameters/ Same for All groups
 params.groups <- newSplatParams(
@@ -131,7 +146,6 @@ plt.sim <- ggplot(plt.data.sim) +
   )
 
 
-
 similar.change.de <- plot_loess_fit(
   sce_obj = sim.sce, "Gene659", dfreedom = 1, log = T,
   plt_subtitle = "DE: Similar Change", point.alpha = 0.2,
@@ -169,13 +183,20 @@ gt.true <- ggarrange(similar.change.de, opposite.change.de, one.change.de, no.ch
 
 # Save
 saveRDS(gt.true,
-  file = paste0(base_string, "Figure2_A_to_D_Ground_Truth.rds")
+  file = paste0(imgPath, "MainFigure2A.rds")
 )
 
+gt.true <- ggarrange(similar.change.de, opposite.change.de, one.change.de, no.change,
+  labels = c("B.", "C.", "D.", "E."), common.legend = T, legend = "bottom"
+)
 ground.truth <- ggarrange(plt.sim, gt.true, labels = c("A.", ""))
 ground.truth
 
 ggsave(
-  plot = ground.truth, filename = paste0(base_string, "supp_fig_2_Sim_and_Ground_Truth.png"),
-  dpi = 300, width = 12, height = 5
+  plot = ground.truth, filename = paste0(figPath_hd, "supp_fig_2_Sim_and_Ground_Truth.png"),
+  dpi = 600, width = 12, height = 5
+)
+ggsave(
+  plot = ground.truth, filename = paste0(figPath_lr, "supp_fig_2_Sim_and_Ground_Truth.png"),
+  dpi = 150, width = 12, height = 5
 )
