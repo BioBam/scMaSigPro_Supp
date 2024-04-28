@@ -8,13 +8,16 @@ suppressPackageStartupMessages(library(RColorConesa))
 suppressPackageStartupMessages(library(reshape2))
 suppressPackageStartupMessages(library(ggpubr))
 
-# Set Paths relative to project
-base_string <- "/supp_data/benchmarks/"
-outObjectPath <- paste0(base_string, "03_Different_Length/out/")
-imgPath <- paste0(base_string, "03_Different_Length/fig/")
-scePath <- paste0(base_string, "03_Different_Length/sim/")
-tabPath <- paste0(base_string, "03_Different_Length/tab/")
-helpScriptsDir <- "R_Scripts/helper_function/"
+# Set paths
+base_string <- "../scMaSigPro_supp_data/"
+base_string_2 <- ""
+rdsPath <- paste0(base_string, "benchmarks/03_Different_Length/sim/")
+imgPath <- paste0(base_string, "benchmarks/03_Different_Length/img/")
+figPath <- paste0(base_string, "figures/")
+figPath_hd <- paste0(figPath, "hd/")
+figPath_lr <- paste0(figPath, "lr/")
+tabPath <- paste0(base_string, "tables/")
+helpScriptsDir <- paste0(base_string_2, "R_Scripts/helper_function/")
 
 # Load Plots
 umap.plots <- readRDS(paste0(imgPath, "03_len_100_1500.RDS"))
@@ -106,7 +109,14 @@ bottom <- ggarrange(
 Length <- ggarrange(top, bottom, nrow = 2, ncol = 1)
 Length
 
-ggsave(Length,
-  filename = paste0(imgPath, "03_Sim_100_to_1500_length_Performance.png"),
+# Save the plot
+ggsave(
+  plot = Length,
+  filename = paste0(figPath_hd, "03_Sim_100_to_1500_length_Performance.png"),
   dpi = 600, height = 8, width = 16
+)
+ggsave(
+  plot = Length,
+  filename = paste0(figPath_lr, "03_Sim_100_to_1500_length_Performance.png"),
+  dpi = 150, height = 8, width = 16
 )

@@ -9,16 +9,19 @@ suppressPackageStartupMessages(library(RColorConesa))
 suppressPackageStartupMessages(library(reshape2))
 suppressPackageStartupMessages(library(ggpubr))
 
-# Set Paths relative to project
-base_string <- "/supp_data/benchmarks/"
-outObjectPath <- paste0(base_string, "02_Skewness/out/")
-imgPath <- paste0(base_string, "02_Skewness/fig/")
-scePath <- paste0(base_string, "02_Skewness/sim/")
-tabPath <- paste0(base_string, "02_Skewness/tab/")
-helpScriptsDir <- "R_Scripts/helper_function/"
+# Set paths
+base_string <- "../scMaSigPro_supp_data/"
+base_string_2 <- ""
+rdsPath <- paste0(base_string, "benchmarks/02_Skewness/sim/")
+imgPath <- paste0(base_string, "benchmarks/02_Skewness/img/")
+figPath <- paste0(base_string, "figures/")
+figPath_hd <- paste0(figPath, "hd/")
+figPath_lr <- paste0(figPath, "lr/")
+tabPath <- paste0(base_string, "tables/")
+helpScriptsDir <- paste0(base_string_2, "R_Scripts/helper_function/")
 
 # Load Plots
-umap.plots <- readRDS(paste0(imgPath, "01_skew_0_1.RDS"))
+umap.plots <- readRDS(paste0(imgPath, "02_Skew_0_1.RDS"))
 
 # Load Evaluation
 evaluation.frame <- read.table(paste0(tabPath, "02_Skew_Performance.Table.tsv"), sep = "\t", header = T)
@@ -175,7 +178,14 @@ bottom.2 <- ggarrange(
 skewness <- ggarrange(top, bottom, bottom.2, nrow = 3, ncol = 1)
 skewness
 
-ggsave(skewness,
-  filename = paste0(imgPath, "02_Sim_0_to_1_skew_Performance.png"),
+# Save the plot
+ggsave(
+  plot = skewness,
+  filename = paste0(figPath_hd, "02_Sim_0_to_1_skew_Performance.png"),
   dpi = 600, height = 10, width = 16
+)
+ggsave(
+  plot = skewness,
+  filename = paste0(figPath_lr, "02_Sim_0_to_1_skew_Performance.png"),
+  dpi = 150, height = 10, width = 16
 )

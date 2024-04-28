@@ -17,22 +17,30 @@ suppressPackageStartupMessages(library(viridis))
 suppressPackageStartupMessages(library(Seurat))
 
 # Set paths
-base_string <- "/supp_data/benchmarks/"
-paramEstimates <- readRDS(paste0(base_string, "00_Parameter_Estimation/output/setty_et_al_d1_splatEstimates.RDS"))
-imgPath <- paste0(base_string, "01_Sparsity/fig/")
-scePath <- paste0(base_string, "01_Sparsity/sim/")
-tabPath <- paste0(base_string, "01_Sparsity/tab/")
-helpScriptsDir <- "R_Scripts/helper_function/"
+base_string <- "../scMaSigPro_supp_data/"
+base_string_2 <- ""
+rdsPath <- paste0(base_string, "benchmarks/01_Sparsity/sim/")
+imgPath <- paste0(base_string, "benchmarks/01_Sparsity/img/")
+figPath <- paste0(base_string, "figures/")
+figPath_hd <- paste0(figPath, "hd/")
+figPath_lr <- paste0(figPath, "lr/")
+tabPath <- paste0(base_string, "tables/")
+helpScriptsDir <- paste0(base_string_2, "R_Scripts/helper_function/")
 
-# Create Directories
-dir.create(imgPath, recursive = T, showWarnings = F)
-dir.create(scePath, recursive = T, showWarnings = F)
-dir.create(tabPath, recursive = T, showWarnings = F)
+# Create Directory if does not exist
+dir.create(figPath, showWarnings = FALSE, recursive = TRUE)
+dir.create(imgPath, showWarnings = FALSE, recursive = TRUE)
+dir.create(figPath_hd, showWarnings = FALSE, recursive = TRUE)
+dir.create(figPath_lr, showWarnings = FALSE, recursive = TRUE)
+dir.create(tabPath, showWarnings = FALSE, recursive = TRUE)
+dir.create(rdsPath, showWarnings = FALSE, recursive = TRUE)
 
 # Load Custom Functions
 source(paste0(helpScriptsDir, "plot_simulations().R"))
 source(paste0(helpScriptsDir, "add_gene_anno().R"))
 source(paste0(helpScriptsDir, "calc_bin_size.R"))
+
+paramEstimates <- readRDS(paste0(base_string, "benchmarks/00_Parameter_Estimation/output/setty_et_al_d1_splatEstimates.RDS"))
 
 # Zero-Inflation
 zi <- list(
@@ -74,7 +82,7 @@ params.groups <- newSplatParams(
 
 # Generate Datasets
 parameter.list <- mclapply(names(zi), function(dropout_shape, params_groups = params.groups,
-                                               sce.path = scePath) {
+                                               outPath = rdsPath) {
   # Get Variables
   total_sparsity <- str_remove(pattern = "sparsity_", dropout_shape)
   dropout_shape_value <- zi[[dropout_shape]]
@@ -102,7 +110,7 @@ parameter.list <- mclapply(names(zi), function(dropout_shape, params_groups = pa
   rowData(sim.sce) <- DataFrame(gene.info)
 
   # SaveRDS
-  obj.path <- paste0(sce.path, paste0("zi_", totSparsity, ".RData"))
+  obj.path <- paste0(outPath, paste0("zi_", totSparsity, ".RData"))
   save(sim.sce, file = obj.path)
 
   # Names
@@ -160,7 +168,7 @@ parameter.list <- mclapply(names(zi), function(dropout_shape, params_groups = pa
     parameters = label_vector,
     plots = plt
   ))
-}, mc.cores = 20)
+}, mc.cores = 8)
 # Set names
 names(parameter.list) <- names(zi)
 

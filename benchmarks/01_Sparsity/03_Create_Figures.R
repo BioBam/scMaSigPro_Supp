@@ -8,13 +8,16 @@ suppressPackageStartupMessages(library(RColorConesa))
 suppressPackageStartupMessages(library(reshape2))
 suppressPackageStartupMessages(library(ggpubr))
 
-# Set Paths relative to project
-base_string <- "/supp_data/benchmarks/"
-outObjectPath <- paste0(base_string, "01_Sparsity/out/")
-imgPath <- paste0(base_string, "01_Sparsity/fig/")
-scePath <- paste0(base_string, "01_Sparsity/sim/")
-tabPath <- paste0(base_string, "01_Sparsity/tab/")
-helpScriptsDir <- "R_Scripts/helper_function/"
+# Set paths
+base_string <- "../scMaSigPro_supp_data/"
+base_string_2 <- ""
+rdsPath <- paste0(base_string, "benchmarks/01_Sparsity/sim/")
+imgPath <- paste0(base_string, "benchmarks/01_Sparsity/img/")
+figPath <- paste0(base_string, "figures/")
+figPath_hd <- paste0(figPath, "hd/")
+figPath_lr <- paste0(figPath, "lr/")
+tabPath <- paste0(base_string, "tables/")
+helpScriptsDir <- paste0(base_string_2, "R_Scripts/helper_function/")
 
 # Load Plots
 umap.plots <- readRDS(paste0(imgPath, "01_Zi_60_90.RDS"))
@@ -110,10 +113,18 @@ bottom <- ggarrange(
 zero_inflation <- ggarrange(top, bottom, nrow = 2, ncol = 1)
 zero_inflation
 
-ggsave(zero_inflation,
-  filename = paste0(imgPath, "01_Sim_60_to_90_ZI_Performance.png"),
-  dpi = 600, height = 8, width = 16, create.dir = TRUE
+# Save the plot
+ggsave(
+  plot = zero_inflation,
+  filename = paste0(figPath_hd, "01_Sim_60_to_90_ZI_Performance.png"),
+  dpi = 600, height = 8, width = 16
 )
+ggsave(
+  plot = zero_inflation,
+  filename = paste0(figPath_lr, "01_Sim_60_to_90_ZI_Performance.png"),
+  dpi = 150, height = 8, width = 16
+)
+
 #
 # # ROC Curve
 # roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = as.factor(parameter.value))) +

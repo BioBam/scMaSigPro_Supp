@@ -1,4 +1,4 @@
-# Title: Simulate 4 Datasets with Different levels of sparsity
+# Title: Simulate 4 Datasets with Different levels of Skewness
 # Author: Priyansh Srivastava
 # Email: spriyansh29@gmail.com
 # Year: 2023
@@ -14,24 +14,33 @@ suppressPackageStartupMessages(library(parallel))
 suppressPackageStartupMessages(library(scuttle))
 suppressPackageStartupMessages(library(scater))
 suppressPackageStartupMessages(library(viridis))
+suppressPackageStartupMessages(library(Seurat))
 
 # Set paths
-base_string <- "/supp_data/benchmarks/"
-paramEstimates <- readRDS(paste0(base_string, "00_Parameter_Estimation/output/setty_et_al_d1_splatEstimates.RDS"))
-imgPath <- paste0(base_string, "02_Skewness/fig/")
-scePath <- paste0(base_string, "02_Skewness/sim/")
-tabPath <- paste0(base_string, "02_Skewness/tab/")
-helpScriptsDir <- "R_Scripts/helper_function/"
+base_string <- "../scMaSigPro_supp_data/"
+base_string_2 <- ""
+rdsPath <- paste0(base_string, "benchmarks/02_Skewness/sim/")
+imgPath <- paste0(base_string, "benchmarks/02_Skewness/img/")
+figPath <- paste0(base_string, "figures/")
+figPath_hd <- paste0(figPath, "hd/")
+figPath_lr <- paste0(figPath, "lr/")
+tabPath <- paste0(base_string, "tables/")
+helpScriptsDir <- paste0(base_string_2, "R_Scripts/helper_function/")
 
-# Create Directories
-dir.create(imgPath, recursive = T, showWarnings = F)
-dir.create(scePath, recursive = T, showWarnings = F)
-dir.create(tabPath, recursive = T, showWarnings = F)
+# Create Directory if does not exist
+dir.create(figPath, showWarnings = FALSE, recursive = TRUE)
+dir.create(imgPath, showWarnings = FALSE, recursive = TRUE)
+dir.create(figPath_hd, showWarnings = FALSE, recursive = TRUE)
+dir.create(figPath_lr, showWarnings = FALSE, recursive = TRUE)
+dir.create(tabPath, showWarnings = FALSE, recursive = TRUE)
+dir.create(rdsPath, showWarnings = FALSE, recursive = TRUE)
 
 # Load Custom Functions
 source(paste0(helpScriptsDir, "plot_simulations().R"))
 source(paste0(helpScriptsDir, "add_gene_anno().R"))
 source(paste0(helpScriptsDir, "calc_bin_size.R"))
+
+paramEstimates <- readRDS(paste0(base_string, "benchmarks/00_Parameter_Estimation/output/setty_et_al_d1_splatEstimates.RDS"))
 
 # Skewness
 skew <- list(
@@ -68,7 +77,7 @@ params.groups <- newSplatParams(
 
 # Generate Datasets
 parameter.list <- mclapply(names(skew), function(path_skew, params_groups = params.groups,
-                                                 sce.path = scePath) {
+                                                 outPath = rdsPath) {
   # Get Variables
   total_sparsity <- str_remove(pattern = "Skewness_", path_skew)
   path_skew_value <- skew[[path_skew]]
@@ -94,7 +103,7 @@ parameter.list <- mclapply(names(skew), function(path_skew, params_groups = para
   rowData(sim.sce) <- DataFrame(gene.info)
 
   # SaveRDS
-  obj.path <- paste0(sce.path, paste0("skew_", path_skew_value, ".RData"))
+  obj.path <- paste0(outPath, paste0("skew_", path_skew_value, ".RData"))
   save(sim.sce, file = obj.path)
 
   # Names
@@ -166,7 +175,7 @@ parameter.frame <- do.call("rbind", parameters)
 
 # Save in text files
 write.table(parameter.frame,
-  file = paste0(tabPath, "01_skew_Parameter.Table.tsv"),
+  file = paste0(tabPath, "02_Skew_Parameter.Table.tsv"),
   sep = "\t", quote = F, row.names = F
 )
 
@@ -176,4 +185,4 @@ plots <- lapply(parameter.list, function(i) {
 })
 
 # Save
-saveRDS(plots, paste0(imgPath, "01_skew_0_1.RDS"))
+saveRDS(plots, paste0(imgPath, "02_Skew_0_1.RDS"))

@@ -7,22 +7,33 @@ suppressPackageStartupMessages(library(SingleCellExperiment))
 suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(scMaSigPro))
 
-# Set Paths relative to project
-base_string <- "/supp_data/benchmarks/"
-inputObjectPath <- paste0(base_string, "02_Skewness/sim/")
-outputObjectPath <- paste0(base_string, "02_Skewness/out/")
-tabPath <- paste0(base_string, "02_Skewness/tab/")
-helpScriptsDir <- "R_Scripts/helper_function/"
+# Set paths
+base_string <- "../scMaSigPro_supp_data/"
+base_string_2 <- ""
+rdsPath <- paste0(base_string, "benchmarks/02_Skewness/sim/")
+imgPath <- paste0(base_string, "benchmarks/02_Skewness/img/")
+outPath <- paste0(base_string, "benchmarks/02_Skewness/out/")
+figPath <- paste0(base_string, "figures/")
+figPath_hd <- paste0(figPath, "hd/")
+figPath_lr <- paste0(figPath, "lr/")
+tabPath <- paste0(base_string, "tables/")
+helpScriptsDir <- paste0(base_string_2, "R_Scripts/helper_function/")
+
+# Create Directory if does not exist
+dir.create(figPath, showWarnings = FALSE, recursive = TRUE)
+dir.create(imgPath, showWarnings = FALSE, recursive = TRUE)
+dir.create(figPath_hd, showWarnings = FALSE, recursive = TRUE)
+dir.create(figPath_lr, showWarnings = FALSE, recursive = TRUE)
+dir.create(tabPath, showWarnings = FALSE, recursive = TRUE)
+dir.create(rdsPath, showWarnings = FALSE, recursive = TRUE)
+dir.create(outPath, showWarnings = FALSE, recursive = TRUE)
 
 # Load helper functions
 source(paste0(helpScriptsDir, "get_performance_ROCR_.R"))
 source(paste0(helpScriptsDir, "calculate_metrics_binary.R"))
 
-# Create Missing Directory
-dir.create(outputObjectPath, showWarnings = F, recursive = T)
-
 # Load names of files
-dataSets <- list.files(paste0(inputObjectPath))
+dataSets <- list.files(paste0(rdsPath))
 names(dataSets) <- str_remove(
   str_split_i(dataSets, pattern = "_", i = 2),
   ".RData"
@@ -43,7 +54,7 @@ for (i in names(dataSets)) {
   cat(paste("\nRunning for Skewness:", i))
 
   # Load Data
-  load(file = paste0(inputObjectPath, dataSets[i]))
+  load(file = paste0(rdsPath, dataSets[i]))
 
   # Evaluate
   tryCatch(
@@ -93,7 +104,7 @@ for (i in names(dataSets)) {
       )
 
       # Save Object
-      save(scmp.obj, file = paste0(outputObjectPath, "scmp.obj.skew.", i, ".RData"))
+      save(scmp.obj, file = paste0(outPath, "scmp.obj.skew.", i, ".RData"))
 
       # Validate
       cat(paste("\nCompleted for", i))

@@ -14,24 +14,34 @@ suppressPackageStartupMessages(library(parallel))
 suppressPackageStartupMessages(library(scuttle))
 suppressPackageStartupMessages(library(scater))
 suppressPackageStartupMessages(library(viridis))
+suppressPackageStartupMessages(library(Seurat))
 
 # Set paths
-base_string <- "/supp_data/benchmarks/"
-paramEstimates <- readRDS(paste0(base_string, "00_Parameter_Estimation/output/setty_et_al_d1_splatEstimates.RDS"))
-imgPath <- paste0(base_string, "03_Different_Length/fig/")
-scePath <- paste0(base_string, "03_Different_Length/sim/")
-tabPath <- paste0(base_string, "03_Different_Length/tab/")
-helpScriptsDir <- "R_Scripts/helper_function/"
+base_string <- "../scMaSigPro_supp_data/"
+base_string_2 <- ""
+rdsPath <- paste0(base_string, "benchmarks/03_Different_Length/sim/")
+imgPath <- paste0(base_string, "benchmarks/03_Different_Length/img/")
+figPath <- paste0(base_string, "figures/")
+figPath_hd <- paste0(figPath, "hd/")
+figPath_lr <- paste0(figPath, "lr/")
+tabPath <- paste0(base_string, "tables/")
+helpScriptsDir <- paste0(base_string_2, "R_Scripts/helper_function/")
 
-# Create Directories
-dir.create(imgPath, recursive = T, showWarnings = F)
-dir.create(scePath, recursive = T, showWarnings = F)
-dir.create(tabPath, recursive = T, showWarnings = F)
+# Create Directory if does not exist
+dir.create(figPath, showWarnings = FALSE, recursive = TRUE)
+dir.create(imgPath, showWarnings = FALSE, recursive = TRUE)
+dir.create(figPath_hd, showWarnings = FALSE, recursive = TRUE)
+dir.create(figPath_lr, showWarnings = FALSE, recursive = TRUE)
+dir.create(tabPath, showWarnings = FALSE, recursive = TRUE)
+dir.create(rdsPath, showWarnings = FALSE, recursive = TRUE)
 
 # Load Custom Functions
 source(paste0(helpScriptsDir, "plot_simulations().R"))
 source(paste0(helpScriptsDir, "add_gene_anno().R"))
 source(paste0(helpScriptsDir, "calc_bin_size.R"))
+
+# Load
+paramEstimates <- readRDS(paste0(base_string, "benchmarks/00_Parameter_Estimation/output/setty_et_al_d1_splatEstimates.RDS"))
 
 # Different length
 len <- list(
@@ -68,7 +78,7 @@ params.groups <- newSplatParams(
 
 # Generate Datasets
 parameter.list <- mclapply(names(len), function(length, params_groups = params.groups,
-                                                sce.path = scePath) {
+                                                outPath = rdsPath) {
   # Get Variables
   length_value <- len[[length]]
 
@@ -94,7 +104,7 @@ parameter.list <- mclapply(names(len), function(length, params_groups = params.g
   rowData(sim.sce) <- DataFrame(gene.info)
 
   # SaveRDS
-  obj.path <- paste0(sce.path, paste0("len_", paste(length_value, collapse = "."), ".RData"))
+  obj.path <- paste0(outPath, paste0("len_", paste(length_value, collapse = "."), ".RData"))
   save(sim.sce, file = obj.path)
 
   # Names
@@ -166,7 +176,7 @@ parameter.frame <- do.call("rbind", parameters)
 
 # Save in text files
 write.table(parameter.frame,
-  file = paste0(tabPath, "03_len_Parameter.Table.tsv"),
+  file = paste0(tabPath, "03_Len_Parameter.Table.tsv"),
   sep = "\t", quote = F, row.names = F
 )
 
