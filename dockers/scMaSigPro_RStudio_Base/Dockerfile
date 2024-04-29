@@ -37,8 +37,16 @@ RUN apt-get update && apt-get install -y \
     libqpdf28 \
     qpdf \
     libmagick++-dev && \
+    openjdk-11-jdk && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
+
+# Add java
+ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64
+ENV PATH $PATH:$JAVA_HOME/bin
+
+# Reconfigure R with Java
+RUN R CMD javareconf
 
 # Install Leiden Lang
 RUN pip install leidenalg
@@ -46,7 +54,7 @@ RUN pip install phate
 RUN pip install pydiffmap
 
 # Installation in all in one
-RUN Rscript -e 'install.packages(c("reticulate", "diffusionMap", "igraph", "terra", "intergraph", "pryr", "microbenchmark","leidenbase", "tidyverse", "BiocManager", "metap", "intergraph", "spdep", "eHOF", "devtools", "phateR", "doParallel", "MatrixExtra", "ggpubr", "ggrastr", "Cairo", "cellranger", "mutoss", "rvest", "xml2", "lava", "qqconf", "revealjs", "paletteer", "ggpubr", "markdown", "magick", "moments","entropy","venn","mclust","UpSetR", "coop", "styler", "ggupset", "mclust", "ComplexUpset", "RColorConesa", "wesanderson"), repos = "https://cloud.r-project.org/", clean = TRUE, dependencies = TRUE, Ncpus = 24, quiet = TRUE)'
+RUN Rscript -e 'install.packages(c("xlsx","reticulate", "diffusionMap", "igraph", "terra", "intergraph", "pryr", "microbenchmark","leidenbase", "tidyverse", "BiocManager", "metap", "intergraph", "spdep", "eHOF", "devtools", "phateR", "doParallel", "MatrixExtra", "ggpubr", "ggrastr", "Cairo", "cellranger", "mutoss", "rvest", "xml2", "lava", "qqconf", "revealjs", "paletteer", "ggpubr", "markdown", "magick", "moments","entropy","venn","mclust","UpSetR", "coop", "styler", "ggupset", "mclust", "ComplexUpset", "RColorCcoosa", "wesanderson"), repos = "https://cloud.r-project.org/", clean = TRUE, dependencies = TRUE, Ncpus = 24, quiet = TRUE)'
 
 # BioConductor
 RUN Rscript -e "BiocManager::install('qvalue', update = TRUE, ask = FALSE, Ncpus = 24)" && \
@@ -108,15 +116,6 @@ RUN Rscript -e "Sys.setenv(GITHUB_PAT = '${GITHUB_PAT}'); \
 RUN Rscript -e "remove.packages('irlba'); \
                 install.packages(c('Matrix', 'irlba'), repos = 'https://cloud.r-project.org/', \
                 clean = TRUE, dependencies = TRUE, Ncpus = 24, quiet = TRUE)"
-
-# Create Users
-RUN mkdir /supp_data
-RUN mkdir /additional_data
-RUN mkdir /admin
-RUN mkdir /priyansh
-RUN mkdir /priyansh/gitRepos
-RUN mkdir /guest
-RUN mkdir /esr
 
 # Expose port 8787 (RStudio runs on this port)
 EXPOSE 8787

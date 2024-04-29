@@ -10,9 +10,6 @@ LABEL maintainer = Priyansh Srivastava <spriyansh29@gmail.com>
 # Set WRK
 WORKDIR "/"
 
-# Install 
-RUN Rscript -e 'install.packages(c("microbenchmark", "pryr"), repos = "https://cloud.r-project.org/", clean = TRUE, dependencies = TRUE, Ncpus = 24, quiet = TRUE)'
-
 # Receive GitHub PAT as a build argument
 ARG GITHUB_PAT
 
