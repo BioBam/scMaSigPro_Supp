@@ -11,7 +11,14 @@ suppressPackageStartupMessages(library(SeuratData))
 suppressPackageStartupMessages(library(Azimuth))
 
 # Prefix
-dirPath <- "/supp_data/Analysis_Public_Data/"
+base_string <- "../scMaSigPro_supp_data/"
+base_string_2 <- ""
+dirPath <- paste0(base_string, "analysis_public_data/")
+tabPath <- paste0(base_string, "tables/")
+helpScriptsDir <- paste0(base_string_2, "R_Scripts/helper_function/")
+figPath <- paste0(base_string, "figures/")
+figPath_hd <- paste0(figPath, "hd/")
+figPath_lr <- paste0(figPath, "lr/")
 
 # Get folder names
 rep_vec <- list.dirs(dirPath, full.names = F, recursive = F)
@@ -21,7 +28,7 @@ names(rep_vec) <- rep_vec
 # Run lapply
 azimuth.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPath) {
   # Load seurat object
-  sob <- readRDS(paste0(dirPath, rep_i, "/", paste0(rep_i, "_prs.RDS")))
+  sob <- readRDS(paste0(inPath, rep_i, "/", paste0(rep_i, "_prs.RDS")))
 
   sob <- RunAzimuth(
     query = sob,
@@ -32,10 +39,10 @@ azimuth.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = di
   sob@meta.data$cell_type <- sob@meta.data$predicted.celltype.l2
 
   # Save
-  file_name <- paste(outPath, rep_i, paste(rep_i, "azimuth.RDS", sep = "_"), sep = "/")
+  file_name <- paste0(outPath, rep_i, "/", paste(rep_i, "azimuth.RDS", sep = "_"))
   saveRDS(
     object = sob, file = file_name
   )
 
   return(sob)
-}, mc.cores = availableCores())
+}, mc.cores = 1)

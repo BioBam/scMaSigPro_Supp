@@ -90,6 +90,7 @@ RUN Rscript -e "BiocManager::install('qvalue', update = TRUE, ask = FALSE, Ncpus
     Rscript -e "BiocManager::install('BiocCheck', update = TRUE, ask = FALSE, Ncpus = 24)" && \
     Rscript -e "BiocManager::install('maSigPro', update = TRUE, ask = FALSE, Ncpus = 24)" && \
     Rscript -e "BiocManager::install('iCOBRA', update = TRUE, ask = FALSE, Ncpus = 24)" && \
+    Rscript -e "BiocManager::install('BSgenome.Hsapiens.UCSC.hg38', update = TRUE, ask = FALSE, Ncpus = 24)" && \
     Rscript -e "BiocManager::install('clusterProfiler', update = TRUE, ask = FALSE, Ncpus = 24)" && \
     Rscript -e "BiocManager::install('biomaRt', update = TRUE, ask = FALSE, Ncpus = 24)"
 

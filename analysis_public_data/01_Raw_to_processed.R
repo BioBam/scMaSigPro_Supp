@@ -14,9 +14,17 @@ suppressPackageStartupMessages(library(ggpubr))
 suppressPackageStartupMessages(library(Matrix))
 suppressPackageStartupMessages(library(parallel))
 suppressPackageStartupMessages(library(parallelly))
+suppressPackageStartupMessages(library(tidyverse))
 
 # Prefix
-dirPath <- "/supp_data/Analysis_Public_Data/"
+base_string <- "../scMaSigPro_supp_data/"
+base_string_2 <- ""
+dirPath <- paste0(base_string, "analysis_public_data/")
+tabPath <- paste0(base_string, "tables/")
+helpScriptsDir <- paste0(base_string_2, "R_Scripts/helper_function/")
+figPath <- paste0(base_string, "figures/")
+figPath_hd <- paste0(figPath, "hd/")
+figPath_lr <- paste0(figPath, "lr/")
 
 # Read BioMart info
 biomart.anno <- readRDS(paste(dirPath, "cell_cycle_data.mart", sep = "/"))
@@ -46,7 +54,7 @@ violin.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dir
 
   # Step-2: Load the filtered Matrix
   filt_mat <- Read10X_h5(
-    paste(inPath, rep_i, "filtered_feature_bc_matrix.h5", sep = "/")
+    paste0(inPath, paste(rep_i, "filtered_feature_bc_matrix.h5", sep = "/"))
   )
   # Renaming the features
   filt_mat@Dimnames[[1]] <- str_replace(filt_mat@Dimnames[[1]], "_", "-")
@@ -117,7 +125,7 @@ violin.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dir
     ncol = 1, nrow = 2
   )
   # Save
-  file_name <- paste(dirPath, rep_i, paste(rep_i, "violin.RDS", sep = "_"), sep = "/")
+  # file_name <- paste(dirPath, rep_i, paste(rep_i, "violin.RDS", sep = "_"), sep = "/")
   # saveRDS(
   #   object = violins, file = file_name
   # )
@@ -150,15 +158,15 @@ violin.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dir
 
   # Regress Cell Cycle Score
   sob.prs <- ScaleData(sob.prs,
-    # vars.to.regress = c("S.Score", "G2M.Score"),
+    vars.to.regress = c("S.Score", "G2M.Score"),
     features = rownames(sob.prs), verbose = T,
   )
 
   # Save
-  file_name <- paste0(dirPath, rep_i, "/", paste0(rep_i, "_prs.RDS"))
-  # saveRDS(
-  #   object = sob.prs, file = file_name
-  # )
+  file_name <- paste0(outPath, rep_i, "/", paste0(rep_i, "_prs.RDS"))
+  saveRDS(
+    object = sob.prs, file = file_name
+  )
 
   after <- dim(sob.prs@assays$RNA$scale.data)
   # Return UMAP
@@ -166,4 +174,4 @@ violin.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dir
     before = before,
     after = after
   ))
-}, mc.cores = 24) # availableCores())
+}, mc.cores = availableCores()) # availableCores())
