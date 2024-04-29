@@ -7,15 +7,15 @@ FROM spriyansh29/sc_masigpro:rstudio_base
 # Maintainer
 LABEL maintainer = Priyansh Srivastava <spriyansh29@gmail.com>
 
+# Install scMaSigPro
+RUN Rscript -e 'devtools::install_github("BioBam/scMaSigPro", ref = "main", build_vignettes = FALSE, build_manual = TRUE, upgrade = "never", force = TRUE, quiet = TRUE)'
+
 # Set WRK
 WORKDIR "/"
 
-# Receive GitHub PAT as a build argument
-ARG GITHUB_PAT
+# Create directory
+RUN mkdir -p "/admin"
 
-# Install scMaSigPro
-RUN Rscript -e 'devtools::install_github("BioBam/scMaSigPro", ref = "main", build_vignettes = FALSE, build_manual = TRUE, upgrade = "never", force = TRUE, quiet = TRUE)'
-                
 # Expose port 8787 (RStudio runs on this port)
 EXPOSE 8787
 
