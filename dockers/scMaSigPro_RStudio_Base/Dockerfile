@@ -37,7 +37,6 @@ RUN apt-get update && apt-get install -y \
     libqpdf28 \
     qpdf \
     libmagick++-dev && \
-    default-jre && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
