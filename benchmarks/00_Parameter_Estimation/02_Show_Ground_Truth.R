@@ -7,6 +7,7 @@ suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(viridis))
 suppressPackageStartupMessages(library(Seurat))
 suppressPackageStartupMessages(library(reshape2))
+suppressPackageStartupMessages(library(gtools))
 suppressPackageStartupMessages(library(data.table))
 
 # Set paths
@@ -147,14 +148,13 @@ plt.sim <- ggplot(plt.data.sim) +
     )
   )
 
-
 similar.change.de <- plot_loess_fit(
   sce_obj = sim.sce, "Gene659", dfreedom = 1, log = T,
   plt_subtitle = "DE: Similar Change", point.alpha = 0.2,
   point.size = 1, line.size = 1, line.alpha = 1, ci = F,
 ) + scale_x_continuous(breaks = (seq(0, 1500, 300))) + labs(
   color = "Branching Path", shape = "Branching Path"
-)
+) + theme_minimal(base_size = 12, base_family = "times")
 
 opposite.change.de <- plot_loess_fit(
   sce_obj = sim.sce, "Gene798", dfreedom = 1, log = T,
@@ -162,7 +162,7 @@ opposite.change.de <- plot_loess_fit(
   point.size = 1, line.size = 1, line.alpha = 1, ci = F,
 ) + scale_x_continuous(breaks = (seq(0, 1500, 300))) + labs(
   color = "Branching Path", shape = "Branching Path"
-)
+) + theme_minimal(base_size = 12, base_family = "times")
 
 one.change.de <- plot_loess_fit(
   sce_obj = sim.sce, "Gene309", dfreedom = 1, log = T,
@@ -170,35 +170,31 @@ one.change.de <- plot_loess_fit(
   point.size = 1, line.size = 1, line.alpha = 1, ci = F,
 ) + scale_x_continuous(breaks = (seq(0, 1500, 300))) + labs(
   color = "Branching Path", shape = "Branching Path"
-)
+) + theme_minimal(base_size = 12, base_family = "times")
 no.change <- plot_loess_fit(
   sce_obj = sim.sce, "Gene336", dfreedom = 1, log = T,
   plt_subtitle = "Not-Differentially Expressed", point.alpha = 0.2,
   point.size = 1, line.size = 1, line.alpha = 1, ci = F,
 ) + scale_x_continuous(breaks = (seq(0, 1500, 300))) + labs(
   color = "Branching Path", shape = "Branching Path"
-)
+) + theme_minimal(base_size = 12, base_family = "times")
 
 gt.true <- ggarrange(similar.change.de, opposite.change.de, one.change.de, no.change,
   labels = c("A.", "B.", "C.", "D."), common.legend = T, legend = "bottom"
 )
+
+gt.true
 
 # Save
 saveRDS(gt.true,
   file = paste0(imgPath, "MainFigure2A.rds")
 )
 
-gt.true <- ggarrange(similar.change.de, opposite.change.de, one.change.de, no.change,
-  labels = c("B.", "C.", "D.", "E."), common.legend = T, legend = "bottom"
-)
-ground.truth <- ggarrange(plt.sim, gt.true, labels = c("A.", ""))
-ground.truth
-
 ggsave(
-  plot = ground.truth, filename = paste0(figPath_hd, "supp_fig_2_Sim_and_Ground_Truth.png"),
-  dpi = 600, width = 12, height = 5
+  plot = plt.sim, filename = paste0(figPath_hd, "suppFig_3_UMAP_Base.png"),
+  dpi = 600, width = 6, height = 5, bg = "white"
 )
 ggsave(
-  plot = ground.truth, filename = paste0(figPath_lr, "supp_fig_2_Sim_and_Ground_Truth.png"),
-  dpi = 150, width = 12, height = 5
+  plot = plt.sim, filename = paste0(figPath_lr, "suppFig_3_UMAP_Base.png"),
+  dpi = 150, width = 6, height = 5, bg = "white"
 )

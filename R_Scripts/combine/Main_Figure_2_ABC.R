@@ -8,6 +8,11 @@ a <- readRDS(paste0(base_string, "benchmarks/img/MainFigure2A.rds"))
 b <- readRDS(paste0(base_string, "benchmarks/img/MainFigure_2B.rds"))
 c <- readRDS(paste0(base_string, "comparison/out/MainFigure_2C.rds"))
 
+# Update font family
+a <- a + theme(text = element_text(family = "times"))
+b <- b + theme(text = element_text(family = "times"))
+c <- c + theme(text = element_text(family = "times"))
+
 combine <- ggarrange(a, b, c,
   nrow = 1,
   labels = c("", "E.", "F.")

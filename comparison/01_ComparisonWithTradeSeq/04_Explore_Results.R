@@ -115,6 +115,10 @@ df.list <- list(
   "incorrect_by_ts_diffEnd" = incorrect_by_ts_diffEnd
 )
 
+saveRDS(df.list,
+  file = paste0(outPath, "false_negative_list.RDS")
+)
+
 # Custom colors
 custom_colors <- c("High_FC" = "#15918A", "Low_FC" = "#F58A53", "No_Change" = "#9F7BB8")
 
