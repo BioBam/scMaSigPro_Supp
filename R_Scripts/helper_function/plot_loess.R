@@ -25,7 +25,7 @@ plot_loess_fit <- function(sce_obj, gene_name, log = F,
                            line.alpha = 0.7,
                            point.size = 0.6,
                            line.size = 0.7,
-                           ci = F) {
+                           ci = F, theme_base_size = 10) {
   # Test
   if (length(unique(rownames(sce_obj) %in% gene_name)) == 1) {
     stop("gene names does not exist")
@@ -57,10 +57,10 @@ plot_loess_fit <- function(sce_obj, gene_name, log = F,
 
   # Base Plot
   loess_plot <- ggplot() +
-    theme_classic(base_size = 10) +
+    theme_classic(base_size = theme_base_size) +
     ggtitle(
-      label = paste0("Gene Trend Plot: ", gene_name),
-      subtitle = paste0("df: ", dfreedom, " | ", "Span : ", span, " | ", plt_subtitle)
+      label = paste0(plt_subtitle),
+      subtitle = paste0("df: ", dfreedom, " | ", "Span : ", span)
     ) +
     xlab(paste0("Continuum: ", time_col)) +
     ylab(assay_name) +

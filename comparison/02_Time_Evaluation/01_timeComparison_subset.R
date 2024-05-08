@@ -13,15 +13,66 @@ suppressPackageStartupMessages(library(viridis))
 suppressPackageStartupMessages(library(pryr))
 
 # Set paths
-dirPath <- "/supp_data/ComparisonWithTradeSeq/simulated/sce/"
-resPath <- "/supp_data/ComparisonWithTradeSeq/output/"
-helpScriptsDir <- "R_Scripts/helper_function/"
+base_string <- "../scMaSigPro_supp_data/"
+base_string_2 <- ""
+figPath <- paste0(base_string, "figures/")
+figPath_hd <- paste0(figPath, "hd/")
+figPath_lr <- paste0(figPath, "lr/")
+tabPath <- paste0(base_string, "tables/")
+helpScriptsDir <- paste0(base_string_2, "R_Scripts/helper_function/")
+
+# Load Base data
+paramEstimates <- readRDS(paste0(base_string, "benchmarks/00_Parameter_Estimation/output/setty_et_al_d1_splatEstimates.RDS"))
+
+# Create Directory if does not exist
+dir.create(figPath, showWarnings = FALSE, recursive = TRUE)
+dir.create(figPath_hd, showWarnings = FALSE, recursive = TRUE)
+dir.create(figPath_lr, showWarnings = FALSE, recursive = TRUE)
+dir.create(tabPath, showWarnings = FALSE, recursive = TRUE)
 
 # Load custom function
 source(paste0(helpScriptsDir, "calcNormCounts.R"))
+source(paste0(helpScriptsDir, "add_gene_anno().R"))
+source(paste0(helpScriptsDir, "calc_bin_size.R"))
 
-# ReadData
-load(paste0(dirPath, "testTradeSeq.RData"))
+# Create Base parameters/ Same for All groups
+params.groups <- newSplatParams(
+  batch.rmEffect = TRUE, # No Batch affect
+  batchCells = 3000, # Number of Cells
+  nGenes = 2000, # Number of Genes
+  seed = 2022, # Set seed
+  mean.rate = paramEstimates@mean.rate,
+  mean.shape = paramEstimates@mean.shape,
+  lib.scale = paramEstimates@lib.scale,
+  lib.loc = paramEstimates@lib.loc,
+  bcv.common = paramEstimates@bcv.common,
+  bcv.df = paramEstimates@bcv.df,
+  dropout.type = "experiment",
+  group.prob = c(0.6, 0.4),
+  path.from = c(0, 0),
+  de.prob = 0.3,
+  de.facLoc = 1,
+  path.nonlinearProb = 0.3,
+  path.sigmaFac = 0.5,
+  out.facLoc = paramEstimates@out.facLoc,
+  dropout.mid = paramEstimates@dropout.mid,
+  out.facScale = paramEstimates@out.facScale,
+  out.prob = paramEstimates@out.prob,
+  path.skew = c(0.4, 0.6),
+  dropout.shape = -0.5,
+  path.nSteps = c(1700, 1300)
+)
+
+# Simulate Object
+sim.sce <- splatSimulate(
+  params = params.groups,
+  method = "paths",
+  verbose = F
+)
+
+# Add gene Info
+gene.info <- add_gene_anno(sim.sce = sim.sce)
+gene.info <- gene.info[mixedsort(gene.info$gene_short_name), ]
 
 # Readuce Dataset
 keepGenes <- sample(rownames(rowData(sim.sce)), size = 1000, replace = F)
@@ -153,6 +204,7 @@ mbm <- microbenchmark(
       scmpObj = scmp.obj, verbose = T,
       min_na = 1,
       parallel = T,
+      n_cores = 8,
       offset = T,
       max_it = 1000
     )
@@ -161,7 +213,9 @@ mbm <- microbenchmark(
     # Run-Step-2
     scmp.obj <- sc.t.fit(
       scmpObj = scmp.obj, verbose = F,
-      selection_method = "backward", parallel = T,
+      selection_method = "backward",
+      parallel = T,
+      n_cores = 8,
       offset = T
     )
     gc()
@@ -171,7 +225,7 @@ mbm <- microbenchmark(
 
 # Process the results
 data <- summary(mbm) %>% as.data.frame()
-data$min_mean <- paste(round(data$mean / 60, digits = 1), "minutes")
+data$min_mean <- paste(round(data$mean / 60, digits = 3), "minutes")
 
 compareBar_Time <- ggplot(data, aes(x = expr, y = mean, fill = expr)) +
   geom_bar(stat = "identity") +
@@ -201,9 +255,21 @@ compareBar_Time <- ggplot(data, aes(x = expr, y = mean, fill = expr)) +
 
 compareBar_Time
 
-# Save
+# Save the plot
+write.table(
+  x = data,
+  file = paste0(tabPath, "Few_Cells_TS_Time_Profiling.txt"),
+  quote = FALSE, sep = "\t", row.names = FALSE
+)
+
+# Save the plot
 ggsave(
   plot = compareBar_Time,
-  filename = paste0("/supp_data/Figures/SuppData/04_tradeSeq_Time.png"),
-  dpi = 300, width = 10
+  filename = paste0(figPath_hd, "04_tradeSeq_Time.png"),
+  dpi = 600, width = 10
+)
+ggsave(
+  plot = compareBar_Time,
+  filename = paste0(figPath_lr, "04_tradeSeq_Time.png"),
+  dpi = 150, width = 10
 )

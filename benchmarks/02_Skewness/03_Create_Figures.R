@@ -4,20 +4,28 @@
 # Year: 2023
 
 suppressPackageStartupMessages(library(SingleCellExperiment))
-# suppressPackageStartupMessages(library(tidyverse))
+suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(RColorConesa))
 suppressPackageStartupMessages(library(reshape2))
 suppressPackageStartupMessages(library(ggpubr))
 
-# Set Paths relative to project
-outPath <- "/supp_data/Figures/SuppData/"
+# Set paths
+base_string <- "../scMaSigPro_supp_data/"
+base_string_2 <- ""
+rdsPath <- paste0(base_string, "benchmarks/02_Skewness/sim/")
+imgPath <- paste0(base_string, "benchmarks/02_Skewness/img/")
+figPath <- paste0(base_string, "figures/")
+figPath_hd <- paste0(figPath, "hd/")
+figPath_lr <- paste0(figPath, "lr/")
+tabPath <- paste0(base_string, "tables/")
+helpScriptsDir <- paste0(base_string_2, "R_Scripts/helper_function/")
 
 # Load Plots
-umap.plots <- readRDS("/supp_data/benchmarks/02_Skewness/simulated/png/01_skew_0_1.RDS")
+umap.plots <- readRDS(paste0(imgPath, "02_Skew_0_1.RDS"))
 
 # Load Evaluation
-evaluation.frame <- read.table("/supp_data/Tables/02_Skew_Performance.Table.tsv", sep = "\t", header = T)
-evaluation.frame.split <- read.table("/supp_data/Tables/02_SkewSplit_Performance.Table.tsv", sep = "\t", header = T)
+evaluation.frame <- read.table(paste0(tabPath, "02_Skew_Performance.Table.tsv"), sep = "\t", header = T)
+evaluation.frame.split <- read.table(paste0(tabPath, "02_SkewSplit_Performance.Table.tsv"), sep = "\t", header = T)
 
 # Plot all values against zero inflation
 long_data <- melt(evaluation.frame, id.vars = c("RSQ", "parameter.value"), measure.vars = c("TPR", "FPR", "Accuracy", "F1_Score")) %>% as.data.frame()
@@ -170,7 +178,14 @@ bottom.2 <- ggarrange(
 skewness <- ggarrange(top, bottom, bottom.2, nrow = 3, ncol = 1)
 skewness
 
-ggsave(skewness,
-  filename = paste0("/supp_data/Figures/SuppData/02_Sim_0_to_1_skew_Performance.png"),
+# Save the plot
+ggsave(
+  plot = skewness,
+  filename = paste0(figPath_hd, "02_Sim_0_to_1_skew_Performance.png"),
   dpi = 600, height = 10, width = 16
+)
+ggsave(
+  plot = skewness,
+  filename = paste0(figPath_lr, "02_Sim_0_to_1_skew_Performance.png"),
+  dpi = 150, height = 10, width = 16
 )

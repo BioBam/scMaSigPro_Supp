@@ -19,13 +19,13 @@ benchmarks
     |
     +--03_Different_length: Evaluation of datasets with different lengths of the branching paths.
 
-Comparison
+comparison
     |
     +--01_ComparisonWithTradeSeq: Rscripts to compare with tradeSeq.
     |
     +--02_SpeedTimeComparisonWithTradeSeq: Time Comparison with tradeSeq.
     
-Analysis_Public_Data
+analysis_public_data
     |
     +--01_Raw_to_processed.r: Raw counts to processed counts.
     |
@@ -43,7 +43,7 @@ Analysis_Public_Data
 
 Rscripts
     |
-    +--Figures: Rscripts to generate figures.
+    +--combine: Rscripts to combine figures and tables for manuscript.
     |
     +--helper_function: Additional function.
 ```

@@ -8,17 +8,28 @@ suppressPackageStartupMessages(library(RColorConesa))
 suppressPackageStartupMessages(library(reshape2))
 suppressPackageStartupMessages(library(ggpubr))
 
-# Set Paths relative to project
-outPath <- "/supp_data/Figures/SuppData/"
+# Set paths
+base_string <- "../scMaSigPro_supp_data/"
+base_string_2 <- ""
+rdsPath <- paste0(base_string, "benchmarks/01_Sparsity/sim/")
+imgPath <- paste0(base_string, "benchmarks/01_Sparsity/img/")
+figPath <- paste0(base_string, "figures/")
+figPath_hd <- paste0(figPath, "hd/")
+figPath_lr <- paste0(figPath, "lr/")
+tabPath <- paste0(base_string, "tables/")
+helpScriptsDir <- paste0(base_string_2, "R_Scripts/helper_function/")
 
 # Load Plots
-umap.plots <- readRDS("/supp_data/benchmarks/01_Sparsity/simulated/png/01_Zi_60_90.RDS")
+umap.plots <- readRDS(paste0(imgPath, "01_Zi_60_90.RDS"))
 
 # Load Evaluation
-evaluation.frame <- read.table("/supp_data/Tables/01_ZI_Performance.Table.tsv", sep = "\t", header = T)
+evaluation.frame <- read.table(paste0(tabPath, "01_ZI_Performance.Table.tsv"), sep = "\t", header = T)
 
 # Plot all values against zero inflation
-long_data <- melt(evaluation.frame, id.vars = c("RSQ", "parameter.value"), measure.vars = c("TPR", "FPR", "Accuracy", "F1_Score")) %>% as.data.frame()
+long_data <- melt(evaluation.frame,
+  id.vars = c("RSQ", "parameter.value"),
+  measure.vars = c("TPR", "FPR", "Accuracy", "F1_Score")
+) %>% as.data.frame()
 
 # Create Plot per parameter
 performance.list <- lapply(unique(long_data$parameter.value), function(zi) {
@@ -73,6 +84,7 @@ performance.list <- lapply(unique(long_data$parameter.value), function(zi) {
       annotate("rect", xmin = 0.3, xmax = 0.5, ymin = 0, ymax = 1, alpha = 0.3, fill = "lightgrey")
   }
 
+  print(paste("finisjed for ", zi))
   # Return
   return(performance.plot)
 })
@@ -85,7 +97,8 @@ top <- ggarrange(
   umap.plots$sparsity_80,
   umap.plots$sparsity_90,
   labels = c("A.", "B.", "C.", "D."),
-  common.legend = T, ncol = 4, nrow = 1,
+  common.legend = T,
+  ncol = 4, nrow = 1,
   legend = "bottom"
 )
 bottom <- ggarrange(
@@ -100,47 +113,55 @@ bottom <- ggarrange(
 zero_inflation <- ggarrange(top, bottom, nrow = 2, ncol = 1)
 zero_inflation
 
-ggsave(zero_inflation,
-  filename = paste0("/supp_data/Figures/SuppData/01_Sim_60_to_90_ZI_Performance.png"),
+# Save the plot
+ggsave(
+  plot = zero_inflation,
+  filename = paste0(figPath_hd, "01_Sim_60_to_90_ZI_Performance.png"),
   dpi = 600, height = 8, width = 16
 )
+ggsave(
+  plot = zero_inflation,
+  filename = paste0(figPath_lr, "01_Sim_60_to_90_ZI_Performance.png"),
+  dpi = 150, height = 8, width = 16
+)
 
-# ROC Curve
-roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = as.factor(parameter.value))) +
-  # geom_text(data = subset(evaluation.frame, parameter.value == 60 & RSQ > 0.3 & RSQ <= 0.80), aes(label = sprintf("%.2f", RSQ)), color = "black", hjust = 1, vjust = 1.7) +
-  geom_path(linewidth = 1, alpha = 0.7) +
-  geom_point(data = subset(evaluation.frame, RSQ == 0.7), color = "black", shape = 2) +
-  geom_point(data = subset(evaluation.frame, RSQ == 0.6), color = "blue", shape = 3) +
-  scale_x_continuous(
-    breaks = seq(0, 0.10, 0.05),
-    limits = c(0, 0.10)
-  ) +
-  scale_y_continuous(
-    breaks = seq(0, 1, 0.1),
-    limits = c(0.0, 1)
-  ) +
-  scale_color_manual(values = colorConesa(9)) +
-  labs(
-    title = "ROC-curve for Zero-Inflation",
-    subtitle = "Varying R2",
-    x = "False Positive Rate (1-Specificity)",
-    y = "True Positive Rate (Sensitivity)",
-    color = "Amount of Zero-Inflation"
-  ) +
-  theme_classic(base_size = 15) +
-  theme(
-    panel.grid.major = element_line(linewidth = 0.3, color = "lightgrey", linetype = "dotted"),
-    panel.grid.minor = element_line(linewidth = 0.1, color = "lightgrey", linetype = "dotted"),
-    legend.position = "bottom"
-  ) +
-  geom_vline(xintercept = 0.01, colour = "grey") + # Highlighted the x-intercept of 0.01
-  geom_vline(xintercept = 0.05, colour = "grey") +
-  geom_vline(xintercept = 0.1, colour = "darkgrey") +
-  guides(color = guide_legend(key_width = unit(3, "cm"), key_height = unit(4, "cm")))
-
-print(roc)
-
-# ggsave(roc,
-#        filename = paste0("/supp_data/Figures/SuppData/01_Sim_10_to_90_ZI_ROC.png"),
-#        dpi = 600, height = 8, width = 10
-# )
+#
+# # ROC Curve
+# roc <- ggplot(evaluation.frame, aes(x = FPR, y = TPR, color = as.factor(parameter.value))) +
+#   # geom_text(data = subset(evaluation.frame, parameter.value == 60 & RSQ > 0.3 & RSQ <= 0.80), aes(label = sprintf("%.2f", RSQ)), color = "black", hjust = 1, vjust = 1.7) +
+#   geom_path(linewidth = 1, alpha = 0.7) +
+#   geom_point(data = subset(evaluation.frame, RSQ == 0.7), color = "black", shape = 2) +
+#   geom_point(data = subset(evaluation.frame, RSQ == 0.6), color = "blue", shape = 3) +
+#   scale_x_continuous(
+#     breaks = seq(0, 0.10, 0.05),
+#     limits = c(0, 0.10)
+#   ) +
+#   scale_y_continuous(
+#     breaks = seq(0, 1, 0.1),
+#     limits = c(0.0, 1)
+#   ) +
+#   scale_color_manual(values = colorConesa(9)) +
+#   labs(
+#     title = "ROC-curve for Zero-Inflation",
+#     subtitle = "Varying R2",
+#     x = "False Positive Rate (1-Specificity)",
+#     y = "True Positive Rate (Sensitivity)",
+#     color = "Amount of Zero-Inflation"
+#   ) +
+#   theme_classic(base_size = 15) +
+#   theme(
+#     panel.grid.major = element_line(linewidth = 0.3, color = "lightgrey", linetype = "dotted"),
+#     panel.grid.minor = element_line(linewidth = 0.1, color = "lightgrey", linetype = "dotted"),
+#     legend.position = "bottom"
+#   ) +
+#   geom_vline(xintercept = 0.01, colour = "grey") + # Highlighted the x-intercept of 0.01
+#   geom_vline(xintercept = 0.05, colour = "grey") +
+#   geom_vline(xintercept = 0.1, colour = "darkgrey") +
+#   guides(color = guide_legend(key_width = unit(3, "cm"), key_height = unit(4, "cm")))
+#
+# print(roc)
+#
+# # ggsave(roc,
+# #        filename = paste0("/supp_data/Figu res/SuppData/01_Sim_10_to_90_ZI_ROC.png"),
+# #        dpi = 600, height = 8, width = 10
+# # )

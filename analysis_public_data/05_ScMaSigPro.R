@@ -7,7 +7,14 @@
 set.seed(007)
 
 # Prefix
-dirPath <- "/supp_data/Analysis_Public_Data/"
+base_string <- "../scMaSigPro_supp_data/"
+base_string_2 <- ""
+dirPath <- paste0(base_string, "analysis_public_data/")
+tabPath <- paste0(base_string, "tables/")
+helpScriptsDir <- paste0(base_string_2, "R_Scripts/helper_function/")
+figPath <- paste0(base_string, "figures/")
+figPath_hd <- paste0(figPath, "hd/")
+figPath_lr <- paste0(figPath, "lr/")
 
 # Get folder names
 rep_vec <- list.dirs(dirPath, full.names = F, recursive = F)
@@ -138,7 +145,14 @@ compress <- ggarrange(scmp.prs.list$rep1$binPlot,
 )
 compress
 
-ggsave(compress,
-  filename = paste0("/supp_data/Figures/SuppData/05_Real_Data_Bins.png"),
+# Save the plot
+ggsave(
+  plot = compress,
+  filename = paste0(figPath_hd, "05_Real_Data_Bins.png"),
   dpi = 600, height = 6, width = 6
+)
+ggsave(
+  plot = compress,
+  filename = paste0(figPath_lr, "05_Real_Data_Bins.png"),
+  dpi = 150, height = 6, width = 6
 )

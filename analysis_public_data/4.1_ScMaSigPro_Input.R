@@ -6,15 +6,6 @@
 
 set.seed(007)
 
-# Prefix
-dirPath <- "/supp_data/Analysis_Public_Data/"
-
-# Get folder names
-rep_vec <- list.dirs(dirPath, full.names = F, recursive = F)
-rep_vec <- rep_vec[!(rep_vec %in% c("Azimuth_Human_BoneMarrow", "integrated"))]
-names(rep_vec) <- rep_vec
-rep_vec <- rep_vec
-
 # Call the required libraries
 suppressPackageStartupMessages(library(Seurat))
 suppressPackageStartupMessages(library(rhdf5))
@@ -26,11 +17,23 @@ suppressPackageStartupMessages(library(monocle3))
 suppressPackageStartupMessages(library(ggpubr))
 suppressPackageStartupMessages(library(scMaSigPro))
 
+# Prefix
+base_string <- "../scMaSigPro_supp_data/"
+base_string_2 <- ""
+dirPath <- paste0(base_string, "analysis_public_data/")
+tabPath <- paste0(base_string, "tables/")
+helpScriptsDir <- paste0(base_string_2, "R_Scripts/helper_function/")
+
+# Get folder names
+rep_vec <- list.dirs(dirPath, full.names = F, recursive = F)
+rep_vec <- rep_vec[!(rep_vec %in% c("Azimuth_Human_BoneMarrow", "integrated"))]
+names(rep_vec) <- rep_vec
+rep_vec <- rep_vec
+
 # Load object
 object.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPath) {
   sob <- readRDS(file = paste0(inPath, rep_i, "/", rep_i, "_cds.RDS"))
 })
-
 
 # Create ScMaSigPro Input
 for (rep_i in c(rep_vec)) {
@@ -80,8 +83,6 @@ for (rep_i in c(rep_vec)) {
       path2_name = path2_name
     )
   )
-
-  View(ob)
 
   saveRDS(
     ob,

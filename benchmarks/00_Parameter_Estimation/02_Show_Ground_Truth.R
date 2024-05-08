@@ -2,14 +2,42 @@
 suppressPackageStartupMessages(library(SingleCellExperiment))
 suppressPackageStartupMessages(library(splatter))
 suppressPackageStartupMessages(library(ggpubr))
+suppressPackageStartupMessages(library(coop))
+suppressPackageStartupMessages(library(tidyverse))
+suppressPackageStartupMessages(library(viridis))
+suppressPackageStartupMessages(library(Seurat))
+suppressPackageStartupMessages(library(reshape2))
+suppressPackageStartupMessages(library(gtools))
+suppressPackageStartupMessages(library(data.table))
+
+# Set paths
+base_string <- "../scMaSigPro_supp_data/"
+base_string_2 <- ""
+rdsPath <- paste0(base_string, "benchmarks/00_Parameter_Estimation/input/")
+imgPath <- paste0(base_string, "benchmarks/img/")
+outPath <- paste0(base_string, "benchmarks/00_Parameter_Estimation/output/")
+figPath <- paste0(base_string, "figures/")
+figPath_hd <- paste0(figPath, "hd/")
+figPath_lr <- paste0(figPath, "lr/")
+tabPath <- paste0(base_string, "tables/")
+helpScriptsDir <- paste0(base_string_2, "R_Scripts/helper_function/")
+
+# Create Directory if does not exist
+dir.create(figPath, showWarnings = FALSE, recursive = TRUE)
+dir.create(imgPath, showWarnings = FALSE, recursive = TRUE)
+dir.create(figPath_hd, showWarnings = FALSE, recursive = TRUE)
+dir.create(figPath_lr, showWarnings = FALSE, recursive = TRUE)
+dir.create(tabPath, showWarnings = FALSE, recursive = TRUE)
+dir.create(rdsPath, showWarnings = FALSE, recursive = TRUE)
+dir.create(outPath, showWarnings = FALSE, recursive = TRUE)
 
 # Load Custom Function
-source("R_Scripts/helper_function/plot_simulations().R")
-source("R_Scripts/helper_function/add_gene_anno().R")
-source("R_Scripts/helper_function/plot_loess.R")
+source(paste0(helpScriptsDir, "plot_simulations().R"))
+source(paste0(helpScriptsDir, "add_gene_anno().R"))
+source(paste0(helpScriptsDir, "plot_loess.R"))
 
 # Load
-paramEstimates <- readRDS("/supp_data/benchmarks/00_Parameter_Estimation/output/setty_et_al_d1_splatEstimates.RDS")
+paramEstimates <- readRDS(paste0(base_string, "benchmarks/00_Parameter_Estimation/output/setty_et_al_d1_splatEstimates.RDS"))
 
 # Create Base parameters/ Same for All groups
 params.groups <- newSplatParams(
@@ -120,44 +148,53 @@ plt.sim <- ggplot(plt.data.sim) +
     )
   )
 
-
-
 similar.change.de <- plot_loess_fit(
   sce_obj = sim.sce, "Gene659", dfreedom = 1, log = T,
   plt_subtitle = "DE: Similar Change", point.alpha = 0.2,
   point.size = 1, line.size = 1, line.alpha = 1, ci = F,
-) + scale_x_continuous(breaks = (seq(0, 1500, 300)))
+) + scale_x_continuous(breaks = (seq(0, 1500, 300))) + labs(
+  color = "Branching Path", shape = "Branching Path"
+) + theme_minimal(base_size = 12, base_family = "times")
 
 opposite.change.de <- plot_loess_fit(
   sce_obj = sim.sce, "Gene798", dfreedom = 1, log = T,
   plt_subtitle = "DE: Opposite Change", point.alpha = 0.2,
   point.size = 1, line.size = 1, line.alpha = 1, ci = F,
-) + scale_x_continuous(breaks = (seq(0, 1500, 300)))
+) + scale_x_continuous(breaks = (seq(0, 1500, 300))) + labs(
+  color = "Branching Path", shape = "Branching Path"
+) + theme_minimal(base_size = 12, base_family = "times")
 
 one.change.de <- plot_loess_fit(
   sce_obj = sim.sce, "Gene309", dfreedom = 1, log = T,
   plt_subtitle = "DE: Change in One", point.alpha = 0.2,
   point.size = 1, line.size = 1, line.alpha = 1, ci = F,
-) + scale_x_continuous(breaks = (seq(0, 1500, 300)))
-
+) + scale_x_continuous(breaks = (seq(0, 1500, 300))) + labs(
+  color = "Branching Path", shape = "Branching Path"
+) + theme_minimal(base_size = 12, base_family = "times")
 no.change <- plot_loess_fit(
   sce_obj = sim.sce, "Gene336", dfreedom = 1, log = T,
   plt_subtitle = "Not-Differentially Expressed", point.alpha = 0.2,
   point.size = 1, line.size = 1, line.alpha = 1, ci = F,
-) + scale_x_continuous(breaks = (seq(0, 1500, 300)))
+) + scale_x_continuous(breaks = (seq(0, 1500, 300))) + labs(
+  color = "Branching Path", shape = "Branching Path"
+) + theme_minimal(base_size = 12, base_family = "times")
 
 gt.true <- ggarrange(similar.change.de, opposite.change.de, one.change.de, no.change,
-  labels = c("B.", "C.", "D.", "E."), common.legend = T, legend = "bottom"
+  labels = c("A.", "B.", "C.", "D."), common.legend = T, legend = "bottom"
 )
 
-ground.truth <- ggarrange(plt.sim, gt.true, labels = c("A.", ""))
-ground.truth
+gt.true
+
+# Save
+saveRDS(gt.true,
+  file = paste0(imgPath, "MainFigure2A.rds")
+)
 
 ggsave(
-  plot = ground.truth, filename = paste0(
-    "/supp_data/Figures/SuppData/supp_fig_2_Sim_and_Ground_Truth.png"
-  ),
-  dpi = 300, width = 12, height = 5
+  plot = plt.sim, filename = paste0(figPath_hd, "suppFig_3_UMAP_Base.png"),
+  dpi = 600, width = 6, height = 5, bg = "white"
 )
-
-#
+ggsave(
+  plot = plt.sim, filename = paste0(figPath_lr, "suppFig_3_UMAP_Base.png"),
+  dpi = 150, width = 6, height = 5, bg = "white"
+)

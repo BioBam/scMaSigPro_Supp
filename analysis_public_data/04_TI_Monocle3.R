@@ -13,11 +13,19 @@ suppressPackageStartupMessages(library(ggpubr))
 suppressPackageStartupMessages(library(monocle3))
 suppressPackageStartupMessages(library(parallel))
 
-# Detect Root cells
-source("R_Scripts/helper_function/detect_root_nodes().R")
-
 # Prefix
-dirPath <- "/supp_data/Analysis_Public_Data/"
+base_string <- "../scMaSigPro_supp_data/"
+base_string_2 <- ""
+dirPath <- paste0(base_string, "analysis_public_data/")
+tabPath <- paste0(base_string, "tables/")
+helpScriptsDir <- paste0(base_string_2, "R_Scripts/helper_function/")
+figPath <- paste0(base_string, "figures/")
+figPath_hd <- paste0(figPath, "hd/")
+figPath_lr <- paste0(figPath, "lr/")
+
+
+# Detect Root cells
+source(paste0(helpScriptsDir, "detect_root_nodes().R"))
 
 # Get folder names
 rep_vec <- list.dirs(dirPath, full.names = F, recursive = F)
@@ -128,13 +136,13 @@ umaps.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirP
 
   # Save
   file_name <- paste0(outPath, rep_i, "/", paste(rep_i, "cds.RDS", sep = "_"))
-  saveRDS(object = cds, file = file_name)
+  # saveRDS(object = cds, file = file_name)
 
   return(list(
     pseudotime = pseudotime,
     cell_type = cell_type
   ))
-}, mc.cores = detectCores())
+}, mc.cores = 3)
 
 bottom <- ggarrange(umaps.list$rep1$pseudotime,
   umaps.list$rep2$pseudotime,
@@ -152,7 +160,17 @@ top <- ggarrange(umaps.list$rep1$cell_type,
 
 combined_plot <- ggarrange(top, bottom, nrow = 2)
 combined_plot
-ggsave(combined_plot,
-  filename = paste0("/supp_data/Figures/SuppData/05_Real_Data_TI.png"),
-  dpi = 300, height = 8, width = 14
+
+ggsave(
+  plot = combined_plot, filename = "05_Real_Data_TI.png",
+  path = figPath_hd,
+  width = 14, dpi = 600, height = 8,
+  background = "white"
+)
+
+ggsave(
+  plot = combined_plot, filename = "05_Real_Data_TI.png",
+  path = figPath_lr,
+  width = 14, dpi = 150, height = 8,
+  background = "white"
 )

@@ -8,12 +8,19 @@ set.seed(007)
 
 suppressPackageStartupMessages(library(Seurat))
 suppressPackageStartupMessages(library(SeuratDisk))
-# suppressPackageStartupMessages(library(tidyverse))
+suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(ggpubr))
 suppressPackageStartupMessages(library(parallel))
 
 # Prefix
-dirPath <- "/supp_data/Analysis_Public_Data/"
+base_string <- "../scMaSigPro_supp_data/"
+base_string_2 <- ""
+dirPath <- paste0(base_string, "analysis_public_data/")
+tabPath <- paste0(base_string, "tables/")
+helpScriptsDir <- paste0(base_string_2, "R_Scripts/helper_function/")
+figPath <- paste0(base_string, "figures/")
+figPath_hd <- paste0(figPath, "hd/")
+figPath_lr <- paste0(figPath, "lr/")
 
 # Get folder names
 rep_vec <- list.dirs(dirPath, full.names = F, recursive = F)
@@ -22,7 +29,7 @@ names(rep_vec) <- rep_vec
 rep_vec <- rep_vec
 
 # Load data
-azimuth.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPath) {
+azimuth.list <- mclapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirPath) {
   # rep_i <- "rep3"
   # inPath = dirPath
   # Step-1: Add Annotation for donors
@@ -68,7 +75,6 @@ azimuth.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirP
       "pre-pDC", "pre-mDC", "pro B"
     )
   }
-  print(rep_i)
   # # Load seurat object
   sob <- readRDS(file = paste0(inPath, rep_i, "/", rep_i, "_azimuth.RDS"))
   saveRDS(rownames(sob), paste0(outPath, rep_i, "/", rep_i, "background.RDS"))
@@ -119,14 +125,14 @@ azimuth.list <- lapply(rep_vec, function(rep_i, inPath = dirPath, outPath = dirP
   plt.all
 
   file_name <- paste0(outPath, rep_i, "/", rep_i, "subSampled.RDS")
-  saveRDS(sob.sub, file_name)
+  # saveRDS(sob.sub, file_name)
 
   # Return
   return(list(
     plt = plt,
     plt.all = plt.all
   ))
-})
+}, mc.cores = 1)
 names(azimuth.list) <- rep_vec
 
 # Create plot
@@ -152,7 +158,16 @@ combined <- ggarrange(top, bottom,
 )
 combined
 
-ggsave(combined,
-  filename = paste0("/supp_data/Figures/SuppData/05_Real_Data_SubSampling.png"),
-  dpi = 300, height = 12, width = 16
+ggsave(
+  plot = combined, filename = "05_Real_Data_SubSampling.png",
+  path = figPath_hd,
+  width = 16, dpi = 600, height = 12,
+  background = "white"
+)
+
+ggsave(
+  plot = combined, filename = "05_Real_Data_SubSampling.png",
+  path = figPath_lr,
+  width = 16, dpi = 150, height = 12,
+  background = "white"
 )

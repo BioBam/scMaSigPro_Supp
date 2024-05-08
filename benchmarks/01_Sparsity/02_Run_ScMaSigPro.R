@@ -7,21 +7,33 @@ suppressPackageStartupMessages(library(SingleCellExperiment))
 suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(scMaSigPro))
 
-# Set Paths relative to project
-inPath <- "/supp_data/benchmarks/01_Sparsity/simulated/sce/"
-outPath <- "/supp_data/benchmarks/01_Sparsity/output/"
-outPath2 <- "/supp_data/Tables/"
-helpScriptsDir <- "R_Scripts/helper_function/"
+# Set paths
+base_string <- "../scMaSigPro_supp_data/"
+base_string_2 <- ""
+rdsPath <- paste0(base_string, "benchmarks/01_Sparsity/sim/")
+imgPath <- paste0(base_string, "benchmarks/01_Sparsity/img/")
+outPath <- paste0(base_string, "benchmarks/01_Sparsity/out/")
+figPath <- paste0(base_string, "figures/")
+figPath_hd <- paste0(figPath, "hd/")
+figPath_lr <- paste0(figPath, "lr/")
+tabPath <- paste0(base_string, "tables/")
+helpScriptsDir <- paste0(base_string_2, "R_Scripts/helper_function/")
+
+# Create Directory if does not exist
+dir.create(figPath, showWarnings = FALSE, recursive = TRUE)
+dir.create(imgPath, showWarnings = FALSE, recursive = TRUE)
+dir.create(figPath_hd, showWarnings = FALSE, recursive = TRUE)
+dir.create(figPath_lr, showWarnings = FALSE, recursive = TRUE)
+dir.create(tabPath, showWarnings = FALSE, recursive = TRUE)
+dir.create(rdsPath, showWarnings = FALSE, recursive = TRUE)
+dir.create(outPath, showWarnings = FALSE, recursive = TRUE)
 
 # Load helper functions
 source(paste0(helpScriptsDir, "get_performance_ROCR_.R"))
 source(paste0(helpScriptsDir, "calculate_metrics_binary.R"))
 
-# Create Missing Directory
-dir.create(outPath, showWarnings = F, recursive = T)
-
 # Load names of files
-dataSets <- list.files(paste0(inPath))
+dataSets <- list.files(paste0(rdsPath))
 names(dataSets) <- str_remove(
   str_split_i(dataSets, pattern = "_", i = 2),
   ".RData"
@@ -43,7 +55,7 @@ for (i in names(dataSets)) {
   cat(paste("\nRunning for sparsity:", i))
 
   # Load Data
-  load(file = paste0(inPath, dataSets[i]))
+  load(file = paste0(rdsPath, dataSets[i]))
 
   # Evaluate
   tryCatch(
@@ -136,6 +148,6 @@ for (i in names(dataSets)) {
 evaluation.frame <- do.call(rbind, eval.list)
 
 # Write
-write.table(evaluation.frame, paste0(outPath2, "01_ZI_Performance.Table.tsv"),
+write.table(evaluation.frame, paste0(tabPath, "01_ZI_Performance.Table.tsv"),
   sep = "\t", row.names = F, quote = F
 )

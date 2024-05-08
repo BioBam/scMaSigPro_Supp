@@ -10,16 +10,29 @@ suppressPackageStartupMessages(library(tradeSeq))
 suppressPackageStartupMessages(library(gtools))
 
 # Set paths
-inPath <- "/supp_data/ComparisonWithTradeSeq/simulated/sce/"
-resPath <- "/supp_data/ComparisonWithTradeSeq/output/"
-dir.create(resPath, showWarnings = F)
-helpScriptsDir <- "R_Scripts/helper_function/"
+base_string <- "../scMaSigPro_supp_data/"
+base_string_2 <- ""
+rdsPath <- paste0(base_string, "comparison/sim/")
+outPath <- paste0(base_string, "comparison/out/")
+figPath <- paste0(base_string, "figures/")
+figPath_hd <- paste0(figPath, "hd/")
+figPath_lr <- paste0(figPath, "lr/")
+tabPath <- paste0(base_string, "tables/")
+helpScriptsDir <- paste0(base_string_2, "R_Scripts/helper_function/")
+
+# Create Directory if does not exist
+dir.create(figPath, showWarnings = FALSE, recursive = TRUE)
+dir.create(figPath_hd, showWarnings = FALSE, recursive = TRUE)
+dir.create(figPath_lr, showWarnings = FALSE, recursive = TRUE)
+dir.create(tabPath, showWarnings = FALSE, recursive = TRUE)
+dir.create(rdsPath, showWarnings = FALSE, recursive = TRUE)
+dir.create(outPath, showWarnings = FALSE, recursive = TRUE)
 
 # Load custom function
 source(paste0(helpScriptsDir, "calcNormCounts.R"))
 
 # ReadData
-load(paste0(inPath, "testTradeSeq.RData"))
+load(paste0(rdsPath, "testTradeSeq.RData"))
 
 # Extract raw counts
 counts <- as.matrix(sim.sce@assays@data@listData$counts)
@@ -66,49 +79,42 @@ sce.tradeseq <- fitGAM(
 )
 
 # Save Fitted GAM
-save(sce.tradeseq, file = paste0(resPath, "fitGam_TS_Results.RData"))
+save(sce.tradeseq, file = paste0(outPath, "fitGam_TS_Results.RData"))
 
 # Run Different Test
 patternRes <- patternTest(sce.tradeseq)
-# earlyRes <- earlyDETest(sce.tradeseq)
 diffEndRes <- diffEndTest(sce.tradeseq)
 
 # Save All Objects as list
 additionalTest <- list(
   patternRes = patternRes,
-  # earlyRes = earlyRes,
   diffEndRes = diffEndRes
 )
 save(additionalTest,
-  file = paste0(resPath, "TS_AdditionalTest_ZI_60.RData")
+  file = paste0(outPath, "TS_AdditionalTest_ZI_60.RData")
 )
 
 # Extract Data
 patternResCobra <- patternRes[, "pvalue", drop = F]
-# earlyResCobra <- earlyRes[, "pvalue", drop = F]
 diffEndResCobra <- diffEndRes[, "pvalue", drop = F]
 patternResCobra$pvalue <- as.numeric(patternResCobra$pvalue)
-# earlyResCobra$pvalue <- as.numeric(earlyResCobra$pvalue)
 diffEndResCobra$pvalue <- as.numeric(diffEndResCobra$pvalue)
 
 # Set Column Names
 colnames(patternResCobra) <- c("TS_pattern")
-# colnames(earlyResCobra) <- c("TS_early")
 colnames(diffEndResCobra) <- c("TS_diffEnd")
 
 # Order Data
 patternResCobra <- patternResCobra[mixedorder(rownames(patternResCobra)), , drop = F]
-# earlyResCobra <- earlyResCobra[mixedorder(rownames(earlyResCobra)), , drop = F]
 diffEndResCobra <- diffEndResCobra[mixedorder(rownames(diffEndResCobra)), , drop = F]
 
 # Create DF
 TradeSeq_Clean <- cbind(
   patternResCobra,
-  # earlyResCobra,
   diffEndResCobra
 )
 
 # Save Dataframe
 save(TradeSeq_Clean,
-  file = paste0(resPath, "TradeSeq_CobraInput.RData")
+  file = paste0(outPath, "TradeSeq_CobraInput.RData")
 )
