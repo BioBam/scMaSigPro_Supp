@@ -75,7 +75,7 @@ scmp.obj <- sc.t.fit(
   scmpObj = scmp.obj, verbose = T,
   selection_method = "backward",
   parallel = T,
-  nvar_correction = F
+  nvar_correction = T
 )
 
 # Get sol

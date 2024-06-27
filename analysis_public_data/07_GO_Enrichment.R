@@ -117,7 +117,7 @@ scmp_go <- lapply(names(scmp_cluster_trends), function(rep_i) {
     rep = rep_i,
     age = age,
     sex = sex,
-    path = "ProgMk",
+    path = path_name,
     gene_list = gene.list,
     ont = "BP",
     pAdjustMethod = "BH",
@@ -146,7 +146,16 @@ top <- ggarrange(scmp_go$rep1$dot,
   labels = c("A.", "C.", "E.")
 )
 bottom <- ggarrange(scmp_go$rep1$ema,
-  scmp_go$rep2$ema,
+  scmp_go$rep2$ema + scale_x_continuous(
+    name = "X Axis Label",
+    limits = c(-5, 0), # Adjust limits as needed
+    breaks = seq(-5, 0, 0.5) # Adjust breaks as needed
+  ) +
+    scale_y_continuous(
+      name = "Y Axis Label",
+      limits = c(-4, 1), # Adjust limits as needed
+      breaks = seq(-4, 1, 0.5) # Adjust breaks as needed
+    ),
   scmp_go$rep3$ema,
   ncol = 1, nrow = 3,
   labels = c("B.", "D.", "F.")
